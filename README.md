@@ -731,6 +731,13 @@ echo "Cleaning up..."
 rm gcm-linux_amd64.2.6.1.deb
 ```
 
+<a id="readme-practice-notes"></a>
+## 📝 README 实践提示
+
+下面整理一些面向新团队和日常协作的实践建议，便于在初始化、规划、实施与排障时快速对齐使用方式。
+
+<!-- README_PRACTICE_NOTES -->
+
 <a id="support"></a>
 ## 💬 支持 (Support)
 
