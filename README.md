@@ -72,6 +72,13 @@ specify-zh check
 - **`specify-zh`**：这是您真正在终端执行的**命令名**。所有的命令前缀都应为 `specify-zh` 以避免冲突。
 - **`specify`**：这是上游英文原版的默认命令名。如果你只安装了本工具，并且环境中没有安装过冲突工具，你可以为其配置 alias，但在本项目文档和教程中，我们将始终称之为 `specify-zh`。
 
+### 📌 安装方式速览
+
+| 场景 | 推荐命令 |
+| ---- | ---- |
+| 长期使用、希望全局可调用 | `uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git` |
+| 临时试用、不想安装到本机 | `uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh` |
+
 ---
 
 ### 1. 安装 `specify-cli-zh`
