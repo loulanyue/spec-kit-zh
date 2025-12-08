@@ -155,6 +155,8 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 > | pip/uv 安装时使用 | `specify-cli-zh` |
 > | 终端运行时使用 | `specify-zh` |
 
+如果你是在已有仓库中接入 Spec Kit，建议优先使用 `specify-zh init .` 或 `specify-zh init --here`，这样可以直接在当前目录完成初始化。
+
 ### 3. 建立项目原则
 
 在项目目录中启动你的 AI 助手。初始化完成后，助手中就会提供 `/speckit.*` 命令。
