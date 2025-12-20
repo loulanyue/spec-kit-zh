@@ -353,6 +353,9 @@ specify-zh init my-project --ai claude --ai-skills
 # Initialize in current directory with agent skills
 specify-zh init --here --ai gemini --ai-skills
 
+# Generic 模式下接入已有命令目录并安装 skills
+specify-zh init my-project --ai generic --ai-commands-dir .myagent/commands/ --ai-skills
+
 # Check system requirements
 specify-zh check
 ```
