@@ -1218,7 +1218,7 @@ class ExtensionCatalog:
             return catalog_data
 
         except urllib.error.URLError as e:
-            raise ExtensionError(f"获取扩展目录失败，来源：{entry.url}：{e}")
+            raise ExtensionError(f"获取扩展目录失败，来源：{entry.url}：{e}\n[提示] 如因连接 GitHub 等境外服务器超时，请尝试配置网络代理：export HTTPS_PROXY=http://127.0.0.1:7890")
         except json.JSONDecodeError as e:
             raise ExtensionError(f"扩展目录 JSON 格式无效，来源：{entry.url}：{e}")
 
@@ -1339,7 +1339,7 @@ class ExtensionCatalog:
             return catalog_data
 
         except urllib.error.URLError as e:
-            raise ExtensionError(f"获取目录失败：{catalog_url}：{e}")
+            raise ExtensionError(f"获取目录失败：{catalog_url}：{e}\n[提示] 如因连接 GitHub 等境外服务器超时，请尝试配置网络代理：export HTTPS_PROXY=http://127.0.0.1:7890")
         except json.JSONDecodeError as e:
             raise ExtensionError(f"目录 JSON 格式无效：{e}")
 
@@ -1468,7 +1468,7 @@ class ExtensionCatalog:
             return zip_path
 
         except urllib.error.URLError as e:
-            raise ExtensionError(f"从 {download_url} 下载扩展失败：{e}")
+            raise ExtensionError(f"从 {download_url} 下载扩展失败：{e}\n[提示] 若由于国内网络环境导致下载超时，请设置终端代理：export HTTPS_PROXY=http://127.0.0.1:7890")
         except IOError as e:
             raise ExtensionError(f"保存扩展压缩包失败：{e}")
 
