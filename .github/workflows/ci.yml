@@ -1,0 +1,88 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.4.x"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Lint Tools
+        run: uv pip install --system ruff
+      - name: Ruff Check
+        run: ruff check src/
+      - name: Ruff Format Check
+        run: ruff format --check src/
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: uv pip install --system -e . && uv pip install --system pytest pytest-mock
+      - name: Run Pytest
+        run: pytest tests/ -v --tb=short
+
+  smoke:
+    name: Smoke Tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CLI
+        run: uv tool install --editable .
+      - name: Run Smoke Tests
+        run: uv run python -m pytest tests/test_smoke.py -v
+
+  brand-guard:
+    name: Brand Identity Guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check README against raw commands
+        run: |
+          if grep -q "pip install specify-cli[^[-]" README.md; then
+            echo "Error: Found obsolete 'specify-cli' pip install string."
+            exit 1
+          fi
+          if grep -q "uv tool install specify-cli[^[-]" README.md; then
+            echo "Error: Found obsolete 'specify-cli' uv tool install string."
+            exit 1
+          fi
+      - name: Assert pyproject.toml scripts
+        run: |
+          if ! grep -q 'specify-zh =' pyproject.toml; then
+            echo "Error: pyproject.toml is missing the 'specify-zh' script entry."
+            exit 1
+          fi
+      - name: Assert CHANGELOG
+        run: |
+          if [ ! -s CHANGELOG.md ]; then
+            echo "Error: CHANGELOG.md is empty."
+            exit 1
+          fi
