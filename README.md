@@ -236,6 +236,10 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 | [Antigravity (agy)](https://antigravity.google/)                                     | ✅      |                                                                                                                                           |
 | Generic                                                                              | ✅      | 自定义代理接入方式。对未内置支持的代理，可通过 `--ai generic --ai-commands-dir <path>` 注入命令模板                                       |
 
+> [!TIP]
+> 国内主流 AI 编码工具（通义灵码、DeepSeek Coder、百度 Comate、MarsCode 等）均可通过 `--ai generic` 模式接入。
+> 详见 [国内大模型接入指南](./docs/domestic-llm.md)。
+
 <a id="specify-zh-cli-reference"></a>
 ## 🔧 specify-zh 命令参考
 
