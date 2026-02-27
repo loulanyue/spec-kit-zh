@@ -16,18 +16,18 @@ $ARGUMENTS
 
 ## 概述
 
-1. Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
-1. From the executed script, extract the path to **tasks**.
-1. Get the Git remote by running:
+1. 在仓库根目录运行 `{SCRIPT}`，解析 FEATURE_DIR 和 AVAILABLE_DOCS 列表。所有路径必须使用绝对路径。对于包含单引号的参数（如 "I'm Groot"），使用转义语法：`'I'\''m Groot'`（或尽可能使用双引号）。
+1. 从执行脚本的输出中提取 **tasks** 文件路径。
+1. 通过以下命令获取 Git 远端地址：
 
 ```bash
 git config --get remote.origin.url
 ```
 
 > [!CAUTION]
-> ONLY PROCEED TO NEXT STEPS IF THE REMOTE IS A GITHUB URL
+> 仅当远端地址为 GitHub URL 时，才继续执行后续步骤。
 
-1. For each task in the list, use the GitHub MCP server to create a new issue in the repository that is representative of the Git remote.
+1. 对 tasks 列表中的每个任务，使用 GitHub MCP Server 在与 Git 远端对应的仓库中创建一个新 Issue，Issue 内容应准确反映该任务。
 
 > [!CAUTION]
-> UNDER NO CIRCUMSTANCES EVER CREATE ISSUES IN REPOSITORIES THAT DO NOT MATCH THE REMOTE URL
+> 在任何情况下，都绝对不允许在与远端 URL 不匹配的仓库中创建 Issue。
