@@ -13,6 +13,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.3.0] - 2026-03-20
+
+### Added
+
+- Added `specify-zh` as an additional CLI entry point for the `specify-cli-zh` distribution while preserving the existing `specify` command for backward compatibility.
+
+### Changed
+
+- Bumped the release to a `MINOR` version because this introduces a new public command entry point without breaking existing workflows.
+
+## [0.2.3] - 2026-03-20
+
+### Changed
+
+- Renamed the package distribution from `specify-cli` to `specify-cli-zh` in `pyproject.toml` so the published tool identity matches the `spec-kit-zh` project.
+- Updated runtime version lookup to prefer `specify-cli-zh` while remaining backward-compatible with existing `specify-cli` installations.
+
 ## [0.2.2] - 2026-03-20
 
 ### Added

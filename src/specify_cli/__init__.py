@@ -13,13 +13,14 @@
 Specify CLI - 规范驱动开发项目设置工具
 
 Usage:
-    uvx specify-cli.py init <project-name>
-    uvx specify-cli.py init .
-    uvx specify-cli.py init --here
+    uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <project-name>
+    uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init .
+    uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init --here
 
 Or install globally:
-    uv tool install --from specify-cli.py specify-cli
+    uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git
     specify init <project-name>
+    specify-zh init <project-name>
     specify init .
     specify init --here
 """
@@ -534,6 +535,28 @@ def show_banner():
     console.print(Align.center(styled_banner))
     console.print(Align.center(Text(TAGLINE, style="italic bright_yellow")))
     console.print()
+
+
+def _get_cli_distribution_version() -> str:
+    """Resolve installed CLI version, preferring the zh distribution name."""
+    import importlib.metadata
+
+    for package_name in ("specify-cli-zh", "specify-cli"):
+        try:
+            return importlib.metadata.version(package_name)
+        except Exception:
+            continue
+
+    try:
+        pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+        if pyproject_path.exists():
+            with open(pyproject_path, "rb") as f:
+                data = tomllib.load(f)
+                return data.get("project", {}).get("version", "unknown")
+    except Exception:
+        pass
+
+    return "unknown"
 
 @app.callback()
 def callback(ctx: typer.Context):
@@ -1938,25 +1961,11 @@ def doctor():
 def version():
     """显示版本与系统信息。"""
     import platform
-    import importlib.metadata
     
     show_banner()
     
     # Get CLI version from package metadata
-    cli_version = "unknown"
-    try:
-        cli_version = importlib.metadata.version("specify-cli")
-    except Exception:
-        # Fallback: try reading from pyproject.toml if running from source
-        try:
-            import tomllib
-            pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
-            if pyproject_path.exists():
-                with open(pyproject_path, "rb") as f:
-                    data = tomllib.load(f)
-                    cli_version = data.get("project", {}).get("version", "unknown")
-        except Exception:
-            pass
+    cli_version = _get_cli_distribution_version()
     
     # Fetch latest template release version
     repo_owner = "github"
@@ -2033,23 +2042,7 @@ extension_app.add_typer(catalog_app, name="catalog")
 
 def get_speckit_version() -> str:
     """Get current spec-kit version."""
-    import importlib.metadata
-    try:
-        return importlib.metadata.version("specify-cli")
-    except Exception:
-        # Fallback: try reading from pyproject.toml
-        try:
-            import tomllib
-            pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
-            if pyproject_path.exists():
-                with open(pyproject_path, "rb") as f:
-                    data = tomllib.load(f)
-                    return data.get("project", {}).get("version", "unknown")
-        except Exception:
-            # Intentionally ignore any errors while reading/parsing pyproject.toml.
-            # If this lookup fails for any reason, we fall back to returning "unknown" below.
-            pass
-    return "unknown"
+    return _get_cli_distribution_version()
 
 
 @extension_app.command("list")

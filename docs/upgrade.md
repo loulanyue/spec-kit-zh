@@ -8,7 +8,7 @@
 
 | 升级对象 | 命令 | 适用场景 |
 |----------|------|----------|
-| **仅 CLI 工具** | `uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git` | 想获得最新 CLI 功能，但不修改项目文件 |
+| **仅 CLI 工具** | `uv tool install specify-cli-zh --force --from git+https://github.com/loulanyue/spec-kit-zh.git` | 想获得最新 CLI 功能，但不修改项目文件 |
 | **项目文件** | `specify init --here --force --ai <your-agent>` | 更新项目中的 slash commands、模板和脚本 |
 | **两者都升** | 先升级 CLI，再更新项目 | 推荐用于大版本升级 |
 
@@ -17,11 +17,12 @@
 ## 第一部分：升级 CLI 工具
 
 CLI 工具（`specify`）与项目文件是分开的。升级 CLI 可以获得最新功能和 Bug 修复。
+当前分发包同时提供 `specify` 和 `specify-zh` 两个命令入口，二者行为等价。
 
 ### 如果你是通过 `uv tool install` 安装的
 
 ```bash
-uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git
+uv tool install specify-cli-zh --force --from git+https://github.com/loulanyue/spec-kit-zh.git
 ```
 
 ### 如果你使用的是一次性的 `uvx` 命令
@@ -165,7 +166,7 @@ Restart your IDE to refresh the command list.
 
 ```bash
 # Upgrade CLI (if using persistent install)
-uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git
+uv tool install specify-cli-zh --force --from git+https://github.com/loulanyue/spec-kit-zh.git
 
 # Update project files to get new commands
 specify init --here --force --ai copilot
@@ -182,7 +183,7 @@ cp .specify/memory/constitution.md /tmp/constitution-backup.md
 cp -r .specify/templates /tmp/templates-backup
 
 # 2. Upgrade CLI
-uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git
+uv tool install specify-cli-zh --force --from git+https://github.com/loulanyue/spec-kit-zh.git
 
 # 3. Update project
 specify init --here --force --ai copilot
@@ -371,7 +372,7 @@ Verify the installation:
 # Check installed tools
 uv tool list
 
-# Should show specify-cli
+# Should show specify-cli-zh
 
 # Verify path
 which specify
@@ -382,8 +383,8 @@ which specify
 If not found, reinstall:
 
 ```bash
-uv tool uninstall specify-cli
-uv tool install specify-cli --from git+https://github.com/loulanyue/spec-kit-zh.git
+uv tool uninstall specify-cli-zh
+uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git
 ```
 
 ### "Do I need to run specify every time I open my project?"

@@ -51,7 +51,7 @@
 安装一次，全局可用：
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/loulanyue/spec-kit-zh.git
+uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git
 ```
 
 安装完成后即可直接使用：
@@ -59,6 +59,8 @@ uv tool install specify-cli --from git+https://github.com/loulanyue/spec-kit-zh.
 ```bash
 # 创建新项目
 specify init <PROJECT_NAME>
+# 或使用 zh 别名
+specify-zh init <PROJECT_NAME>
 
 # 或在现有项目中初始化
 specify init . --ai claude
@@ -69,10 +71,12 @@ specify init --here --ai claude
 specify check
 ```
 
+`specify` 是默认命令名，`specify-zh` 是等价别名，二者都可用。
+
 升级 Specify 请参阅 [升级指南](./docs/upgrade.md)。快速升级命令如下：
 
 ```bash
-uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git
+uv tool install specify-cli-zh --force --from git+https://github.com/loulanyue/spec-kit-zh.git
 ```
 
 #### 方式 2：一次性使用

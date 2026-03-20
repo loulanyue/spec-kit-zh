@@ -307,7 +307,8 @@ class ExtensionManager:
                 raise CompatibilityError(
                     f"扩展要求 spec-kit 版本 {required}，"
                     f"但当前安装的是 {speckit_version}。\n"
-                    f"可使用以下命令升级 spec-kit：uv tool install specify-cli --force"
+                    f"可使用以下命令升级 spec-kit："
+                    f"uv tool install specify-cli-zh --force --from git+https://github.com/loulanyue/spec-kit-zh.git"
                 )
         except InvalidSpecifier:
             raise CompatibilityError(f"无效的版本约束：{required}")

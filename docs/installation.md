@@ -26,6 +26,8 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init .
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init --here
 ```
 
+如果你通过 `uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git` 持久化安装，则既可以使用 `specify`，也可以使用 `specify-zh`。
+
 ### 指定 AI Agent
 
 你可以在初始化时主动指定要使用的 AI Agent：
