@@ -1,19 +1,19 @@
-# Home page
-- name: Home
+# 首页
+- name: 首页
   href: index.md
 
-# Getting started section
-- name: Getting Started
+# 入门部分
+- name: 开始使用
   items:
-    - name: Installation
+    - name: 安装指南
       href: installation.md
-    - name: Quick Start
+    - name: 快速开始
       href: quickstart.md
-    - name: Upgrade
+    - name: 升级指南
       href: upgrade.md
 
-# Development workflows
-- name: Development
+# 开发工作流
+- name: 开发
   items:
-    - name: Local Development
+    - name: 本地开发
       href: local-development.md

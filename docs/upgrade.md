@@ -1,44 +1,44 @@
-# Upgrade Guide
+# 升级指南
 
-> You have Spec Kit installed and want to upgrade to the latest version to get new features, bug fixes, or updated slash commands. This guide covers both upgrading the CLI tool and updating your project files.
-
----
-
-## Quick Reference
-
-| What to Upgrade | Command | When to Use |
-|----------------|---------|-------------|
-| **CLI Tool Only** | `uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git` | Get latest CLI features without touching project files |
-| **Project Files** | `specify init --here --force --ai <your-agent>` | Update slash commands, templates, and scripts in your project |
-| **Both** | Run CLI upgrade, then project update | Recommended for major version updates |
+> 如果你已经安装了 Spec Kit，并希望升级到最新版本以获取新功能、Bug 修复或更新后的 slash commands，本指南会同时覆盖 CLI 工具升级和项目文件升级。
 
 ---
 
-## Part 1: Upgrade the CLI Tool
+## 快速参考
 
-The CLI tool (`specify`) is separate from your project files. Upgrade it to get the latest features and bug fixes.
+| 升级对象 | 命令 | 适用场景 |
+|----------|------|----------|
+| **仅 CLI 工具** | `uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git` | 想获得最新 CLI 功能，但不修改项目文件 |
+| **项目文件** | `specify init --here --force --ai <your-agent>` | 更新项目中的 slash commands、模板和脚本 |
+| **两者都升** | 先升级 CLI，再更新项目 | 推荐用于大版本升级 |
 
-### If you installed with `uv tool install`
+---
+
+## 第一部分：升级 CLI 工具
+
+CLI 工具（`specify`）与项目文件是分开的。升级 CLI 可以获得最新功能和 Bug 修复。
+
+### 如果你是通过 `uv tool install` 安装的
 
 ```bash
 uv tool install specify-cli --force --from git+https://github.com/loulanyue/spec-kit-zh.git
 ```
 
-### If you use one-shot `uvx` commands
+### 如果你使用的是一次性的 `uvx` 命令
 
-No upgrade needed—`uvx` always fetches the latest version. Just run your commands as normal:
+则无需手动升级，因为 `uvx` 每次都会获取最新版本。你只需要照常运行命令：
 
 ```bash
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init --here --ai copilot
 ```
 
-### Verify the upgrade
+### 验证升级结果
 
 ```bash
 specify check
 ```
 
-This shows installed tools and confirms the CLI is working.
+这会展示已安装工具，并确认 CLI 是否可正常工作。
 
 ---
 

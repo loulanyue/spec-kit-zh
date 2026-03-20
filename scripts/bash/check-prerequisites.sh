@@ -68,7 +68,7 @@ EOF
             exit 0
             ;;
         *)
-            echo "ERROR: Unknown option '$arg'. Use --help for usage information." >&2
+            echo "错误：未知选项 '$arg'。请使用 --help 查看用法。" >&2
             exit 1
             ;;
     esac
@@ -101,21 +101,21 @@ fi
 
 # Validate required directories and files
 if [[ ! -d "$FEATURE_DIR" ]]; then
-    echo "ERROR: Feature directory not found: $FEATURE_DIR" >&2
-    echo "Run /speckit.specify first to create the feature structure." >&2
+    echo "错误：未找到功能目录：$FEATURE_DIR" >&2
+    echo "请先运行 /speckit.specify 创建功能目录结构。" >&2
     exit 1
 fi
 
 if [[ ! -f "$IMPL_PLAN" ]]; then
-    echo "ERROR: plan.md not found in $FEATURE_DIR" >&2
-    echo "Run /speckit.plan first to create the implementation plan." >&2
+    echo "错误：在 $FEATURE_DIR 中未找到 plan.md" >&2
+    echo "请先运行 /speckit.plan 创建设计实施计划。" >&2
     exit 1
 fi
 
 # Check for tasks.md if required
 if $REQUIRE_TASKS && [[ ! -f "$TASKS" ]]; then
-    echo "ERROR: tasks.md not found in $FEATURE_DIR" >&2
-    echo "Run /speckit.tasks first to create the task list." >&2
+    echo "错误：在 $FEATURE_DIR 中未找到 tasks.md" >&2
+    echo "请先运行 /speckit.tasks 创建任务清单。" >&2
     exit 1
 fi
 

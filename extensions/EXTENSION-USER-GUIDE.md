@@ -1,176 +1,176 @@
-# Extension User Guide
+# 扩展用户指南
 
-Complete guide for using Spec Kit extensions to enhance your workflow.
+本指南介绍如何使用 Spec Kit 扩展增强你的工作流。
 
-## Table of Contents
+## 目录
 
-1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-3. [Finding Extensions](#finding-extensions)
-4. [Installing Extensions](#installing-extensions)
-5. [Using Extensions](#using-extensions)
-6. [Managing Extensions](#managing-extensions)
-7. [Configuration](#configuration)
-8. [Troubleshooting](#troubleshooting)
-9. [Best Practices](#best-practices)
-
----
-
-## Introduction
-
-### What are Extensions?
-
-Extensions are modular packages that add new commands and functionality to Spec Kit without bloating the core framework. They allow you to:
-
-- **Integrate** with external tools (Jira, Linear, GitHub, etc.)
-- **Automate** repetitive tasks with hooks
-- **Customize** workflows for your team
-- **Share** solutions across projects
-
-### Why Use Extensions?
-
-- **Clean Core**: Keeps spec-kit lightweight and focused
-- **Optional Features**: Only install what you need
-- **Community Driven**: Anyone can create and share extensions
-- **Version Controlled**: Extensions are versioned independently
+1. [简介](#简介)
+2. [快速开始](#快速开始)
+3. [发现扩展](#发现扩展)
+4. [安装扩展](#安装扩展)
+5. [使用扩展](#使用扩展)
+6. [管理扩展](#管理扩展)
+7. [配置](#配置)
+8. [故障排除](#故障排除)
+9. [最佳实践](#最佳实践)
 
 ---
 
-## Getting Started
+## 简介
 
-### Prerequisites
+### 什么是扩展？
+
+扩展是模块化软件包，用于在不膨胀 Spec Kit 核心框架的前提下添加新命令和新能力。它们可以让你：
+
+- **集成** 外部工具（Jira、Linear、GitHub 等）
+- **自动化** 重复性任务（通过 hooks）
+- **定制** 团队工作流
+- **复用与共享** 跨项目方案
+
+### 为什么使用扩展？
+
+- **核心更干净**：让 spec-kit 保持轻量、聚焦
+- **能力可选**：只安装你真正需要的功能
+- **社区驱动**：任何人都可以创建并分享扩展
+- **独立版本化**：扩展有自己的版本演进节奏
+
+---
+
+## 快速开始
+
+### 前置条件
 
 - Spec Kit version 0.1.0 or higher
 - A spec-kit project (directory with `.specify/` folder)
 
-### Check Your Version
+### 检查版本
 
 ```bash
 specify version
-# Should show 0.1.0 or higher
+# 应显示 0.1.0 或更高版本
 ```
 
-### First Extension
+### 第一个扩展
 
-Let's install the Jira extension as an example:
+下面以安装 Jira 扩展为例：
 
 ```bash
-# 1. Search for the extension
+# 1. 搜索扩展
 specify extension search jira
 
-# 2. Get detailed information
+# 2. 查看详细信息
 specify extension info jira
 
-# 3. Install it
+# 3. 安装扩展
 specify extension add jira
 
-# 4. Configure it
+# 4. 配置扩展
 vim .specify/extensions/jira/jira-config.yml
 
-# 5. Use it
-# (Commands are now available in Claude Code)
+# 5. 使用扩展
+# （命令现在会出现在 Claude Code 中）
 /speckit.jira.specstoissues
 ```
 
 ---
 
-## Finding Extensions
+## 发现扩展
 
-`specify extension search` searches **all active catalogs** simultaneously, including the community catalog by default. Results are annotated with their source catalog and install status.
+`specify extension search` 会同时搜索**所有启用中的目录**，默认包括社区目录。结果会标出来源目录和安装状态。
 
-### Browse All Extensions
+### 浏览全部扩展
 
 ```bash
 specify extension search
 ```
 
-Shows all extensions across all active catalogs (default and community by default).
+会显示所有启用目录中的扩展（默认包含默认目录和社区目录）。
 
-### Search by Keyword
+### 按关键词搜索
 
 ```bash
-# Search for "jira"
+# 搜索 “jira”
 specify extension search jira
 
-# Search for "issue tracking"
+# 搜索 “issue tracking”
 specify extension search issue
 ```
 
-### Filter by Tag
+### 按标签筛选
 
 ```bash
-# Find all issue-tracking extensions
+# 查找所有 issue-tracking 扩展
 specify extension search --tag issue-tracking
 
-# Find all Atlassian tools
+# 查找所有 Atlassian 工具扩展
 specify extension search --tag atlassian
 ```
 
-### Filter by Author
+### 按作者筛选
 
 ```bash
-# Extensions by Stats Perform
+# 查找 Stats Perform 发布的扩展
 specify extension search --author "Stats Perform"
 ```
 
-### Show Verified Only
+### 仅显示已验证扩展
 
 ```bash
-# Only show verified extensions
+# 仅显示已验证扩展
 specify extension search --verified
 ```
 
-### Get Extension Details
+### 查看扩展详情
 
 ```bash
 # Detailed information
 specify extension info jira
 ```
 
-Shows:
+可查看：
 
-- Description
-- Requirements
-- Commands provided
-- Hooks available
-- Links (documentation, repository, changelog)
-- Installation status
+- 描述
+- 依赖要求
+- 提供的命令
+- 可用 hooks
+- 链接（文档、仓库、更新日志）
+- 安装状态
 
 ---
 
-## Installing Extensions
+## 安装扩展
 
-### Install from Catalog
+### 从目录安装
 
 ```bash
-# By name (from catalog)
+# 按名称安装（来自目录）
 specify extension add jira
 ```
 
-This will:
+该命令会：
 
-1. Download the extension from GitHub
-2. Validate the manifest
-3. Check compatibility with your spec-kit version
-4. Install to `.specify/extensions/jira/`
-5. Register commands with your AI agent
-6. Create config template
+1. 从 GitHub 下载扩展
+2. 校验 manifest
+3. 检查与当前 spec-kit 版本的兼容性
+4. 安装到 `.specify/extensions/jira/`
+5. 向你的 AI agent 注册命令
+6. 创建配置模板
 
-### Install from URL
+### 从 URL 安装
 
 ```bash
-# From GitHub release
+# 从 GitHub Release 安装
 specify extension add --from https://github.com/org/spec-kit-ext/archive/refs/tags/v1.0.0.zip
 ```
 
-### Install from Local Directory (Development)
+### 从本地目录安装（开发场景）
 
 ```bash
-# For testing or development
+# 用于测试或本地开发
 specify extension add --dev /path/to/extension
 ```
 
-### Installation Output
+### 安装输出示例
 
 ```text
 ✓ Extension installed successfully!
@@ -189,33 +189,33 @@ Provided commands:
 
 ---
 
-## Using Extensions
+## 使用扩展
 
-### Using Extension Commands
+### 使用扩展命令
 
-Extensions add commands that appear in your AI agent (Claude Code):
+扩展会向你的 AI agent（例如 Claude Code）添加命令：
 
 ```text
-# In Claude Code
+# 在 Claude Code 中
 > /speckit.jira.specstoissues
 
-# Or use short alias (if provided)
+# 或使用短别名（如果提供了）
 > /speckit.specstoissues
 ```
 
-### Extension Configuration
+### 扩展配置
 
-Most extensions require configuration:
+多数扩展都需要配置：
 
 ```bash
-# 1. Find the config file
+# 1. 找到配置文件
 ls .specify/extensions/jira/
 
-# 2. Copy template to config
+# 2. 从模板复制配置文件
 cp .specify/extensions/jira/jira-config.template.yml \
    .specify/extensions/jira/jira-config.yml
 
-# 3. Edit configuration
+# 3. 编辑配置
 vim .specify/extensions/jira/jira-config.yml
 
 # 4. Use the extension

@@ -1,35 +1,35 @@
 ---
-description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
+description: 基于可用设计制品为当前功能生成可执行、按依赖排序的 tasks.md。
 handoffs: 
-  - label: Analyze For Consistency
+  - label: 一致性分析
     agent: speckit.analyze
-    prompt: Run a project analysis for consistency
+    prompt: 对项目执行一致性分析
     send: true
-  - label: Implement Project
+  - label: 执行项目实现
     agent: speckit.implement
-    prompt: Start the implementation in phases
+    prompt: 按阶段开始实施
     send: true
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json
   ps: scripts/powershell/check-prerequisites.ps1 -Json
 ---
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- All generated user-facing output, including `tasks.md`, phase descriptions, validation summaries, hook guidance, and final reports, MUST be written in Simplified Chinese.
-- Keep task IDs, story labels, file paths, commands, and other machine-readable tokens unchanged where needed.
+- 所有面向用户的生成内容，包括 `tasks.md`、阶段说明、验证摘要、hook 指引和最终报告，都必须使用简体中文。
+- 任务 ID、故事标签、文件路径、命令和其他机器可读标识在需要时保持不变。
 
-## Pre-Execution Checks
+## 执行前检查
 
-**Check for extension hooks (before tasks generation)**:
+**检查扩展 hooks（生成任务前）**：
 - Check if `.specify/extensions.yml` exists in the project root.
 - If it exists, read it and look for entries under the `hooks.before_tasks` key
 - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
@@ -61,9 +61,9 @@ You **MUST** consider the user input before proceeding (if not empty).
     ```
 - If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
-## Outline
+## 概述
 
-1. **Setup**: Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. **准备**：在仓库根目录执行 `{SCRIPT}`，并解析 FEATURE_DIR 与 AVAILABLE_DOCS 列表。所有路径都必须是绝对路径。若参数中包含单引号（例如 "I'm Groot"），请使用转义写法，例如 `'I'\''m Groot'`，或尽量改用双引号。
 
 2. **Load design documents**: Read from FEATURE_DIR:
    - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
@@ -102,7 +102,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Suggested MVP scope (typically just User Story 1)
    - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
 
-6. **Check for extension hooks**: After tasks.md is generated, check if `.specify/extensions.yml` exists in the project root.
+6. **检查扩展 hooks**：在生成 `tasks.md` 后，检查项目根目录是否存在 `.specify/extensions.yml`。
    - If it exists, read it and look for entries under the `hooks.after_tasks` key
    - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
    - Filter to only hooks where `enabled: true`
@@ -131,9 +131,9 @@ You **MUST** consider the user input before proceeding (if not empty).
        ```
    - If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
-Context for task generation: {ARGS}
+任务生成上下文：{ARGS}
 
-The tasks.md should be immediately executable - each task must be specific enough that an LLM can complete it without additional context.
+生成后的 `tasks.md` 应当可直接执行。每个任务都必须足够具体，使 LLM 无需额外上下文即可完成。
 
 ## Task Generation Rules
 

@@ -1,7 +1,7 @@
 [project]
 name = "specify-cli"
-version = "0.2.0"
-description = "Specify CLI, part of GitHub Spec Kit. A tool to bootstrap your projects for Spec-Driven Development (SDD)."
+version = "0.2.2"
+description = "Specify CLI，GitHub Spec Kit 的命令行工具，用于为 Spec-Driven Development (SDD) 初始化项目。"
 requires-python = ">=3.11"
 dependencies = [
     "typer",
@@ -50,4 +50,3 @@ omit = ["*/tests/*", "*/__pycache__/*"]
 precision = 2
 show_missing = true
 skip_covered = false
-

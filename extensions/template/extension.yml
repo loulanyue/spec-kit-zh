@@ -1,97 +1,97 @@
 schema_version: "1.0"
 
 extension:
-  # CUSTOMIZE: Change 'my-extension' to your extension ID (lowercase, hyphen-separated)
+  # CUSTOMIZE: 将 'my-extension' 改成你的扩展 ID（小写、连字符分隔）
   id: "my-extension"
 
-  # CUSTOMIZE: Human-readable name for your extension
+  # CUSTOMIZE: 扩展的人类可读名称
   name: "My Extension"
 
-  # CUSTOMIZE: Update version when releasing (semantic versioning: X.Y.Z)
+  # CUSTOMIZE: 发布时更新版本号（语义化版本：X.Y.Z）
   version: "1.0.0"
 
-  # CUSTOMIZE: Brief description (under 200 characters)
+  # CUSTOMIZE: 简短描述（建议少于 200 字符）
   description: "Brief description of what your extension does"
 
-  # CUSTOMIZE: Your name or organization name
+  # CUSTOMIZE: 你的姓名或组织名称
   author: "Your Name"
 
-  # CUSTOMIZE: GitHub repository URL (create before publishing)
+  # CUSTOMIZE: GitHub 仓库 URL（发布前请先创建仓库）
   repository: "https://github.com/your-org/spec-kit-my-extension"
 
-  # REVIEW: License (MIT is recommended for open source)
+  # REVIEW: 许可证（开源项目通常推荐 MIT）
   license: "MIT"
 
-  # CUSTOMIZE: Extension homepage (can be same as repository)
+  # CUSTOMIZE: 扩展主页（可与 repository 相同）
   homepage: "https://github.com/your-org/spec-kit-my-extension"
 
-# Requirements for this extension
+# 扩展的依赖要求
 requires:
-  # CUSTOMIZE: Minimum spec-kit version required
-  # Use >=X.Y.Z for minimum version
-  # Use >=X.Y.Z,<Y.0.0 for version range
+  # CUSTOMIZE: 所需的最低 spec-kit 版本
+  # 最低版本写法：>=X.Y.Z
+  # 范围写法：>=X.Y.Z,<Y.0.0
   speckit_version: ">=0.1.0"
 
-  # CUSTOMIZE: Add MCP tools or other dependencies
-  # Remove if no external tools required
+  # CUSTOMIZE: 添加 MCP 工具或其他外部依赖
+  # 如果不需要外部工具，可删除该段
   tools:
     - name: "example-mcp-server"
       version: ">=1.0.0"
       required: true
 
-# Commands provided by this extension
+# 扩展提供的命令
 provides:
   commands:
-    # CUSTOMIZE: Define your commands
-    # Pattern: speckit.{extension-id}.{command-name}
+    # CUSTOMIZE: 在这里定义命令
+    # 模式：speckit.{extension-id}.{command-name}
     - name: "speckit.my-extension.example"
       file: "commands/example.md"
       description: "Example command that demonstrates functionality"
-      # Optional: Add aliases for shorter command names
+      # 可选：添加更短的命令别名
       aliases: ["speckit.example"]
 
-    # ADD MORE COMMANDS: Copy this block for each command
+    # ADD MORE COMMANDS: 为每个命令复制一份该配置块
     # - name: "speckit.my-extension.another-command"
     #   file: "commands/another-command.md"
     #   description: "Another command"
 
-  # CUSTOMIZE: Define configuration files
+  # CUSTOMIZE: 定义配置文件
   config:
     - name: "my-extension-config.yml"
       template: "config-template.yml"
       description: "Extension configuration"
-      required: true # Set to false if config is optional
+      required: true # 如果配置是可选的，可设为 false
 
-# CUSTOMIZE: Define hooks (optional)
-# Remove if no hooks needed
+# CUSTOMIZE: 定义 hooks（可选）
+# 如果不需要 hooks，可删除整段
 hooks:
-  # Hook that runs after /speckit.tasks
+  # 在 /speckit.tasks 之后运行的 hook
   after_tasks:
     command: "speckit.my-extension.example"
-    optional: true # User will be prompted
+    optional: true # 会先提示用户确认
     prompt: "Run example command?"
-    description: "Demonstrates hook functionality"
-    condition: null # Future: conditional execution
+    description: "示例 hook 功能"
+    condition: null # 未来可支持条件执行
 
-  # ADD MORE HOOKS: Copy this block for other events
+  # ADD MORE HOOKS: 为其他事件复制该配置块
   # after_implement:
   #   command: "speckit.my-extension.another"
   #   optional: false  # Auto-execute without prompting
   #   description: "Runs automatically after implementation"
 
-# CUSTOMIZE: Add relevant tags (2-5 recommended)
-# Used for discovery in catalog
+# CUSTOMIZE: 添加相关标签（建议 2-5 个）
+# 用于目录发现
 tags:
   - "example"
   - "template"
-  # ADD MORE: "category", "tool-name", etc.
+  # ADD MORE: "category"、"tool-name" 等
 
-# CUSTOMIZE: Default configuration values (optional)
-# These are merged with user config
+# CUSTOMIZE: 默认配置值（可选）
+# 这些值会与用户配置合并
 defaults:
-  # Example default values
+  # 默认值示例
   feature:
     enabled: true
     auto_sync: false
 
-  # ADD MORE: Any default settings for your extension
+  # ADD MORE: 在这里添加你的扩展默认设置

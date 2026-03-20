@@ -12,9 +12,9 @@ for arg in "$@"; do
             JSON_MODE=true 
             ;;
         --help|-h) 
-            echo "Usage: $0 [--json]"
-            echo "  --json    Output results in JSON format"
-            echo "  --help    Show this help message"
+            echo "用法：$0 [--json]"
+            echo "  --json    以 JSON 格式输出结果"
+            echo "  --help    显示帮助信息"
             exit 0 
             ;;
         *) 
@@ -40,9 +40,9 @@ mkdir -p "$FEATURE_DIR"
 TEMPLATE="$REPO_ROOT/.specify/templates/plan-template.md"
 if [[ -f "$TEMPLATE" ]]; then
     cp "$TEMPLATE" "$IMPL_PLAN"
-    echo "Copied plan template to $IMPL_PLAN"
+    echo "已复制计划模板到 $IMPL_PLAN"
 else
-    echo "Warning: Plan template not found at $TEMPLATE"
+    echo "警告：未在 $TEMPLATE 找到计划模板"
     # Create a basic plan file if template doesn't exist
     touch "$IMPL_PLAN"
 fi
@@ -58,4 +58,3 @@ else
     echo "BRANCH: $CURRENT_BRANCH"
     echo "HAS_GIT: $HAS_GIT"
 fi
-

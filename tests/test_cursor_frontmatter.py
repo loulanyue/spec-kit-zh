@@ -22,7 +22,7 @@ SCRIPT_PATH = os.path.join(
 
 EXPECTED_FRONTMATTER_LINES = [
     "---",
-    "description: Project Development Guidelines",
+    "description: 项目开发指南",
     'globs: ["**/*"]',
     "alwaysApply: true",
     "---",
@@ -115,17 +115,17 @@ class TestCursorFrontmatterIntegration:
         templates_dir = specify_dir / "templates"
         templates_dir.mkdir()
         (templates_dir / "agent-file-template.md").write_text(
-            "# [PROJECT NAME] Development Guidelines\n\n"
-            "Auto-generated from all feature plans. Last updated: [DATE]\n\n"
-            "## Active Technologies\n\n"
+            "# [PROJECT NAME] 开发指南\n\n"
+            "根据所有功能计划自动生成。最后更新：[DATE]\n\n"
+            "## 当前技术栈\n\n"
             "[EXTRACTED FROM ALL PLAN.MD FILES]\n\n"
-            "## Project Structure\n\n"
+            "## 项目结构\n\n"
             "[ACTUAL STRUCTURE FROM PLANS]\n\n"
-            "## Development Commands\n\n"
+            "## 常用命令\n\n"
             "[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES]\n\n"
-            "## Coding Conventions\n\n"
+            "## 代码风格\n\n"
             "[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE]\n\n"
-            "## Recent Changes\n\n"
+            "## 最近变更\n\n"
             "[LAST 3 FEATURES AND WHAT THEY ADDED]\n"
         )
 
@@ -191,7 +191,7 @@ class TestCursorFrontmatterIntegration:
             assert expected in content, f"Missing frontmatter line: {expected}"
 
         # Content after frontmatter should be the template content
-        assert "Development Guidelines" in content
+        assert "开发指南" in content
 
     def test_existing_mdc_without_frontmatter_gets_it_added(self, git_repo):
         """Updating an existing .mdc file that lacks frontmatter must add it."""
@@ -200,12 +200,12 @@ class TestCursorFrontmatterIntegration:
         cursor_dir.mkdir(parents=True, exist_ok=True)
         mdc_file = cursor_dir / "specify-rules.mdc"
         mdc_file.write_text(
-            "# repo Development Guidelines\n\n"
-            "Auto-generated from all feature plans. Last updated: 2025-01-01\n\n"
-            "## Active Technologies\n\n"
-            "- Python + FastAPI (main)\n\n"
-            "## Recent Changes\n\n"
-            "- main: Added Python + FastAPI\n"
+            "# repo 开发指南\n\n"
+            "根据所有功能计划自动生成。最后更新：2025-01-01\n\n"
+            "## 当前技术栈\n\n"
+            "- Python + FastAPI（main）\n\n"
+            "## 最近变更\n\n"
+            "- main：新增 Python + FastAPI\n"
         )
 
         result = self._run_update(git_repo)
@@ -226,18 +226,18 @@ class TestCursorFrontmatterIntegration:
 
         frontmatter = (
             "---\n"
-            "description: Project Development Guidelines\n"
+            "description: 项目开发指南\n"
             'globs: ["**/*"]\n'
             "alwaysApply: true\n"
             "---\n\n"
         )
         body = (
-            "# repo Development Guidelines\n\n"
-            "Auto-generated from all feature plans. Last updated: 2025-01-01\n\n"
-            "## Active Technologies\n\n"
-            "- Python + FastAPI (main)\n\n"
-            "## Recent Changes\n\n"
-            "- main: Added Python + FastAPI\n"
+            "# repo 开发指南\n\n"
+            "根据所有功能计划自动生成。最后更新：2025-01-01\n\n"
+            "## 当前技术栈\n\n"
+            "- Python + FastAPI（main）\n\n"
+            "## 最近变更\n\n"
+            "- main：新增 Python + FastAPI\n"
         )
         mdc_file.write_text(frontmatter + body)
 

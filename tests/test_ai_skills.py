@@ -390,6 +390,24 @@ class TestInstallAiSkills:
         # .toml commands should be untouched
         assert (cmds_dir / "speckit.specify.toml").exists()
 
+    def test_toml_commands_are_parsed_into_skills(self, project_dir):
+        """TOML command templates in extracted agent dirs should install directly as skills."""
+        cmds_dir = project_dir / ".gemini" / "commands"
+        cmds_dir.mkdir(parents=True)
+        (cmds_dir / "speckit.specify.toml").write_text(
+            'description = "Create spec"\n\nprompt = """\n# Gemini Specify\n\nGenerate spec content.\n"""\n',
+            encoding="utf-8",
+        )
+
+        result = install_ai_skills(project_dir, "gemini")
+
+        assert result is True
+        skill_file = project_dir / ".gemini" / "skills" / "speckit-specify" / "SKILL.md"
+        assert skill_file.exists()
+        content = skill_file.read_text(encoding="utf-8")
+        assert "# Speckit Specify Skill" in content
+        assert "Generate spec content." in content
+
     @pytest.mark.parametrize("agent_key", [k for k in AGENT_CONFIG.keys() if k != "generic"])
     def test_skills_install_for_all_agents(self, temp_dir, agent_key):
         """install_ai_skills should produce skills for every configured agent."""

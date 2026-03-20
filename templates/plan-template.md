@@ -12,9 +12,8 @@
 ## 技术上下文
 
 <!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
+  需要操作：请将本节内容替换为该项目的真实技术上下文。
+  这里的结构仅作为规划时的参考骨架，用于帮助你系统化补全信息。
 -->
 
 **语言/版本**：[例如 Python 3.11、Swift 5.9、Rust 1.75，或 NEEDS CLARIFICATION]  
@@ -29,9 +28,9 @@
 
 ## 宪章检查
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*门禁：必须先通过本检查，才能进入第 0 阶段研究；并在第 1 阶段设计后重新复核。*
 
-[Gates determined based on constitution file]
+[根据宪章文件确定的门禁项]
 
 ## 项目结构
 
@@ -49,10 +48,9 @@ specs/[###-feature]/
 
 ### 源代码（仓库根目录）
 <!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
+  需要操作：请将下方占位目录树替换为本功能实际采用的项目结构。
+  删除未使用的方案，并将选中的结构扩展为真实路径（如 apps/admin、packages/something）。
+  最终交付的计划中不应保留“方案 1/2/3”这类标签字样。
 -->
 
 ```text
@@ -95,7 +93,7 @@ ios/ or android/
 
 ## 复杂度跟踪
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+> **仅当宪章检查存在必须说明理由的违反项时填写**
 
 | 违反项 | 必要原因 | 拒绝更简单方案的原因 |
 |-----------|------------|-------------------------------------|

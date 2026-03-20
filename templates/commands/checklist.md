@@ -1,22 +1,22 @@
 ---
-description: Generate a custom checklist for the current feature based on user requirements.
+description: 基于用户需求为当前功能生成自定义检查清单。
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json
   ps: scripts/powershell/check-prerequisites.ps1 -Json
 ---
 
-## Checklist Purpose: "Unit Tests for English"
+## 检查清单定位："面向需求文本的单元测试"
 
-**CRITICAL CONCEPT**: Checklists are **UNIT TESTS FOR REQUIREMENTS WRITING** - they validate the quality, clarity, and completeness of requirements in a given domain.
+**关键概念**：检查清单本质上是**针对需求写作质量的单元测试**，用于验证特定领域中的需求是否清晰、完整且可执行。
 
-**NOT for verification/testing**:
+**不是用来做实现验证/功能测试的**：
 
 - ❌ NOT "Verify the button clicks correctly"
 - ❌ NOT "Test error handling works"
 - ❌ NOT "Confirm the API returns 200"
 - ❌ NOT checking if code/implementation matches the spec
 
-**FOR requirements quality validation**:
+**而是用来验证需求质量的**：
 
 - ✅ "Are visual hierarchy requirements defined for all card types?" (completeness)
 - ✅ "Is 'prominent display' quantified with specific sizing/positioning?" (clarity)
@@ -24,22 +24,22 @@ scripts:
 - ✅ "Are accessibility requirements defined for keyboard navigation?" (coverage)
 - ✅ "Does the spec define what happens when logo image fails to load?" (edge cases)
 
-**Metaphor**: If your spec is code written in English, the checklist is its unit test suite. You're testing whether the requirements are well-written, complete, unambiguous, and ready for implementation - NOT whether the implementation works.
+**类比理解**：如果把规格说明看成“用自然语言写成的代码”，那么检查清单就是它的单元测试套件。你验证的是需求本身是否写得好、是否完整、是否无歧义、是否已准备好进入实现阶段，而不是验证实现结果是否正确。
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- All questions, generated checklist items, category headings, summaries, and reports MUST be written in Simplified Chinese.
-- Keep traceability markers such as `CHK001`, `[Spec §X.Y]`, file paths, and commands in their original machine-readable form.
+- 所有问题、生成的检查项、分类标题、摘要和报告都必须使用简体中文。
+- `CHK001`、`[Spec §X.Y]`、文件路径与命令等可追踪标记保持原始机器可读形式。
 
-## Execution Steps
+## 执行步骤
 
 1. **Setup**: Run `{SCRIPT}` from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS list.
    - All file paths must be absolute.
@@ -123,7 +123,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Dependencies & Assumptions** (Are they documented and validated?)
    - **Ambiguities & Conflicts** (What needs clarification?)
 
-   **HOW TO WRITE CHECKLIST ITEMS - "Unit Tests for English"**:
+   **如何编写检查项："面向需求文本的单元测试"**：
 
    ❌ **WRONG** (Testing implementation):
    - "Verify landing page displays 3 episode cards"

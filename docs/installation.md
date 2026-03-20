@@ -1,24 +1,24 @@
-# Installation Guide
+# 安装指南
 
-## Prerequisites
+## 前置要求
 
-- **Linux/macOS** (or Windows; PowerShell scripts now supported without WSL)
-- AI coding agent: [Claude Code](https://www.anthropic.com/claude-code), [GitHub Copilot](https://code.visualstudio.com/), [Codebuddy CLI](https://www.codebuddy.ai/cli) or [Gemini CLI](https://github.com/google-gemini/gemini-cli)
-- [uv](https://docs.astral.sh/uv/) for package management
+- **Linux/macOS**（也支持 Windows；PowerShell 脚本现已无需 WSL）
+- AI 编码助手：[Claude Code](https://www.anthropic.com/claude-code)、[GitHub Copilot](https://code.visualstudio.com/)、[Codebuddy CLI](https://www.codebuddy.ai/cli) 或 [Gemini CLI](https://github.com/google-gemini/gemini-cli)
+- 用于包管理的 [uv](https://docs.astral.sh/uv/)
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
 
-## Installation
+## 安装
 
-### Initialize a New Project
+### 初始化新项目
 
-The easiest way to get started is to initialize a new project:
+最简单的开始方式是先初始化一个新项目：
 
 ```bash
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <PROJECT_NAME>
 ```
 
-Or initialize in the current directory:
+也可以直接在当前目录初始化：
 
 ```bash
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init .
@@ -26,9 +26,9 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init .
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init --here
 ```
 
-### Specify AI Agent
+### 指定 AI Agent
 
-You can proactively specify your AI agent during initialization:
+你可以在初始化时主动指定要使用的 AI Agent：
 
 ```bash
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <project_name> --ai claude
@@ -37,46 +37,46 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <projec
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <project_name> --ai codebuddy
 ```
 
-### Specify Script Type (Shell vs PowerShell)
+### 指定脚本类型（Shell 或 PowerShell）
 
-All automation scripts now have both Bash (`.sh`) and PowerShell (`.ps1`) variants.
+所有自动化脚本现在都同时提供 Bash（`.sh`）和 PowerShell（`.ps1`）版本。
 
-Auto behavior:
+自动选择规则：
 
-- Windows default: `ps`
-- Other OS default: `sh`
-- Interactive mode: you'll be prompted unless you pass `--script`
+- Windows 默认：`ps`
+- 其他操作系统默认：`sh`
+- 交互模式下：如果未传 `--script`，会提示你选择
 
-Force a specific script type:
+如需强制指定脚本类型：
 
 ```bash
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <project_name> --script sh
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <project_name> --script ps
 ```
 
-### Ignore Agent Tools Check
+### 跳过 Agent 工具检查
 
-If you prefer to get the templates without checking for the right tools:
+如果你希望直接获取模板，而不检查本机是否已安装对应工具：
 
 ```bash
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init <project_name> --ai claude --ignore-agent-tools
 ```
 
-## Verification
+## 验证
 
-After initialization, you should see the following commands available in your AI agent:
+初始化完成后，你应当能在 AI Agent 中看到以下命令：
 
 - `/speckit.specify` - Create specifications
 - `/speckit.plan` - Generate implementation plans  
 - `/speckit.tasks` - Break down into actionable tasks
 
-The `.specify/scripts` directory will contain both `.sh` and `.ps1` scripts.
+`.specify/scripts` 目录中会同时包含 `.sh` 和 `.ps1` 脚本。
 
-## Troubleshooting
+## 故障排除
 
-### Git Credential Manager on Linux
+### Linux 上的 Git Credential Manager
 
-If you're having issues with Git authentication on Linux, you can install Git Credential Manager:
+如果你在 Linux 上遇到 Git 认证问题，可以安装 Git Credential Manager：
 
 ```bash
 #!/usr/bin/env bash

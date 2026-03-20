@@ -56,9 +56,9 @@
     "cleanupCacheHistory": false,
     "disableGitFeatures": false,
     "globalMetadata": {
-      "_appTitle": "Spec Kit Documentation",
+      "_appTitle": "Spec Kit 文档",
       "_appName": "Spec Kit",
-      "_appFooter": "Spec Kit - A specification-driven development toolkit",
+      "_appFooter": "Spec Kit - 规范驱动开发工具包",
       "_enableSearch": true,
       "_disableContribution": false,
       "_gitContribute": {
@@ -68,4 +68,3 @@
     }
   }
 }
-

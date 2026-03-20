@@ -1,34 +1,34 @@
 ---
-description: Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec.
+description: 通过最多 5 个高针对性的澄清问题识别当前功能规范中的未明确部分，并将答案写回规范。
 handoffs: 
-  - label: Build Technical Plan
+  - label: 构建技术计划
     agent: speckit.plan
-    prompt: Create a plan for the spec. I am building with...
+    prompt: 为规范创建计划。我正在构建...
 scripts:
    sh: scripts/bash/check-prerequisites.sh --json --paths-only
    ps: scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
 ---
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- All clarification questions, recommendations, tables, spec updates, coverage summaries, and completion reports MUST be written in Simplified Chinese.
-- Preserve technical terms, IDs, and file paths in their original form when needed for precision.
+- 所有澄清问题、建议、表格、规范更新、覆盖摘要和完成报告都必须使用简体中文。
+- 为保证精确性，技术术语、ID 和文件路径在需要时保留原始形式。
 
-## Outline
+## 概述
 
-Goal: Detect and reduce ambiguity or missing decision points in the active feature specification and record the clarifications directly in the spec file.
+目标：识别并减少当前功能规范中的歧义与缺失决策点，并将澄清结果直接写回规范文件。
 
-Note: This clarification workflow is expected to run (and be completed) BEFORE invoking `/speckit.plan`. If the user explicitly states they are skipping clarification (e.g., exploratory spike), you may proceed, but must warn that downstream rework risk increases.
+说明：该澄清流程应当在执行 `/speckit.plan` 之前完成。如果用户明确表示跳过澄清（例如仅做探索性验证），则可以继续，但必须提醒其后续返工风险会提高。
 
-Execution steps:
+执行步骤：
 
 1. Run `{SCRIPT}` from repo root **once** (combined `--json --paths-only` mode / `-Json -PathsOnly`). Parse minimal JSON payload fields:
    - `FEATURE_DIR`

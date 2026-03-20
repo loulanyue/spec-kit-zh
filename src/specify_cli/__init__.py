@@ -10,7 +10,7 @@
 # ]
 # ///
 """
-Specify CLI - Setup tool for Specify projects
+Specify CLI - 规范驱动开发项目设置工具
 
 Usage:
     uvx specify-cli.py init <project-name>
@@ -25,6 +25,7 @@ Or install globally:
 """
 
 import os
+import re
 import subprocess
 import sys
 import zipfile
@@ -53,6 +54,11 @@ import readchar
 import ssl
 import truststore
 from datetime import datetime, timezone
+
+try:
+    import tomllib  # Python 3.11+
+except ModuleNotFoundError:
+    tomllib = None
 
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
@@ -279,12 +285,12 @@ AI_ASSISTANT_ALIASES = {
 }
 
 def _build_ai_assistant_help() -> str:
-    """Build the --ai help text from AGENT_CONFIG so it stays in sync with runtime config."""
+    """根据 AGENT_CONFIG 动态构建 --ai 帮助文本，避免与运行时配置脱节。"""
 
     non_generic_agents = sorted(agent for agent in AGENT_CONFIG if agent != "generic")
     base_help = (
-        f"AI assistant to use: {', '.join(non_generic_agents)}, "
-        "or generic (requires --ai-commands-dir)."
+        f"可选 AI 助手: {', '.join(non_generic_agents)}, "
+        "或 generic（需搭配 --ai-commands-dir）。"
     )
 
     if not AI_ASSISTANT_ALIASES:
@@ -292,14 +298,14 @@ def _build_ai_assistant_help() -> str:
 
     alias_phrases = []
     for alias, target in sorted(AI_ASSISTANT_ALIASES.items()):
-        alias_phrases.append(f"'{alias}' as an alias for '{target}'")
+        alias_phrases.append(f"将 '{alias}' 作为 '{target}' 的别名")
 
     if len(alias_phrases) == 1:
         aliases_text = alias_phrases[0]
     else:
         aliases_text = ', '.join(alias_phrases[:-1]) + ' and ' + alias_phrases[-1]
 
-    return base_help + " Use " + aliases_text + "."
+    return base_help + " 可使用 " + aliases_text + "。"
 AI_ASSISTANT_HELP = _build_ai_assistant_help()
 
 SCRIPT_TYPE_CHOICES = {"sh": "POSIX Shell (bash/zsh)", "ps": "PowerShell"}
@@ -315,7 +321,7 @@ BANNER = """
 ╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝   
 """
 
-TAGLINE = "GitHub Spec Kit - Spec-Driven Development Toolkit"
+TAGLINE = "GitHub Spec Kit - 规范驱动开发工具包"
 class StepTracker:
     """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
     Supports live auto-refresh via an attached refresh callback.
@@ -421,7 +427,7 @@ def get_key():
 
     return key
 
-def select_with_arrows(options: dict, prompt_text: str = "Select an option", default_key: str = None) -> str:
+def select_with_arrows(options: dict, prompt_text: str = "选择一个选项", default_key: str = None) -> str:
     """
     Interactive selection using arrow keys with Rich Live display.
     
@@ -454,7 +460,7 @@ def select_with_arrows(options: dict, prompt_text: str = "Select an option", def
                 table.add_row(" ", f"[cyan]{key}[/cyan] [dim]({options[key]})[/dim]")
 
         table.add_row("", "")
-        table.add_row("", "[dim]Use ↑/↓ to navigate, Enter to select, Esc to cancel[/dim]")
+        table.add_row("", "[dim]使用 ↑/↓ 导航，Enter 确认，Esc 取消[/dim]")
 
         return Panel(
             table,
@@ -479,19 +485,19 @@ def select_with_arrows(options: dict, prompt_text: str = "Select an option", def
                         selected_key = option_keys[selected_index]
                         break
                     elif key == 'escape':
-                        console.print("\n[yellow]Selection cancelled[/yellow]")
+                        console.print("\n[yellow]已取消选择[/yellow]")
                         raise typer.Exit(1)
 
                     live.update(create_selection_panel(), refresh=True)
 
                 except KeyboardInterrupt:
-                    console.print("\n[yellow]Selection cancelled[/yellow]")
+                    console.print("\n[yellow]已取消选择[/yellow]")
                     raise typer.Exit(1)
 
     run_selection_loop()
 
     if selected_key is None:
-        console.print("\n[red]Selection failed.[/red]")
+        console.print("\n[red]选择失败。[/red]")
         raise typer.Exit(1)
 
     return selected_key
@@ -509,7 +515,7 @@ class BannerGroup(TyperGroup):
 
 app = typer.Typer(
     name="specify",
-    help="Setup tool for Specify spec-driven development projects",
+    help="Spec Kit 规范驱动开发项目设置工具",
     add_completion=False,
     invoke_without_command=True,
     cls=BannerGroup,
@@ -534,7 +540,7 @@ def callback(ctx: typer.Context):
     """Show banner when no subcommand is provided."""
     if ctx.invoked_subcommand is None and "--help" not in sys.argv and "-h" not in sys.argv:
         show_banner()
-        console.print(Align.center("[dim]Run 'specify --help' for usage information[/dim]"))
+        console.print(Align.center("[dim]运行 'specify --help' 查看使用说明[/dim]"))
         console.print()
 
 def run_command(cmd: list[str], check_return: bool = True, capture: bool = False, shell: bool = False) -> Optional[str]:
@@ -611,6 +617,123 @@ def is_git_repo(path: Path = None) -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
+
+def _doctor_install_hint(tool: str) -> str:
+    """Return a short install hint for a missing tool."""
+    fixed_hints = {
+        "git": "请先安装 Git，然后重新运行 `specify doctor` 或 `specify check`。",
+        "uv": "建议安装 uv：`pip install uv`，或参考 https://docs.astral.sh/uv/ 。",
+        "code": "如需使用 VS Code，可安装 Visual Studio Code 后重试。",
+        "code-insiders": "如需使用 VS Code Insiders，可安装后重试。",
+    }
+    if tool in fixed_hints:
+        return fixed_hints[tool]
+
+    agent_config = AGENT_CONFIG.get(tool)
+    if not agent_config:
+        return f"请安装 `{tool}` 后重试。"
+
+    install_url = agent_config.get("install_url")
+    if install_url:
+        return f"请安装 {agent_config['name']} CLI：{install_url}"
+
+    return f"{agent_config['name']} 为 IDE 型 agent，无需单独 CLI。"
+
+
+def _check_github_connectivity(timeout: float = 5.0) -> tuple[bool, str]:
+    """Check whether GitHub API is reachable and return a short status detail."""
+    url = "https://api.github.com/rate_limit"
+    try:
+        response = client.get(
+            url,
+            timeout=timeout,
+            follow_redirects=True,
+            headers=_github_auth_headers(),
+        )
+        if response.status_code == 200:
+            return True, "GitHub API 可访问"
+        if response.status_code in (401, 403):
+            info = _parse_rate_limit_headers(response.headers)
+            if "remaining" in info and info.get("remaining") == "0":
+                return False, "GitHub API 已触发限流，建议配置 GH_TOKEN"
+            return False, f"GitHub API 返回 {response.status_code}"
+        return False, f"GitHub API 返回 {response.status_code}"
+    except Exception as exc:
+        return False, f"无法连接 GitHub API：{exc}"
+
+
+def _collect_doctor_diagnostics(project_path: Path | None = None) -> dict:
+    """Collect environment and project diagnostics for the doctor command."""
+    current_path = project_path or Path.cwd()
+    spec_dir = current_path / ".specify"
+    has_github_token = bool(_github_token())
+
+    required_agent_cli = {}
+    for agent_key, agent_config in AGENT_CONFIG.items():
+        if agent_key == "generic" or not agent_config.get("requires_cli"):
+            continue
+        required_agent_cli[agent_key] = check_tool(agent_key)
+
+    github_ok, github_detail = _check_github_connectivity()
+
+    return {
+        "path": current_path,
+        "python_version": sys.version.split()[0],
+        "git_available": check_tool("git"),
+        "uv_available": check_tool("uv"),
+        "has_github_token": has_github_token,
+        "github_connectivity_ok": github_ok,
+        "github_connectivity_detail": github_detail,
+        "is_git_repo": is_git_repo(current_path),
+        "is_spec_project": spec_dir.exists(),
+        "required_agent_cli": required_agent_cli,
+        "available_agent_count": sum(1 for ok in required_agent_cli.values() if ok),
+        "missing_agents": sorted([agent for agent, ok in required_agent_cli.items() if not ok]),
+    }
+
+
+def _build_doctor_recommendations(diagnostics: dict) -> list[str]:
+    """Build actionable recommendations from doctor diagnostics."""
+    recommendations: list[str] = []
+
+    if not diagnostics["git_available"]:
+        recommendations.append(_doctor_install_hint("git"))
+
+    if not diagnostics["uv_available"]:
+        recommendations.append(_doctor_install_hint("uv"))
+
+    if not diagnostics["has_github_token"]:
+        recommendations.append(
+            "建议配置 `GH_TOKEN` 或 `GITHUB_TOKEN`，可显著提升 GitHub API 限流阈值。"
+        )
+
+    if not diagnostics["github_connectivity_ok"]:
+        recommendations.append(
+            f"{diagnostics['github_connectivity_detail']}。若在受限网络环境中，请稍后重试、配置代理，或改用离线模板包。"
+        )
+
+    if not diagnostics["is_spec_project"]:
+        recommendations.append(
+            "当前目录尚未初始化为 spec-kit 项目。可运行 `specify init --here --ai claude` 开始。"
+        )
+    elif not diagnostics["is_git_repo"]:
+        recommendations.append(
+            "当前目录已包含 `.specify/`，但还不是 Git 仓库。建议运行 `git init` 并提交初始模板。"
+        )
+
+    if diagnostics["missing_agents"]:
+        preview = ", ".join(diagnostics["missing_agents"][:3])
+        if len(diagnostics["missing_agents"]) > 3:
+            preview += " 等"
+        recommendations.append(
+            f"当前缺少可直接调用的 AI CLI：{preview}。如需最佳体验，请至少安装一个常用 agent。"
+        )
+
+    if not recommendations:
+        recommendations.append("当前环境状态良好，可以直接开始使用 `specify init` 或项目内 slash commands。")
+
+    return recommendations
+
 def init_git_repo(project_path: Path, quiet: bool = False) -> Tuple[bool, Optional[str]]:
     """Initialize a git repository in the specified path.
     
@@ -625,12 +748,12 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> Tuple[bool, Option
         original_cwd = Path.cwd()
         os.chdir(project_path)
         if not quiet:
-            console.print("[cyan]Initializing git repository...[/cyan]")
+            console.print("[cyan]正在初始化 git 仓库...[/cyan]")
         subprocess.run(["git", "init"], check=True, capture_output=True, text=True)
         subprocess.run(["git", "add", "."], check=True, capture_output=True, text=True)
         subprocess.run(["git", "commit", "-m", "Initial commit from Specify template"], check=True, capture_output=True, text=True)
         if not quiet:
-            console.print("[green]✓[/green] Git repository initialized")
+            console.print("[green]✓[/green] Git 仓库初始化完成")
         return True, None
 
     except subprocess.CalledProcessError as e:
@@ -664,10 +787,10 @@ def handle_vscode_settings(sub_item, dest_file, rel_path, verbose=False, tracker
             log("Merged:", "green")
         else:
             shutil.copy2(sub_item, dest_file)
-            log("Copied (no existing settings.json):", "blue")
+            log("已复制（原先不存在 settings.json）:", "blue")
 
     except Exception as e:
-        log(f"Warning: Could not merge, copying instead: {e}", "yellow")
+        log(f"警告：无法合并，改为直接复制：{e}", "yellow")
         shutil.copy2(sub_item, dest_file)
 
 def merge_json_files(existing_path: Path, new_content: dict, verbose: bool = False) -> dict:
@@ -709,7 +832,7 @@ def merge_json_files(existing_path: Path, new_content: dict, verbose: bool = Fal
     merged = deep_merge(existing_content, new_content)
 
     if verbose:
-        console.print(f"[cyan]Merged JSON file:[/cyan] {existing_path.name}")
+        console.print(f"[cyan]已合并 JSON 文件：[/cyan] {existing_path.name}")
 
     return merged
 
@@ -720,7 +843,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
         client = httpx.Client(verify=ssl_context)
 
     if verbose:
-        console.print("[cyan]Fetching latest release information...[/cyan]")
+        console.print("[cyan]正在获取最新发布信息...[/cyan]")
     api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
 
     try:
@@ -742,8 +865,8 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
         except ValueError as je:
             raise RuntimeError(f"Failed to parse release JSON: {je}\nRaw (truncated 400): {response.text[:400]}")
     except Exception as e:
-        console.print("[red]Error fetching release information[/red]")
-        console.print(Panel(str(e), title="Fetch Error", border_style="red"))
+        console.print("[red]获取发布信息失败[/red]")
+        console.print(Panel(str(e), title="获取失败", border_style="red"))
         raise typer.Exit(1)
 
     assets = release_data.get("assets", [])
@@ -756,9 +879,9 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     asset = matching_assets[0] if matching_assets else None
 
     if asset is None:
-        console.print(f"[red]No matching release asset found[/red] for [bold]{ai_assistant}[/bold] (expected pattern: [bold]{pattern}[/bold])")
+        console.print(f"[red]未找到匹配的发布资产[/red]：[bold]{ai_assistant}[/bold]（期望模式：[bold]{pattern}[/bold]）")
         asset_names = [a.get('name', '?') for a in assets]
-        console.print(Panel("\n".join(asset_names) or "(no assets)", title="Available Assets", border_style="yellow"))
+        console.print(Panel("\n".join(asset_names) or "（无资产）", title="可用资产", border_style="yellow"))
         raise typer.Exit(1)
 
     download_url = asset["browser_download_url"]
@@ -766,13 +889,13 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     file_size = asset["size"]
 
     if verbose:
-        console.print(f"[cyan]Found template:[/cyan] {filename}")
-        console.print(f"[cyan]Size:[/cyan] {file_size:,} bytes")
-        console.print(f"[cyan]Release:[/cyan] {release_data['tag_name']}")
+        console.print(f"[cyan]已找到模板：[/cyan] {filename}")
+        console.print(f"[cyan]大小：[/cyan] {file_size:,} 字节")
+        console.print(f"[cyan]发布版本：[/cyan] {release_data['tag_name']}")
 
     zip_path = download_dir / filename
     if verbose:
-        console.print("[cyan]Downloading template...[/cyan]")
+        console.print("[cyan]正在下载模板...[/cyan]")
 
     try:
         with client.stream(
@@ -801,7 +924,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
                             TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
                             console=console,
                         ) as progress:
-                            task = progress.add_task("Downloading...", total=total_size)
+                            task = progress.add_task("下载中...", total=total_size)
                             downloaded = 0
                             for chunk in response.iter_bytes(chunk_size=8192):
                                 f.write(chunk)
@@ -811,14 +934,14 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
                         for chunk in response.iter_bytes(chunk_size=8192):
                             f.write(chunk)
     except Exception as e:
-        console.print("[red]Error downloading template[/red]")
+        console.print("[red]下载模板失败[/red]")
         detail = str(e)
         if zip_path.exists():
             zip_path.unlink()
-        console.print(Panel(detail, title="Download Error", border_style="red"))
+        console.print(Panel(detail, title="下载失败", border_style="red"))
         raise typer.Exit(1)
     if verbose:
-        console.print(f"Downloaded: {filename}")
+        console.print(f"已下载：{filename}")
     metadata = {
         "filename": filename,
         "size": file_size,
@@ -1128,28 +1251,63 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
     else:
         templates_dir = project_path / commands_subdir
 
-    if not templates_dir.exists() or not any(templates_dir.glob("*.md")):
-        # Fallback: try the repo-relative path (for running from source checkout)
-        # This also covers agents whose extracted commands are in a different
-        # format (e.g. gemini/tabnine use .toml, not .md).
-        script_dir = Path(__file__).parent.parent.parent  # up from src/specify_cli/
+    def _supported_command_files(directory: Path) -> list[Path]:
+        return sorted([*directory.glob("*.md"), *directory.glob("*.toml")])
+
+    def _parse_command_template(command_file: Path) -> tuple[dict, str, str]:
+        content = command_file.read_text(encoding="utf-8")
+
+        if command_file.suffix == ".toml":
+            if tomllib is not None:
+                data = tomllib.loads(content)
+            else:
+                data = {}
+                desc_match = re.search(r'^\s*description\s*=\s*"(?P<value>.*?)"\s*$', content, re.M)
+                prompt_match = re.search(r'^\s*prompt\s*=\s*"""\n(?P<value>.*?)\n"""\s*$', content, re.S | re.M)
+                if desc_match:
+                    data["description"] = desc_match.group("value")
+                if prompt_match:
+                    data["prompt"] = prompt_match.group("value")
+            frontmatter = {"description": data.get("description", "")}
+            body = data.get("prompt", "").strip()
+            return frontmatter, body, command_file.stem
+
+        if content.startswith("---"):
+            parts = content.split("---", 2)
+            if len(parts) >= 3:
+                frontmatter = yaml.safe_load(parts[1])
+                if not isinstance(frontmatter, dict):
+                    frontmatter = {}
+                body = parts[2].strip()
+            else:
+                console.print(f"[yellow]警告：{command_file.name} 的 frontmatter 不完整（缺少结束 ---），将按纯文本处理[/yellow]")
+                frontmatter = {}
+                body = content
+        else:
+            frontmatter = {}
+            body = content
+
+        return frontmatter, body, command_file.stem
+
+    if not templates_dir.exists() or not _supported_command_files(templates_dir):
+        script_dir = Path(__file__).parent.parent.parent
         fallback_dir = script_dir / "templates" / "commands"
-        if fallback_dir.exists() and any(fallback_dir.glob("*.md")):
+        if fallback_dir.exists() and _supported_command_files(fallback_dir):
             templates_dir = fallback_dir
 
-    if not templates_dir.exists() or not any(templates_dir.glob("*.md")):
+    if not templates_dir.exists() or not _supported_command_files(templates_dir):
         if tracker:
-            tracker.error("ai-skills", "command templates not found")
+            tracker.error("ai-skills", "未找到命令模板")
         else:
-            console.print("[yellow]Warning: command templates not found, skipping skills installation[/yellow]")
+            console.print("[yellow]警告：未找到命令模板，跳过 skills 安装[/yellow]")
         return False
 
-    command_files = sorted(templates_dir.glob("*.md"))
+    command_files = _supported_command_files(templates_dir)
     if not command_files:
         if tracker:
-            tracker.skip("ai-skills", "no command templates found")
+            tracker.skip("ai-skills", "没有可用命令模板")
         else:
-            console.print("[yellow]No command templates found to install[/yellow]")
+            console.print("[yellow]没有可安装的命令模板[/yellow]")
         return False
 
     # Resolve the correct skills directory for this agent
@@ -1163,26 +1321,7 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
     skipped_count = 0
     for command_file in command_files:
         try:
-            content = command_file.read_text(encoding="utf-8")
-
-            # Parse YAML frontmatter
-            if content.startswith("---"):
-                parts = content.split("---", 2)
-                if len(parts) >= 3:
-                    frontmatter = yaml.safe_load(parts[1])
-                    if not isinstance(frontmatter, dict):
-                        frontmatter = {}
-                    body = parts[2].strip()
-                else:
-                    # File starts with --- but has no closing ---
-                    console.print(f"[yellow]Warning: {command_file.name} has malformed frontmatter (no closing ---), treating as plain content[/yellow]")
-                    frontmatter = {}
-                    body = content
-            else:
-                frontmatter = {}
-                body = content
-
-            command_name = command_file.stem
+            frontmatter, body, command_name = _parse_command_template(command_file)
             # Normalize: extracted commands may be named "speckit.<cmd>.md";
             # strip the "speckit." prefix so skill names stay clean and
             # SKILL_DESCRIPTIONS lookups work.
@@ -1196,7 +1335,7 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
 
             # Select the best description available
             original_desc = frontmatter.get("description", "")
-            enhanced_desc = SKILL_DESCRIPTIONS.get(command_name, original_desc or f"Spec-kit workflow command: {command_name}")
+            enhanced_desc = SKILL_DESCRIPTIONS.get(command_name, original_desc or f"Spec Kit 工作流命令：{command_name}")
 
             # Build SKILL.md following agentskills.io spec
             # Use yaml.safe_dump to safely serialise the frontmatter and
@@ -1235,7 +1374,7 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
             installed_count += 1
 
         except Exception as e:
-            console.print(f"[yellow]Warning: Failed to install skill {command_file.stem}: {e}[/yellow]")
+            console.print(f"[yellow]警告：安装 skill {command_file.stem} 失败：{e}[/yellow]")
             continue
 
     if tracker:
@@ -1246,45 +1385,45 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
         elif skipped_count > 0:
             tracker.complete("ai-skills", f"{skipped_count} skills already present")
         else:
-            tracker.error("ai-skills", "no skills installed")
+            tracker.error("ai-skills", "未安装任何 skills")
     else:
         if installed_count > 0:
-            console.print(f"[green]✓[/green] Installed {installed_count} agent skills to {skills_dir.relative_to(project_path)}/")
+            console.print(f"[green]✓[/green] 已安装 {installed_count} 个 agent skills 到 {skills_dir.relative_to(project_path)}/")
         elif skipped_count > 0:
-            console.print(f"[green]✓[/green] {skipped_count} agent skills already present in {skills_dir.relative_to(project_path)}/")
+            console.print(f"[green]✓[/green] {skills_dir.relative_to(project_path)}/ 中已有 {skipped_count} 个 agent skills")
         else:
-            console.print("[yellow]No skills were installed[/yellow]")
+            console.print("[yellow]未安装任何 skills[/yellow]")
 
     return installed_count > 0 or skipped_count > 0
 
 
 @app.command()
 def init(
-    project_name: str = typer.Argument(None, help="Name for your new project directory (optional if using --here, or use '.' for current directory)"),
+    project_name: str = typer.Argument(None, help="新项目目录名称（使用 --here 时可省略，也可用 '.' 表示当前目录）"),
     ai_assistant: str = typer.Option(None, "--ai", help=AI_ASSISTANT_HELP),
-    ai_commands_dir: str = typer.Option(None, "--ai-commands-dir", help="Directory for agent command files (required with --ai generic, e.g. .myagent/commands/)"),
-    script_type: str = typer.Option(None, "--script", help="Script type to use: sh or ps"),
-    ignore_agent_tools: bool = typer.Option(False, "--ignore-agent-tools", help="Skip checks for AI agent tools like Claude Code"),
-    no_git: bool = typer.Option(False, "--no-git", help="Skip git repository initialization"),
-    here: bool = typer.Option(False, "--here", help="Initialize project in the current directory instead of creating a new one"),
-    force: bool = typer.Option(False, "--force", help="Force merge/overwrite when using --here (skip confirmation)"),
-    skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
-    debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
-    github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
-    ai_skills: bool = typer.Option(False, "--ai-skills", help="Install Prompt.MD templates as agent skills (requires --ai)"),
+    ai_commands_dir: str = typer.Option(None, "--ai-commands-dir", help="agent 命令文件目录（使用 --ai generic 时必填，例如 .myagent/commands/）"),
+    script_type: str = typer.Option(None, "--script", help="使用的脚本类型：sh 或 ps"),
+    ignore_agent_tools: bool = typer.Option(False, "--ignore-agent-tools", help="跳过 Claude Code 等 AI 工具的检测"),
+    no_git: bool = typer.Option(False, "--no-git", help="跳过 git 仓库初始化"),
+    here: bool = typer.Option(False, "--here", help="在当前目录初始化项目，而不是创建新目录"),
+    force: bool = typer.Option(False, "--force", help="搭配 --here 使用时强制合并/覆盖（跳过确认）"),
+    skip_tls: bool = typer.Option(False, "--skip-tls", help="跳过 SSL/TLS 校验（不推荐）"),
+    debug: bool = typer.Option(False, "--debug", help="显示网络与解压失败的详细诊断信息"),
+    github_token: str = typer.Option(None, "--github-token", help="用于 API 请求的 GitHub Token（也可通过 GH_TOKEN 或 GITHUB_TOKEN 设置）"),
+    ai_skills: bool = typer.Option(False, "--ai-skills", help="将 Prompt.MD 模板安装为 agent skills（需搭配 --ai）"),
 ):
     """
-    Initialize a new Specify project from the latest template.
-    
-    This command will:
-    1. Check that required tools are installed (git is optional)
-    2. Let you choose your AI assistant
-    3. Download the appropriate template from GitHub
-    4. Extract the template to a new project directory or current directory
-    5. Initialize a fresh git repository (if not --no-git and no existing repo)
-    6. Optionally set up AI assistant commands
-    
-    Examples:
+    使用最新模板初始化一个新的 Specify 项目。
+
+    此命令会：
+    1. 检查必需工具是否已安装（git 为可选）
+    2. 让你选择 AI 助手
+    3. 从 GitHub 下载对应模板
+    4. 将模板解压到新项目目录或当前目录
+    5. 初始化新的 git 仓库（如果未使用 --no-git 且当前不存在仓库）
+    6. 可选地安装 agent skills
+
+    示例：
         specify init my-project
         specify init my-project --ai claude
         specify init my-project --ai copilot --no-git
@@ -1299,7 +1438,7 @@ def init(
         specify init --here --force  # Skip confirmation when current directory not empty
         specify init my-project --ai claude --ai-skills   # Install agent skills
         specify init --here --ai gemini --ai-skills
-        specify init my-project --ai generic --ai-commands-dir .myagent/commands/  # Unsupported agent
+        specify init my-project --ai generic --ai-commands-dir .myagent/commands/  # 自定义 agent
     """
 
     show_banner()
@@ -1307,15 +1446,15 @@ def init(
     # Detect when option values are likely misinterpreted flags (parameter ordering issue)
     if ai_assistant and ai_assistant.startswith("--"):
         console.print(f"[red]Error:[/red] Invalid value for --ai: '{ai_assistant}'")
-        console.print("[yellow]Hint:[/yellow] Did you forget to provide a value for --ai?")
-        console.print("[yellow]Example:[/yellow] specify init --ai claude --here")
-        console.print(f"[yellow]Available agents:[/yellow] {', '.join(AGENT_CONFIG.keys())}")
+        console.print("[yellow]提示：[/yellow] 你可能忘了给 --ai 提供取值。")
+        console.print("[yellow]示例：[/yellow] specify init --ai claude --here")
+        console.print(f"[yellow]可用 agents：[/yellow] {', '.join(AGENT_CONFIG.keys())}")
         raise typer.Exit(1)
     
     if ai_commands_dir and ai_commands_dir.startswith("--"):
         console.print(f"[red]Error:[/red] Invalid value for --ai-commands-dir: '{ai_commands_dir}'")
-        console.print("[yellow]Hint:[/yellow] Did you forget to provide a value for --ai-commands-dir?")
-        console.print("[yellow]Example:[/yellow] specify init --ai generic --ai-commands-dir .myagent/commands/")
+        console.print("[yellow]提示：[/yellow] 你可能忘了给 --ai-commands-dir 提供取值。")
+        console.print("[yellow]示例：[/yellow] specify init --ai generic --ai-commands-dir .myagent/commands/")
         raise typer.Exit(1)
 
     if ai_assistant:
@@ -1326,15 +1465,15 @@ def init(
         project_name = None  # Clear project_name to use existing validation logic
 
     if here and project_name:
-        console.print("[red]Error:[/red] Cannot specify both project name and --here flag")
+        console.print("[red]错误：[/red] 不能同时指定项目名和 --here")
         raise typer.Exit(1)
 
     if not here and not project_name:
-        console.print("[red]Error:[/red] Must specify either a project name, use '.' for current directory, or use --here flag")
+        console.print("[red]错误：[/red] 必须提供项目名，或使用 '.' 表示当前目录，或使用 --here")
         raise typer.Exit(1)
 
     if ai_skills and not ai_assistant:
-        console.print("[red]Error:[/red] --ai-skills requires --ai to be specified")
+        console.print("[red]错误：[/red] --ai-skills 必须搭配 --ai 使用")
         console.print("[yellow]Usage:[/yellow] specify init <project> --ai <agent> --ai-skills")
         raise typer.Exit(1)
 
@@ -1344,22 +1483,22 @@ def init(
 
         existing_items = list(project_path.iterdir())
         if existing_items:
-            console.print(f"[yellow]Warning:[/yellow] Current directory is not empty ({len(existing_items)} items)")
-            console.print("[yellow]Template files will be merged with existing content and may overwrite existing files[/yellow]")
+            console.print(f"[yellow]警告：[/yellow] 当前目录非空（{len(existing_items)} 个条目）")
+            console.print("[yellow]模板文件会与现有内容合并，并可能覆盖已有文件[/yellow]")
             if force:
-                console.print("[cyan]--force supplied: skipping confirmation and proceeding with merge[/cyan]")
+                console.print("[cyan]已提供 --force：跳过确认，直接继续合并[/cyan]")
             else:
-                response = typer.confirm("Do you want to continue?")
+                response = typer.confirm("是否继续？")
                 if not response:
-                    console.print("[yellow]Operation cancelled[/yellow]")
+                    console.print("[yellow]已取消操作[/yellow]")
                     raise typer.Exit(0)
     else:
         project_path = Path(project_name).resolve()
         if project_path.exists():
             error_panel = Panel(
                 f"Directory '[cyan]{project_name}[/cyan]' already exists\n"
-                "Please choose a different project name or remove the existing directory.",
-                title="[red]Directory Conflict[/red]",
+                "请选择其他项目名称，或先移除现有目录。",
+                title="[red]目录冲突[/red]",
                 border_style="red",
                 padding=(1, 2)
             )
@@ -1370,14 +1509,14 @@ def init(
     current_dir = Path.cwd()
 
     setup_lines = [
-        "[cyan]Specify Project Setup[/cyan]",
+        "[cyan]Specify 项目设置[/cyan]",
         "",
-        f"{'Project':<15} [green]{project_path.name}[/green]",
-        f"{'Working Path':<15} [dim]{current_dir}[/dim]",
+        f"{'项目':<15} [green]{project_path.name}[/green]",
+        f"{'工作路径':<15} [dim]{current_dir}[/dim]",
     ]
 
     if not here:
-        setup_lines.append(f"{'Target Path':<15} [dim]{project_path}[/dim]")
+        setup_lines.append(f"{'目标路径':<15} [dim]{project_path}[/dim]")
 
     console.print(Panel("\n".join(setup_lines), border_style="cyan", padding=(1, 2)))
 
@@ -1385,11 +1524,11 @@ def init(
     if not no_git:
         should_init_git = check_tool("git")
         if not should_init_git:
-            console.print("[yellow]Git not found - will skip repository initialization[/yellow]")
+            console.print("[yellow]未检测到 git，将跳过仓库初始化[/yellow]")
 
     if ai_assistant:
         if ai_assistant not in AGENT_CONFIG:
-            console.print(f"[red]Error:[/red] Invalid AI assistant '{ai_assistant}'. Choose from: {', '.join(AGENT_CONFIG.keys())}")
+            console.print(f"[red]错误：[/red] 无效的 AI 助手 '{ai_assistant}'。可选值：{', '.join(AGENT_CONFIG.keys())}")
             raise typer.Exit(1)
         selected_ai = ai_assistant
     else:
@@ -1397,14 +1536,14 @@ def init(
         ai_choices = {key: config["name"] for key, config in AGENT_CONFIG.items()}
         selected_ai = select_with_arrows(
             ai_choices, 
-            "Choose your AI assistant:", 
+            "选择你的 AI 助手：", 
             "copilot"
         )
 
     # Validate --ai-commands-dir usage
     if selected_ai == "generic":
         if not ai_commands_dir:
-            console.print("[red]Error:[/red] --ai-commands-dir is required when using --ai generic")
+            console.print("[red]错误：[/red] 使用 --ai generic 时必须提供 --ai-commands-dir")
             console.print("[dim]Example: specify init my-project --ai generic --ai-commands-dir .myagent/commands/[/dim]")
             raise typer.Exit(1)
     elif ai_commands_dir:
@@ -1420,8 +1559,8 @@ def init(
                     f"[cyan]{selected_ai}[/cyan] not found\n"
                     f"Install from: [cyan]{install_url}[/cyan]\n"
                     f"{agent_config['name']} is required to continue with this project type.\n\n"
-                    "Tip: Use [cyan]--ignore-agent-tools[/cyan] to skip this check",
-                    title="[red]Agent Detection Error[/red]",
+                    "提示：使用 [cyan]--ignore-agent-tools[/cyan] 可跳过该检查",
+                    title="[red]Agent 检测失败[/red]",
                     border_style="red",
                     padding=(1, 2)
                 )
@@ -1431,21 +1570,21 @@ def init(
 
     if script_type:
         if script_type not in SCRIPT_TYPE_CHOICES:
-            console.print(f"[red]Error:[/red] Invalid script type '{script_type}'. Choose from: {', '.join(SCRIPT_TYPE_CHOICES.keys())}")
+            console.print(f"[red]错误：[/red] 无效的脚本类型 '{script_type}'。可选值：{', '.join(SCRIPT_TYPE_CHOICES.keys())}")
             raise typer.Exit(1)
         selected_script = script_type
     else:
         default_script = "ps" if os.name == "nt" else "sh"
 
         if sys.stdin.isatty():
-            selected_script = select_with_arrows(SCRIPT_TYPE_CHOICES, "Choose script type (or press Enter)", default_script)
+            selected_script = select_with_arrows(SCRIPT_TYPE_CHOICES, "选择脚本类型（或按 Enter）", default_script)
         else:
             selected_script = default_script
 
-    console.print(f"[cyan]Selected AI assistant:[/cyan] {selected_ai}")
-    console.print(f"[cyan]Selected script type:[/cyan] {selected_script}")
+    console.print(f"[cyan]已选择 AI 助手：[/cyan] {selected_ai}")
+    console.print(f"[cyan]已选择脚本类型：[/cyan] {selected_script}")
 
-    tracker = StepTracker("Initialize Specify Project")
+    tracker = StepTracker("初始化 Specify 项目")
 
     sys._specify_tracker_active = True
 
@@ -1456,21 +1595,21 @@ def init(
     tracker.add("script-select", "Select script type")
     tracker.complete("script-select", selected_script)
     for key, label in [
-        ("fetch", "Fetch latest release"),
-        ("download", "Download template"),
-        ("extract", "Extract template"),
-        ("zip-list", "Archive contents"),
-        ("extracted-summary", "Extraction summary"),
-        ("chmod", "Ensure scripts executable"),
-        ("constitution", "Constitution setup"),
+        ("fetch", "获取最新发布"),
+        ("download", "下载模板"),
+        ("extract", "解压模板"),
+        ("zip-list", "归档内容"),
+        ("extracted-summary", "解压摘要"),
+        ("chmod", "确保脚本可执行"),
+        ("constitution", "初始化章程"),
     ]:
         tracker.add(key, label)
     if ai_skills:
-        tracker.add("ai-skills", "Install agent skills")
+        tracker.add("ai-skills", "安装 agent skills")
     for key, label in [
-        ("cleanup", "Cleanup"),
-        ("git", "Initialize git repository"),
-        ("final", "Finalize")
+        ("cleanup", "清理临时文件"),
+        ("git", "初始化 git 仓库"),
+        ("final", "完成")
     ]:
         tracker.add(key, label)
 
@@ -1524,7 +1663,7 @@ def init(
                             except OSError:
                                 # Best-effort cleanup: skills are already installed,
                                 # so leaving stale commands is non-fatal.
-                                console.print("[yellow]Warning: could not remove extracted commands directory[/yellow]")
+                                console.print("[yellow]警告：无法删除已提取的命令目录[/yellow]")
 
             if not no_git:
                 tracker.start("git")
@@ -1545,7 +1684,7 @@ def init(
             tracker.complete("final", "project ready")
         except Exception as e:
             tracker.error("final", str(e))
-            console.print(Panel(f"Initialization failed: {e}", title="Failure", border_style="red"))
+            console.print(Panel(f"初始化失败：{e}", title="失败", border_style="red"))
             if debug:
                 _env_pairs = [
                     ("Python", sys.version.split()[0]),
@@ -1554,7 +1693,7 @@ def init(
                 ]
                 _label_width = max(len(k) for k, _ in _env_pairs)
                 env_lines = [f"{k.ljust(_label_width)} → [bright_black]{v}[/bright_black]" for k, v in _env_pairs]
-                console.print(Panel("\n".join(env_lines), title="Debug Environment", border_style="magenta"))
+                console.print(Panel("\n".join(env_lines), title="调试环境", border_style="magenta"))
             if not here and project_path.exists():
                 shutil.rmtree(project_path)
             raise typer.Exit(1)
@@ -1562,20 +1701,20 @@ def init(
             pass
 
     console.print(tracker.render())
-    console.print("\n[bold green]Project ready.[/bold green]")
+    console.print("\n[bold green]项目已就绪。[/bold green]")
     
     # Show git error details if initialization failed
     if git_error_message:
         console.print()
         git_error_panel = Panel(
-            f"[yellow]Warning:[/yellow] Git repository initialization failed\n\n"
+            f"[yellow]警告：[/yellow] Git 仓库初始化失败\n\n"
             f"{git_error_message}\n\n"
-            f"[dim]You can initialize git manually later with:[/dim]\n"
+            f"[dim]你可以稍后手动初始化 git：[/dim]\n"
             f"[cyan]cd {project_path if not here else '.'}[/cyan]\n"
             f"[cyan]git init[/cyan]\n"
             f"[cyan]git add .[/cyan]\n"
             f"[cyan]git commit -m \"Initial commit\"[/cyan]",
-            title="[red]Git Initialization Failed[/red]",
+            title="[red]Git 初始化失败[/red]",
             border_style="red",
             padding=(1, 2)
         )
@@ -1587,9 +1726,9 @@ def init(
         agent_folder = ai_commands_dir if selected_ai == "generic" else agent_config["folder"]
         if agent_folder:
             security_notice = Panel(
-                f"Some agents may store credentials, auth tokens, or other identifying and private artifacts in the agent folder within your project.\n"
-                f"Consider adding [cyan]{agent_folder}[/cyan] (or parts of it) to [cyan].gitignore[/cyan] to prevent accidental credential leakage.",
-                title="[yellow]Agent Folder Security[/yellow]",
+                f"部分 agents 可能会在项目内的 agent 目录中保存凭据、认证令牌或其他可识别的私密信息。\n"
+                f"建议将 [cyan]{agent_folder}[/cyan]（或其中的敏感部分）加入 [cyan].gitignore[/cyan]，避免误提交凭据。",
+                title="[yellow]Agent 目录安全提示[/yellow]",
                 border_style="yellow",
                 padding=(1, 2)
             )
@@ -1598,10 +1737,10 @@ def init(
 
     steps_lines = []
     if not here:
-        steps_lines.append(f"1. Go to the project folder: [cyan]cd {project_name}[/cyan]")
+        steps_lines.append(f"1. 进入项目目录：[cyan]cd {project_name}[/cyan]")
         step_num = 2
     else:
-        steps_lines.append("1. You're already in the project directory!")
+        steps_lines.append("1. 你已经位于项目目录中。")
         step_num = 2
 
     # Add Codex-specific setup step if needed
@@ -1613,39 +1752,39 @@ def init(
         else:  # Unix-like systems
             cmd = f"export CODEX_HOME={quoted_path}"
         
-        steps_lines.append(f"{step_num}. Set [cyan]CODEX_HOME[/cyan] environment variable before running Codex: [cyan]{cmd}[/cyan]")
+        steps_lines.append(f"{step_num}. 在运行 Codex 前设置 [cyan]CODEX_HOME[/cyan] 环境变量：[cyan]{cmd}[/cyan]")
         step_num += 1
 
-    steps_lines.append(f"{step_num}. Start using slash commands with your AI agent:")
+    steps_lines.append(f"{step_num}. 开始使用 slash commands 与你的 AI 助手协作：")
 
-    steps_lines.append("   2.1 [cyan]/speckit.constitution[/] - Establish project principles")
-    steps_lines.append("   2.2 [cyan]/speckit.specify[/] - Create baseline specification")
-    steps_lines.append("   2.3 [cyan]/speckit.plan[/] - Create implementation plan")
-    steps_lines.append("   2.4 [cyan]/speckit.tasks[/] - Generate actionable tasks")
-    steps_lines.append("   2.5 [cyan]/speckit.implement[/] - Execute implementation")
+    steps_lines.append("   2.1 [cyan]/speckit.constitution[/] - 建立项目原则")
+    steps_lines.append("   2.2 [cyan]/speckit.specify[/] - 创建基础规范")
+    steps_lines.append("   2.3 [cyan]/speckit.plan[/] - 生成实施计划")
+    steps_lines.append("   2.4 [cyan]/speckit.tasks[/] - 生成可执行任务")
+    steps_lines.append("   2.5 [cyan]/speckit.implement[/] - 执行实施")
 
-    steps_panel = Panel("\n".join(steps_lines), title="Next Steps", border_style="cyan", padding=(1,2))
+    steps_panel = Panel("\n".join(steps_lines), title="后续步骤", border_style="cyan", padding=(1,2))
     console.print()
     console.print(steps_panel)
 
     enhancement_lines = [
-        "Optional commands that you can use for your specs [bright_black](improve quality & confidence)[/bright_black]",
+        "这些是可选命令，可用于提升规范质量与信心 [bright_black](improve quality & confidence)[/bright_black]",
         "",
-        "○ [cyan]/speckit.clarify[/] [bright_black](optional)[/bright_black] - Ask structured questions to de-risk ambiguous areas before planning (run before [cyan]/speckit.plan[/] if used)",
-        "○ [cyan]/speckit.analyze[/] [bright_black](optional)[/bright_black] - Cross-artifact consistency & alignment report (after [cyan]/speckit.tasks[/], before [cyan]/speckit.implement[/])",
-        "○ [cyan]/speckit.checklist[/] [bright_black](optional)[/bright_black] - Generate quality checklists to validate requirements completeness, clarity, and consistency (after [cyan]/speckit.plan[/])"
+        "○ [cyan]/speckit.clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/speckit.plan[/] 前执行）",
+        "○ [cyan]/speckit.analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/speckit.tasks[/] 之后、[cyan]/speckit.implement[/] 之前执行）",
+        "○ [cyan]/speckit.checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/speckit.plan[/] 之后执行）"
     ]
-    enhancements_panel = Panel("\n".join(enhancement_lines), title="Enhancement Commands", border_style="cyan", padding=(1,2))
+    enhancements_panel = Panel("\n".join(enhancement_lines), title="增强命令", border_style="cyan", padding=(1,2))
     console.print()
     console.print(enhancements_panel)
 
 @app.command()
 def check():
-    """Check that all required tools are installed."""
+    """检查所需工具是否已安装。"""
     show_banner()
-    console.print("[bold]Checking for installed tools...[/bold]\n")
+    console.print("[bold]正在检查已安装工具...[/bold]\n")
 
-    tracker = StepTracker("Check Available Tools")
+    tracker = StepTracker("检查可用工具")
 
     tracker.add("git", "Git version control")
     git_ok = check_tool("git", tracker=tracker)
@@ -1663,7 +1802,7 @@ def check():
             agent_results[agent_key] = check_tool(agent_key, tracker=tracker)
         else:
             # IDE-based agent - skip CLI check and mark as optional
-            tracker.skip(agent_key, "IDE-based, no CLI check")
+            tracker.skip(agent_key, "IDE 型 agent，无需 CLI 检测")
             agent_results[agent_key] = False  # Don't count IDE agents as "found"
 
     # Check VS Code variants (not in agent config)
@@ -1675,17 +1814,129 @@ def check():
 
     console.print(tracker.render())
 
-    console.print("\n[bold green]Specify CLI is ready to use![/bold green]")
+    console.print("\n[bold green]Specify CLI 已可使用！[/bold green]")
 
     if not git_ok:
-        console.print("[dim]Tip: Install git for repository management[/dim]")
+        console.print("[dim]提示：安装 git 以启用仓库管理[/dim]")
 
     if not any(agent_results.values()):
-        console.print("[dim]Tip: Install an AI assistant for the best experience[/dim]")
+        console.print("[dim]提示：安装 AI 助手可获得最佳体验[/dim]")
+
+
+@app.command()
+def doctor():
+    """诊断当前环境与项目状态，并给出修复建议。"""
+    show_banner()
+    console.print("[bold]正在执行环境诊断...[/bold]\n")
+
+    diagnostics = _collect_doctor_diagnostics(Path.cwd())
+
+    tracker = StepTracker("环境与项目诊断")
+    tracker.add("python", "Python")
+    tracker.complete("python", diagnostics["python_version"])
+
+    tracker.add("git", "Git")
+    if diagnostics["git_available"]:
+        tracker.complete("git", "可用")
+    else:
+        tracker.error("git", "未安装")
+
+    tracker.add("uv", "uv")
+    if diagnostics["uv_available"]:
+        tracker.complete("uv", "可用")
+    else:
+        tracker.error("uv", "未安装")
+
+    tracker.add("github-token", "GitHub Token")
+    if diagnostics["has_github_token"]:
+        tracker.complete("github-token", "已配置")
+    else:
+        tracker.skip("github-token", "未配置")
+
+    tracker.add("github-api", "GitHub API")
+    if diagnostics["github_connectivity_ok"]:
+        tracker.complete("github-api", diagnostics["github_connectivity_detail"])
+    else:
+        tracker.error("github-api", diagnostics["github_connectivity_detail"])
+
+    tracker.add("project", "当前目录")
+    if diagnostics["is_spec_project"]:
+        tracker.complete("project", "已检测到 .specify/")
+    else:
+        tracker.skip("project", "尚未初始化为 spec-kit 项目")
+
+    tracker.add("repo", "Git 仓库")
+    if diagnostics["is_git_repo"]:
+        tracker.complete("repo", "当前目录位于 Git 仓库内")
+    else:
+        tracker.skip("repo", "未检测到 Git 仓库")
+
+    tracker.add("agents", "AI CLI")
+    if diagnostics["available_agent_count"] > 0:
+        tracker.complete("agents", f"检测到 {diagnostics['available_agent_count']} 个可用 CLI")
+    else:
+        tracker.skip("agents", "尚未检测到可用的 AI CLI")
+
+    console.print(tracker.render())
+    console.print()
+
+    summary_table = Table(show_header=False, box=None, padding=(0, 2))
+    summary_table.add_column("项", style="cyan", justify="right")
+    summary_table.add_column("值", style="white")
+    summary_table.add_row("当前路径", str(diagnostics["path"]))
+    summary_table.add_row("Spec Kit 项目", "是" if diagnostics["is_spec_project"] else "否")
+    summary_table.add_row("Git 仓库", "是" if diagnostics["is_git_repo"] else "否")
+    summary_table.add_row("GitHub Token", "已配置" if diagnostics["has_github_token"] else "未配置")
+    summary_table.add_row("可用 AI CLI 数量", str(diagnostics["available_agent_count"]))
+    if diagnostics["missing_agents"]:
+        summary_table.add_row("缺失的 AI CLI", ", ".join(diagnostics["missing_agents"]))
+
+    console.print(
+        Panel(
+            summary_table,
+            title="[bold cyan]诊断摘要[/bold cyan]",
+            border_style="cyan",
+            padding=(1, 2),
+        )
+    )
+
+    recommendations = _build_doctor_recommendations(diagnostics)
+    console.print()
+    console.print(
+        Panel(
+            "\n".join(f"{idx}. {item}" for idx, item in enumerate(recommendations, start=1)),
+            title="[bold yellow]建议的下一步[/bold yellow]",
+            border_style="yellow",
+            padding=(1, 2),
+        )
+    )
+
+    if diagnostics["is_spec_project"]:
+        follow_up = [
+            "1. 运行 `/speckit.constitution` 建立或校准项目原则",
+            "2. 运行 `/speckit.specify` 明确需求与验收标准",
+            "3. 运行 `/speckit.plan` 生成实施计划",
+        ]
+    else:
+        follow_up = [
+            "1. 运行 `specify init --here --ai claude` 在当前目录初始化",
+            "2. 或运行 `specify init <项目名> --ai claude` 创建新项目",
+            "3. 初始化完成后，再进入 slash commands 工作流",
+        ]
+
+    console.print()
+    console.print(
+        Panel(
+            "\n".join(follow_up),
+            title="[bold green]可直接执行的命令[/bold green]",
+            border_style="green",
+            padding=(1, 2),
+        )
+    )
 
 @app.command()
 def version():
-    """Display version and system information."""
+    """显示版本与系统信息。"""
     import platform
     import importlib.metadata
     
@@ -1743,18 +1994,18 @@ def version():
     info_table.add_column("Key", style="cyan", justify="right")
     info_table.add_column("Value", style="white")
 
-    info_table.add_row("CLI Version", cli_version)
-    info_table.add_row("Template Version", template_version)
-    info_table.add_row("Released", release_date)
+    info_table.add_row("CLI 版本", cli_version)
+    info_table.add_row("模板版本", template_version)
+    info_table.add_row("发布时间", release_date)
     info_table.add_row("", "")
     info_table.add_row("Python", platform.python_version())
-    info_table.add_row("Platform", platform.system())
-    info_table.add_row("Architecture", platform.machine())
-    info_table.add_row("OS Version", platform.version())
+    info_table.add_row("平台", platform.system())
+    info_table.add_row("架构", platform.machine())
+    info_table.add_row("系统版本", platform.version())
 
     panel = Panel(
         info_table,
-        title="[bold cyan]Specify CLI Information[/bold cyan]",
+        title="[bold cyan]Specify CLI 信息[/bold cyan]",
         border_style="cyan",
         padding=(1, 2)
     )
@@ -1767,14 +2018,14 @@ def version():
 
 extension_app = typer.Typer(
     name="extension",
-    help="Manage spec-kit extensions",
+    help="管理 spec-kit 扩展",
     add_completion=False,
 )
 app.add_typer(extension_app, name="extension")
 
 catalog_app = typer.Typer(
     name="catalog",
-    help="Manage extension catalogs",
+    help="管理扩展目录",
     add_completion=False,
 )
 extension_app.add_typer(catalog_app, name="catalog")
@@ -1803,10 +2054,10 @@ def get_speckit_version() -> str:
 
 @extension_app.command("list")
 def extension_list(
-    available: bool = typer.Option(False, "--available", help="Show available extensions from catalog"),
-    all_extensions: bool = typer.Option(False, "--all", help="Show both installed and available"),
+    available: bool = typer.Option(False, "--available", help="显示目录中可用的扩展"),
+    all_extensions: bool = typer.Option(False, "--all", help="同时显示已安装和可用扩展"),
 ):
-    """List installed extensions."""
+    """列出已安装扩展。"""
     from .extensions import ExtensionManager
 
     project_root = Path.cwd()
@@ -1814,21 +2065,21 @@ def extension_list(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 当前不是 spec-kit 项目（缺少 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录运行此命令")
         raise typer.Exit(1)
 
     manager = ExtensionManager(project_root)
     installed = manager.list_installed()
 
     if not installed and not (available or all_extensions):
-        console.print("[yellow]No extensions installed.[/yellow]")
-        console.print("\nInstall an extension with:")
+        console.print("[yellow]当前没有安装任何扩展。[/yellow]")
+        console.print("\n可使用以下命令安装扩展：")
         console.print("  specify extension add <extension-name>")
         return
 
     if installed:
-        console.print("\n[bold cyan]Installed Extensions:[/bold cyan]\n")
+        console.print("\n[bold cyan]已安装扩展：[/bold cyan]\n")
 
         for ext in installed:
             status_icon = "✓" if ext["enabled"] else "✗"
@@ -1836,25 +2087,25 @@ def extension_list(
 
             console.print(f"  [{status_color}]{status_icon}[/{status_color}] [bold]{ext['name']}[/bold] (v{ext['version']})")
             console.print(f"     {ext['description']}")
-            console.print(f"     Commands: {ext['command_count']} | Hooks: {ext['hook_count']} | Status: {'Enabled' if ext['enabled'] else 'Disabled'}")
+            console.print(f"     命令数：{ext['command_count']} | Hooks：{ext['hook_count']} | 状态：{'已启用' if ext['enabled'] else '已禁用'}")
             console.print()
 
     if available or all_extensions:
-        console.print("\nInstall an extension:")
+        console.print("\n安装扩展：")
         console.print("  [cyan]specify extension add <name>[/cyan]")
 
 
 @catalog_app.command("list")
 def catalog_list():
-    """List all active extension catalogs."""
+    """列出所有启用中的扩展目录。"""
     from .extensions import ExtensionCatalog, ValidationError
 
     project_root = Path.cwd()
 
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 当前不是 spec-kit 项目（缺少 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录运行此命令")
         raise typer.Exit(1)
 
     catalog = ExtensionCatalog(project_root)
@@ -1865,65 +2116,65 @@ def catalog_list():
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)
 
-    console.print("\n[bold cyan]Active Extension Catalogs:[/bold cyan]\n")
+    console.print("\n[bold cyan]当前启用的扩展目录：[/bold cyan]\n")
     for entry in active_catalogs:
         install_str = (
-            "[green]install allowed[/green]"
+            "[green]允许安装[/green]"
             if entry.install_allowed
-            else "[yellow]discovery only[/yellow]"
+            else "[yellow]仅发现，不可安装[/yellow]"
         )
-        console.print(f"  [bold]{entry.name}[/bold] (priority {entry.priority})")
+        console.print(f"  [bold]{entry.name}[/bold]（优先级 {entry.priority}）")
         if entry.description:
             console.print(f"     {entry.description}")
-        console.print(f"     URL: {entry.url}")
-        console.print(f"     Install: {install_str}")
+        console.print(f"     URL：{entry.url}")
+        console.print(f"     安装权限：{install_str}")
         console.print()
 
     config_path = project_root / ".specify" / "extension-catalogs.yml"
     user_config_path = Path.home() / ".specify" / "extension-catalogs.yml"
     if os.environ.get("SPECKIT_CATALOG_URL"):
-        console.print("[dim]Catalog configured via SPECKIT_CATALOG_URL environment variable.[/dim]")
+        console.print("[dim]目录通过 SPECKIT_CATALOG_URL 环境变量配置。[/dim]")
     else:
         try:
             proj_loaded = config_path.exists() and catalog._load_catalog_config(config_path) is not None
         except ValidationError:
             proj_loaded = False
         if proj_loaded:
-            console.print(f"[dim]Config: {config_path.relative_to(project_root)}[/dim]")
+            console.print(f"[dim]配置文件：{config_path.relative_to(project_root)}[/dim]")
         else:
             try:
                 user_loaded = user_config_path.exists() and catalog._load_catalog_config(user_config_path) is not None
             except ValidationError:
                 user_loaded = False
             if user_loaded:
-                console.print("[dim]Config: ~/.specify/extension-catalogs.yml[/dim]")
+                console.print("[dim]配置文件：~/.specify/extension-catalogs.yml[/dim]")
             else:
-                console.print("[dim]Using built-in default catalog stack.[/dim]")
+                console.print("[dim]当前使用内置默认目录栈。[/dim]")
                 console.print(
-                    "[dim]Add .specify/extension-catalogs.yml to customize.[/dim]"
+                    "[dim]如需自定义，请添加 .specify/extension-catalogs.yml。[/dim]"
                 )
 
 
 @catalog_app.command("add")
 def catalog_add(
-    url: str = typer.Argument(help="Catalog URL (must use HTTPS)"),
-    name: str = typer.Option(..., "--name", help="Catalog name"),
-    priority: int = typer.Option(10, "--priority", help="Priority (lower = higher priority)"),
+    url: str = typer.Argument(help="目录 URL（必须使用 HTTPS）"),
+    name: str = typer.Option(..., "--name", help="目录名称"),
+    priority: int = typer.Option(10, "--priority", help="优先级（值越小优先级越高）"),
     install_allowed: bool = typer.Option(
         False, "--install-allowed/--no-install-allowed",
-        help="Allow extensions from this catalog to be installed",
+        help="允许从该目录安装扩展",
     ),
-    description: str = typer.Option("", "--description", help="Description of the catalog"),
+    description: str = typer.Option("", "--description", help="目录说明"),
 ):
-    """Add a catalog to .specify/extension-catalogs.yml."""
+    """向 .specify/extension-catalogs.yml 添加目录。"""
     from .extensions import ExtensionCatalog, ValidationError
 
     project_root = Path.cwd()
 
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 当前不是 spec-kit 项目（缺少 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录运行此命令")
         raise typer.Exit(1)
 
     # Validate URL
@@ -1941,21 +2192,21 @@ def catalog_add(
         try:
             config = yaml.safe_load(config_path.read_text()) or {}
         except Exception as e:
-            console.print(f"[red]Error:[/red] Failed to read {config_path}: {e}")
+            console.print(f"[red]错误：[/red] 读取 {config_path} 失败：{e}")
             raise typer.Exit(1)
     else:
         config = {}
 
     catalogs = config.get("catalogs", [])
     if not isinstance(catalogs, list):
-        console.print("[red]Error:[/red] Invalid catalog config: 'catalogs' must be a list.")
+        console.print("[red]错误：[/red] 无效的目录配置：'catalogs' 必须是列表。")
         raise typer.Exit(1)
 
     # Check for duplicate name
     for existing in catalogs:
         if isinstance(existing, dict) and existing.get("name") == name:
-            console.print(f"[yellow]Warning:[/yellow] A catalog named '{name}' already exists.")
-            console.print("Use 'specify extension catalog remove' first, or choose a different name.")
+            console.print(f"[yellow]警告：[/yellow] 已存在名为 '{name}' 的目录。")
+            console.print("请先使用 'specify extension catalog remove' 删除，或换一个名称。")
             raise typer.Exit(1)
 
     catalogs.append({
@@ -1969,63 +2220,63 @@ def catalog_add(
     config["catalogs"] = catalogs
     config_path.write_text(yaml.dump(config, default_flow_style=False, sort_keys=False))
 
-    install_label = "install allowed" if install_allowed else "discovery only"
-    console.print(f"\n[green]✓[/green] Added catalog '[bold]{name}[/bold]' ({install_label})")
-    console.print(f"  URL: {url}")
-    console.print(f"  Priority: {priority}")
-    console.print(f"\nConfig saved to {config_path.relative_to(project_root)}")
+    install_label = "允许安装" if install_allowed else "仅发现"
+    console.print(f"\n[green]✓[/green] 已添加目录 '[bold]{name}[/bold]'（{install_label}）")
+    console.print(f"  URL：{url}")
+    console.print(f"  优先级：{priority}")
+    console.print(f"\n配置已保存到 {config_path.relative_to(project_root)}")
 
 
 @catalog_app.command("remove")
 def catalog_remove(
-    name: str = typer.Argument(help="Catalog name to remove"),
+    name: str = typer.Argument(help="要移除的目录名称"),
 ):
-    """Remove a catalog from .specify/extension-catalogs.yml."""
+    """从 .specify/extension-catalogs.yml 移除目录。"""
     project_root = Path.cwd()
 
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 当前不是 spec-kit 项目（缺少 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录运行此命令")
         raise typer.Exit(1)
 
     config_path = specify_dir / "extension-catalogs.yml"
     if not config_path.exists():
-        console.print("[red]Error:[/red] No catalog config found. Nothing to remove.")
+        console.print("[red]错误：[/red] 未找到目录配置，无可移除内容。")
         raise typer.Exit(1)
 
     try:
         config = yaml.safe_load(config_path.read_text()) or {}
     except Exception:
-        console.print("[red]Error:[/red] Failed to read catalog config.")
+        console.print("[red]错误：[/red] 读取目录配置失败。")
         raise typer.Exit(1)
 
     catalogs = config.get("catalogs", [])
     if not isinstance(catalogs, list):
-        console.print("[red]Error:[/red] Invalid catalog config: 'catalogs' must be a list.")
+        console.print("[red]错误：[/red] 无效的目录配置：'catalogs' 必须是列表。")
         raise typer.Exit(1)
     original_count = len(catalogs)
     catalogs = [c for c in catalogs if isinstance(c, dict) and c.get("name") != name]
 
     if len(catalogs) == original_count:
-        console.print(f"[red]Error:[/red] Catalog '{name}' not found.")
+        console.print(f"[red]错误：[/red] 未找到目录 '{name}'。")
         raise typer.Exit(1)
 
     config["catalogs"] = catalogs
     config_path.write_text(yaml.dump(config, default_flow_style=False, sort_keys=False))
 
-    console.print(f"[green]✓[/green] Removed catalog '{name}'")
+    console.print(f"[green]✓[/green] 已移除目录 '{name}'")
     if not catalogs:
-        console.print("\n[dim]No catalogs remain in config. Built-in defaults will be used.[/dim]")
+        console.print("\n[dim]配置中已无目录，将回退到内置默认值。[/dim]")
 
 
 @extension_app.command("add")
 def extension_add(
-    extension: str = typer.Argument(help="Extension name or path"),
-    dev: bool = typer.Option(False, "--dev", help="Install from local directory"),
-    from_url: Optional[str] = typer.Option(None, "--from", help="Install from custom URL"),
+    extension: str = typer.Argument(help="扩展名称或路径"),
+    dev: bool = typer.Option(False, "--dev", help="从本地目录安装"),
+    from_url: Optional[str] = typer.Option(None, "--from", help="从自定义 URL 安装"),
 ):
-    """Install an extension."""
+    """安装扩展。"""
     from .extensions import ExtensionManager, ExtensionCatalog, ExtensionError, ValidationError, CompatibilityError
 
     project_root = Path.cwd()
@@ -2033,24 +2284,24 @@ def extension_add(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 当前不是 spec-kit 项目（缺少 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录运行此命令")
         raise typer.Exit(1)
 
     manager = ExtensionManager(project_root)
     speckit_version = get_speckit_version()
 
     try:
-        with console.status(f"[cyan]Installing extension: {extension}[/cyan]"):
+        with console.status(f"[cyan]正在安装扩展：{extension}[/cyan]"):
             if dev:
                 # Install from local directory
                 source_path = Path(extension).expanduser().resolve()
                 if not source_path.exists():
-                    console.print(f"[red]Error:[/red] Directory not found: {source_path}")
+                    console.print(f"[red]错误：[/red] 未找到目录：{source_path}")
                     raise typer.Exit(1)
 
                 if not (source_path / "extension.yml").exists():
-                    console.print(f"[red]Error:[/red] No extension.yml found in {source_path}")
+                    console.print(f"[red]错误：[/red] 在 {source_path} 中未找到 extension.yml")
                     raise typer.Exit(1)
 
                 manifest = manager.install_from_directory(source_path, speckit_version)
@@ -2066,14 +2317,14 @@ def extension_add(
                 is_localhost = parsed.hostname in ("localhost", "127.0.0.1", "::1")
 
                 if parsed.scheme != "https" and not (parsed.scheme == "http" and is_localhost):
-                    console.print("[red]Error:[/red] URL must use HTTPS for security.")
-                    console.print("HTTP is only allowed for localhost URLs.")
+                    console.print("[red]错误：[/red] 出于安全考虑，URL 必须使用 HTTPS。")
+                    console.print("仅允许 localhost 使用 HTTP。")
                     raise typer.Exit(1)
 
                 # Warn about untrusted sources
-                console.print("[yellow]Warning:[/yellow] Installing from external URL.")
-                console.print("Only install extensions from sources you trust.\n")
-                console.print(f"Downloading from {from_url}...")
+                console.print("[yellow]警告：[/yellow] 正在从外部 URL 安装扩展。")
+                console.print("请仅安装来自可信来源的扩展。\n")
+                console.print(f"正在从 {from_url} 下载...")
 
                 # Download ZIP to temp location
                 download_dir = project_root / ".specify" / "extensions" / ".cache" / "downloads"
@@ -2088,7 +2339,7 @@ def extension_add(
                     # Install from downloaded ZIP
                     manifest = manager.install_from_zip(zip_path, speckit_version)
                 except urllib.error.URLError as e:
-                    console.print(f"[red]Error:[/red] Failed to download from {from_url}: {e}")
+                    console.print(f"[red]错误：[/red] 从 {from_url} 下载失败：{e}")
                     raise typer.Exit(1)
                 finally:
                     # Clean up downloaded ZIP
@@ -2102,8 +2353,8 @@ def extension_add(
                 # Check if extension exists in catalog
                 ext_info = catalog.get_extension_info(extension)
                 if not ext_info:
-                    console.print(f"[red]Error:[/red] Extension '{extension}' not found in catalog")
-                    console.print("\nSearch available extensions:")
+                    console.print(f"[red]错误：[/red] 在目录中未找到扩展 '{extension}'")
+                    console.print("\n可先搜索可用扩展：")
                     console.print("  specify extension search")
                     raise typer.Exit(1)
 
@@ -2112,16 +2363,16 @@ def extension_add(
                     catalog_name = ext_info.get("_catalog_name", "community")
                     console.print(
                         f"[red]Error:[/red] '{extension}' is available in the "
-                        f"'{catalog_name}' catalog but installation is not allowed from that catalog."
+                        f"'{catalog_name}' 目录中存在该扩展，但当前不允许从该目录安装。"
                     )
                     console.print(
-                        f"\nTo enable installation, add '{extension}' to an approved catalog "
-                        f"(install_allowed: true) in .specify/extension-catalogs.yml."
+                        f"\n若要允许安装，请将 '{extension}' 加入已批准目录，"
+                        f"并在 .specify/extension-catalogs.yml 中设置 install_allowed: true。"
                     )
                     raise typer.Exit(1)
 
                 # Download extension ZIP
-                console.print(f"Downloading {ext_info['name']} v{ext_info.get('version', 'unknown')}...")
+                console.print(f"正在下载 {ext_info['name']} v{ext_info.get('version', 'unknown')}...")
                 zip_path = catalog.download_extension(extension)
 
                 try:
@@ -2132,21 +2383,21 @@ def extension_add(
                     if zip_path.exists():
                         zip_path.unlink()
 
-        console.print("\n[green]✓[/green] Extension installed successfully!")
+        console.print("\n[green]✓[/green] 扩展安装成功！")
         console.print(f"\n[bold]{manifest.name}[/bold] (v{manifest.version})")
         console.print(f"  {manifest.description}")
-        console.print("\n[bold cyan]Provided commands:[/bold cyan]")
+        console.print("\n[bold cyan]提供的命令：[/bold cyan]")
         for cmd in manifest.commands:
             console.print(f"  • {cmd['name']} - {cmd.get('description', '')}")
 
-        console.print("\n[yellow]⚠[/yellow]  Configuration may be required")
-        console.print(f"   Check: .specify/extensions/{manifest.id}/")
+        console.print("\n[yellow]⚠[/yellow]  该扩展可能还需要配置")
+        console.print(f"   请检查：.specify/extensions/{manifest.id}/")
 
     except ValidationError as e:
-        console.print(f"\n[red]Validation Error:[/red] {e}")
+        console.print(f"\n[red]验证错误：[/red] {e}")
         raise typer.Exit(1)
     except CompatibilityError as e:
-        console.print(f"\n[red]Compatibility Error:[/red] {e}")
+        console.print(f"\n[red]兼容性错误：[/red] {e}")
         raise typer.Exit(1)
     except ExtensionError as e:
         console.print(f"\n[red]Error:[/red] {e}")
@@ -2155,11 +2406,11 @@ def extension_add(
 
 @extension_app.command("remove")
 def extension_remove(
-    extension: str = typer.Argument(help="Extension ID to remove"),
-    keep_config: bool = typer.Option(False, "--keep-config", help="Don't remove config files"),
-    force: bool = typer.Option(False, "--force", help="Skip confirmation"),
+    extension: str = typer.Argument(help="要移除的扩展 ID"),
+    keep_config: bool = typer.Option(False, "--keep-config", help="保留配置文件"),
+    force: bool = typer.Option(False, "--force", help="跳过确认"),
 ):
-    """Uninstall an extension."""
+    """卸载扩展。"""
     from .extensions import ExtensionManager
 
     project_root = Path.cwd()
@@ -2167,15 +2418,15 @@ def extension_remove(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 当前不是 spec-kit 项目（缺少 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录运行此命令")
         raise typer.Exit(1)
 
     manager = ExtensionManager(project_root)
 
     # Check if extension is installed
     if not manager.registry.is_installed(extension):
-        console.print(f"[red]Error:[/red] Extension '{extension}' is not installed")
+        console.print(f"[red]错误：[/red] 扩展 '{extension}' 尚未安装")
         raise typer.Exit(1)
 
     # Get extension info
@@ -2189,41 +2440,41 @@ def extension_remove(
 
     # Confirm removal
     if not force:
-        console.print("\n[yellow]⚠  This will remove:[/yellow]")
-        console.print(f"   • {cmd_count} commands from AI agent")
-        console.print(f"   • Extension directory: .specify/extensions/{extension}/")
+        console.print("\n[yellow]⚠  此操作将移除：[/yellow]")
+        console.print(f"   • AI agent 中的 {cmd_count} 个命令")
+        console.print(f"   • 扩展目录：.specify/extensions/{extension}/")
         if not keep_config:
-            console.print("   • Config files (will be backed up)")
+            console.print("   • 配置文件（会先备份）")
         console.print()
 
-        confirm = typer.confirm("Continue?")
+        confirm = typer.confirm("是否继续？")
         if not confirm:
-            console.print("Cancelled")
+            console.print("已取消")
             raise typer.Exit(0)
 
     # Remove extension
     success = manager.remove(extension, keep_config=keep_config)
 
     if success:
-        console.print(f"\n[green]✓[/green] Extension '{ext_name}' removed successfully")
+        console.print(f"\n[green]✓[/green] 扩展 '{ext_name}' 已成功移除")
         if keep_config:
-            console.print(f"\nConfig files preserved in .specify/extensions/{extension}/")
+            console.print(f"\n配置文件已保留在 .specify/extensions/{extension}/")
         else:
-            console.print(f"\nConfig files backed up to .specify/extensions/.backup/{extension}/")
-        console.print(f"\nTo reinstall: specify extension add {extension}")
+            console.print(f"\n配置文件已备份到 .specify/extensions/.backup/{extension}/")
+        console.print(f"\n重新安装：specify extension add {extension}")
     else:
-        console.print("[red]Error:[/red] Failed to remove extension")
+        console.print("[red]错误：[/red] 扩展移除失败")
         raise typer.Exit(1)
 
 
 @extension_app.command("search")
 def extension_search(
-    query: str = typer.Argument(None, help="Search query (optional)"),
-    tag: Optional[str] = typer.Option(None, "--tag", help="Filter by tag"),
-    author: Optional[str] = typer.Option(None, "--author", help="Filter by author"),
-    verified: bool = typer.Option(False, "--verified", help="Show only verified extensions"),
+    query: str = typer.Argument(None, help="搜索关键词（可选）"),
+    tag: Optional[str] = typer.Option(None, "--tag", help="按标签筛选"),
+    author: Optional[str] = typer.Option(None, "--author", help="按作者筛选"),
+    verified: bool = typer.Option(False, "--verified", help="仅显示已验证扩展"),
 ):
-    """Search for available extensions in catalog."""
+    """在目录中搜索可用扩展。"""
     from .extensions import ExtensionCatalog, ExtensionError
 
     project_root = Path.cwd()
@@ -2231,26 +2482,26 @@ def extension_search(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 当前不是 spec-kit 项目（缺少 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录运行此命令")
         raise typer.Exit(1)
 
     catalog = ExtensionCatalog(project_root)
 
     try:
-        console.print("🔍 Searching extension catalog...")
+        console.print("🔍 正在搜索扩展目录...")
         results = catalog.search(query=query, tag=tag, author=author, verified_only=verified)
 
         if not results:
-            console.print("\n[yellow]No extensions found matching criteria[/yellow]")
+            console.print("\n[yellow]没有找到符合条件的扩展[/yellow]")
             if query or tag or author or verified:
-                console.print("\nTry:")
-                console.print("  • Broader search terms")
-                console.print("  • Remove filters")
-                console.print("  • specify extension search (show all)")
+                console.print("\n可以尝试：")
+                console.print("  • 使用更宽泛的搜索词")
+                console.print("  • 去掉部分筛选条件")
+                console.print("  • specify extension search（查看全部）")
             raise typer.Exit(0)
 
-        console.print(f"\n[green]Found {len(results)} extension(s):[/green]\n")
+        console.print(f"\n[green]找到 {len(results)} 个扩展：[/green]\n")
 
         for ext in results:
             # Extension header
@@ -2259,47 +2510,47 @@ def extension_search(
             console.print(f"  {ext['description']}")
 
             # Metadata
-            console.print(f"\n  [dim]Author:[/dim] {ext.get('author', 'Unknown')}")
+            console.print(f"\n  [dim]作者：[/dim] {ext.get('author', 'Unknown')}")
             if ext.get('tags'):
                 tags_str = ", ".join(ext['tags'])
-                console.print(f"  [dim]Tags:[/dim] {tags_str}")
+                console.print(f"  [dim]标签：[/dim] {tags_str}")
 
             # Source catalog
             catalog_name = ext.get("_catalog_name", "")
             install_allowed = ext.get("_install_allowed", True)
             if catalog_name:
                 if install_allowed:
-                    console.print(f"  [dim]Catalog:[/dim] {catalog_name}")
+                    console.print(f"  [dim]来源目录：[/dim] {catalog_name}")
                 else:
-                    console.print(f"  [dim]Catalog:[/dim] {catalog_name} [yellow](discovery only — not installable)[/yellow]")
+                    console.print(f"  [dim]来源目录：[/dim] {catalog_name} [yellow]（仅发现，不可安装）[/yellow]")
 
             # Stats
             stats = []
             if ext.get('downloads') is not None:
-                stats.append(f"Downloads: {ext['downloads']:,}")
+                stats.append(f"下载量：{ext['downloads']:,}")
             if ext.get('stars') is not None:
-                stats.append(f"Stars: {ext['stars']}")
+                stats.append(f"Stars：{ext['stars']}")
             if stats:
                 console.print(f"  [dim]{' | '.join(stats)}[/dim]")
 
             # Links
             if ext.get('repository'):
-                console.print(f"  [dim]Repository:[/dim] {ext['repository']}")
+                console.print(f"  [dim]仓库：[/dim] {ext['repository']}")
 
             # Install command (show warning if not installable)
             if install_allowed:
-                console.print(f"\n  [cyan]Install:[/cyan] specify extension add {ext['id']}")
+                console.print(f"\n  [cyan]安装：[/cyan] specify extension add {ext['id']}")
             else:
-                console.print(f"\n  [yellow]⚠[/yellow]  Not directly installable from '{catalog_name}'.")
+                console.print(f"\n  [yellow]⚠[/yellow]  当前不能直接从 '{catalog_name}' 安装。")
                 console.print(
-                    f"  Add to an approved catalog with install_allowed: true, "
-                    f"or install from a ZIP URL: specify extension add {ext['id']} --from <zip-url>"
+                    f"  可将其加入 install_allowed: true 的已批准目录，"
+                    f"或通过 ZIP URL 安装：specify extension add {ext['id']} --from <zip-url>"
                 )
             console.print()
 
     except ExtensionError as e:
         console.print(f"\n[red]Error:[/red] {e}")
-        console.print("\nTip: The catalog may be temporarily unavailable. Try again later.")
+        console.print("\n提示：目录可能暂时不可用，请稍后重试。")
         raise typer.Exit(1)
 
 

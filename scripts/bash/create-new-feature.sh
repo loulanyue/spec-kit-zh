@@ -15,41 +15,41 @@ while [ $i -le $# ]; do
             ;;
         --short-name)
             if [ $((i + 1)) -gt $# ]; then
-                echo 'Error: --short-name requires a value' >&2
+                echo '错误：--short-name 需要提供取值' >&2
                 exit 1
             fi
             i=$((i + 1))
             next_arg="${!i}"
             # Check if the next argument is another option (starts with --)
             if [[ "$next_arg" == --* ]]; then
-                echo 'Error: --short-name requires a value' >&2
+                echo '错误：--short-name 需要提供取值' >&2
                 exit 1
             fi
             SHORT_NAME="$next_arg"
             ;;
         --number)
             if [ $((i + 1)) -gt $# ]; then
-                echo 'Error: --number requires a value' >&2
+                echo '错误：--number 需要提供取值' >&2
                 exit 1
             fi
             i=$((i + 1))
             next_arg="${!i}"
             if [[ "$next_arg" == --* ]]; then
-                echo 'Error: --number requires a value' >&2
+                echo '错误：--number 需要提供取值' >&2
                 exit 1
             fi
             BRANCH_NUMBER="$next_arg"
             ;;
         --help|-h) 
-            echo "Usage: $0 [--json] [--short-name <name>] [--number N] <feature_description>"
+            echo "用法：$0 [--json] [--short-name <name>] [--number N] <feature_description>"
             echo ""
-            echo "Options:"
-            echo "  --json              Output in JSON format"
-            echo "  --short-name <name> Provide a custom short name (2-4 words) for the branch"
-            echo "  --number N          Specify branch number manually (overrides auto-detection)"
-            echo "  --help, -h          Show this help message"
+            echo "选项："
+            echo "  --json              以 JSON 格式输出"
+            echo "  --short-name <name> 为分支提供自定义短名称（2-4 个词）"
+            echo "  --number N          手动指定分支编号（覆盖自动检测）"
+            echo "  --help, -h          显示帮助信息"
             echo ""
-            echo "Examples:"
+            echo "示例："
             echo "  $0 'Add user authentication system' --short-name 'user-auth'"
             echo "  $0 'Implement OAuth2 integration for API' --number 5"
             exit 0
@@ -63,14 +63,14 @@ done
 
 FEATURE_DESCRIPTION="${ARGS[*]}"
 if [ -z "$FEATURE_DESCRIPTION" ]; then
-    echo "Usage: $0 [--json] [--short-name <name>] [--number N] <feature_description>" >&2
+    echo "用法：$0 [--json] [--short-name <name>] [--number N] <feature_description>" >&2
     exit 1
 fi
 
 # Trim whitespace and validate description is not empty (e.g., user passed only whitespace)
 FEATURE_DESCRIPTION=$(echo "$FEATURE_DESCRIPTION" | xargs)
 if [ -z "$FEATURE_DESCRIPTION" ]; then
-    echo "Error: Feature description cannot be empty or contain only whitespace" >&2
+    echo "错误：功能描述不能为空，且不能只包含空白字符" >&2
     exit 1
 fi
 
@@ -173,7 +173,7 @@ if git rev-parse --show-toplevel >/dev/null 2>&1; then
 else
     REPO_ROOT="$(find_repo_root "$SCRIPT_DIR")"
     if [ -z "$REPO_ROOT" ]; then
-        echo "Error: Could not determine repository root. Please run this script from within the repository." >&2
+        echo "错误：无法确定仓库根目录。请在仓库内部运行该脚本。" >&2
         exit 1
     fi
     HAS_GIT=false

@@ -1,9 +1,9 @@
 """
-Extension Manager for Spec Kit
+Spec Kit 扩展管理器
 
-Handles installation, removal, and management of Spec Kit extensions.
-Extensions are modular packages that add commands and functionality to spec-kit
-without bloating the core framework.
+负责安装、移除和管理 Spec Kit 扩展。
+扩展是模块化的软件包，可在不膨胀核心框架的前提下为 spec-kit
+增加命令和功能。
 """
 
 import json
@@ -73,63 +73,63 @@ class ExtensionManifest:
             with open(path, 'r') as f:
                 return yaml.safe_load(f) or {}
         except yaml.YAMLError as e:
-            raise ValidationError(f"Invalid YAML in {path}: {e}")
+            raise ValidationError(f"{path} 中存在无效 YAML：{e}")
         except FileNotFoundError:
-            raise ValidationError(f"Manifest not found: {path}")
+            raise ValidationError(f"未找到清单文件：{path}")
 
     def _validate(self):
         """Validate manifest structure and required fields."""
         # Check required top-level fields
         for field in self.REQUIRED_FIELDS:
             if field not in self.data:
-                raise ValidationError(f"Missing required field: {field}")
+                raise ValidationError(f"缺少必填字段：{field}")
 
         # Validate schema version
         if self.data["schema_version"] != self.SCHEMA_VERSION:
             raise ValidationError(
-                f"Unsupported schema version: {self.data['schema_version']} "
-                f"(expected {self.SCHEMA_VERSION})"
+                f"不支持的 schema 版本：{self.data['schema_version']} "
+                f"（期望 {self.SCHEMA_VERSION}）"
             )
 
         # Validate extension metadata
         ext = self.data["extension"]
         for field in ["id", "name", "version", "description"]:
             if field not in ext:
-                raise ValidationError(f"Missing extension.{field}")
+                raise ValidationError(f"缺少 extension.{field}")
 
         # Validate extension ID format
         if not re.match(r'^[a-z0-9-]+$', ext["id"]):
             raise ValidationError(
-                f"Invalid extension ID '{ext['id']}': "
-                "must be lowercase alphanumeric with hyphens only"
+                f"无效的扩展 ID '{ext['id']}'："
+                "只能使用小写字母、数字和连字符"
             )
 
         # Validate semantic version
         try:
             pkg_version.Version(ext["version"])
         except pkg_version.InvalidVersion:
-            raise ValidationError(f"Invalid version: {ext['version']}")
+            raise ValidationError(f"无效的版本号：{ext['version']}")
 
         # Validate requires section
         requires = self.data["requires"]
         if "speckit_version" not in requires:
-            raise ValidationError("Missing requires.speckit_version")
+            raise ValidationError("缺少 requires.speckit_version")
 
         # Validate provides section
         provides = self.data["provides"]
         if "commands" not in provides or not provides["commands"]:
-            raise ValidationError("Extension must provide at least one command")
+            raise ValidationError("扩展至少必须提供一个命令")
 
         # Validate commands
         for cmd in provides["commands"]:
             if "name" not in cmd or "file" not in cmd:
-                raise ValidationError("Command missing 'name' or 'file'")
+                raise ValidationError("命令缺少 'name' 或 'file'")
 
             # Validate command name format
             if not re.match(r'^speckit\.[a-z0-9-]+\.[a-z0-9-]+$', cmd["name"]):
                 raise ValidationError(
-                    f"Invalid command name '{cmd['name']}': "
-                    "must follow pattern 'speckit.{extension}.{command}'"
+                    f"无效的命令名 '{cmd['name']}'："
+                    "必须符合 'speckit.{extension}.{command}' 模式"
                 )
 
     @property
@@ -305,12 +305,12 @@ class ExtensionManager:
             specifier = SpecifierSet(required)
             if current not in specifier:
                 raise CompatibilityError(
-                    f"Extension requires spec-kit {required}, "
-                    f"but {speckit_version} is installed.\n"
-                    f"Upgrade spec-kit with: uv tool install specify-cli --force"
+                    f"扩展要求 spec-kit 版本 {required}，"
+                    f"但当前安装的是 {speckit_version}。\n"
+                    f"可使用以下命令升级 spec-kit：uv tool install specify-cli --force"
                 )
         except InvalidSpecifier:
-            raise CompatibilityError(f"Invalid version specifier: {required}")
+            raise CompatibilityError(f"无效的版本约束：{required}")
 
         return True
 
@@ -344,8 +344,8 @@ class ExtensionManager:
         # Check if already installed
         if self.registry.is_installed(manifest.id):
             raise ExtensionError(
-                f"Extension '{manifest.id}' is already installed. "
-                f"Use 'specify extension remove {manifest.id}' first."
+                f"扩展 '{manifest.id}' 已安装。"
+                f"请先执行 'specify extension remove {manifest.id}'。"
             )
 
         # Install extension
@@ -411,7 +411,7 @@ class ExtensionManager:
                         member_path.relative_to(temp_path_resolved)
                     except ValueError:
                         raise ValidationError(
-                            f"Unsafe path in ZIP archive: {member} (potential path traversal)"
+                            f"ZIP 压缩包中存在不安全路径：{member}（疑似路径穿越）"
                         )
                 # Only extract after all paths are validated
                 zf.extractall(temp_path)
@@ -428,7 +428,7 @@ class ExtensionManager:
                     manifest_path = extension_dir / "extension.yml"
 
             if not manifest_path.exists():
-                raise ValidationError("No extension.yml found in ZIP file")
+                raise ValidationError("ZIP 文件中未找到 extension.yml")
 
             # Install from extracted directory
             return self.install_from_directory(extension_dir, speckit_version)
@@ -546,7 +546,7 @@ class ExtensionManager:
                     "id": ext_id,
                     "name": ext_id,
                     "version": metadata.get("version", "unknown"),
-                    "description": "⚠️ Corrupted extension",
+                    "description": "⚠️ 扩展已损坏",
                     "enabled": False,
                     "installed_at": metadata.get("installed_at"),
                     "command_count": 0,
@@ -855,7 +855,7 @@ class CommandRegistrar:
             ExtensionError: If agent is not supported
         """
         if agent_name not in self.AGENT_CONFIGS:
-            raise ExtensionError(f"Unsupported agent: {agent_name}")
+            raise ExtensionError(f"不支持的 agent：{agent_name}")
 
         agent_config = self.AGENT_CONFIGS[agent_name]
         commands_dir = project_root / agent_config["dir"]
@@ -889,7 +889,7 @@ class CommandRegistrar:
             elif agent_config["format"] == "toml":
                 output = self._render_toml_command(frontmatter, body, manifest.id)
             else:
-                raise ExtensionError(f"Unsupported format: {agent_config['format']}")
+                raise ExtensionError(f"不支持的格式：{agent_config['format']}")
 
             # Write command file
             dest_file = commands_dir / f"{cmd_name}{agent_config['extension']}"
@@ -1018,11 +1018,11 @@ class ExtensionCatalog:
         is_localhost = parsed.hostname in ("localhost", "127.0.0.1", "::1")
         if parsed.scheme != "https" and not (parsed.scheme == "http" and is_localhost):
             raise ValidationError(
-                f"Catalog URL must use HTTPS (got {parsed.scheme}://). "
-                "HTTP is only allowed for localhost."
+                f"目录 URL 必须使用 HTTPS（当前为 {parsed.scheme}://）。"
+                "仅允许 localhost 使用 HTTP。"
             )
         if not parsed.netloc:
-            raise ValidationError("Catalog URL must be a valid URL with a host.")
+            raise ValidationError("目录 URL 必须是包含主机名的有效 URL。")
 
     def _load_catalog_config(self, config_path: Path) -> Optional[List[CatalogEntry]]:
         """Load catalog stack configuration from a YAML file.
@@ -2060,4 +2060,3 @@ class HookExecutor:
                     hook["enabled"] = False
 
         self.save_project_config(config)
-

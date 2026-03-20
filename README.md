@@ -156,12 +156,12 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init --here 
 
 - **[Brownfield ASP.NET CMS extension](https://github.com/mnriem/spec-kit-aspnet-brownfield-demo)**：在已有 ASP.NET CMS 项目中追加两个功能，展示 spec-kit 如何适配已有代码库，而不要求项目一开始就有现成规范或 constitution。
 
-## 🤖 Supported AI Agents
+## 🤖 支持的 AI 代理
 
-| Agent                                                                                | Support | Notes                                                                                                                                     |
-| ------------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 代理                                                                                 | 支持情况 | 说明                                                                                                                                        |
+| ------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Qoder CLI](https://qoder.com/cli)                                                   | ✅      |                                                                                                                                           |
-| [Kiro CLI](https://kiro.dev/docs/cli/)                                               | ✅      | Use `--ai kiro-cli` (alias: `--ai kiro`)                                                                                                 |
+| [Kiro CLI](https://kiro.dev/docs/cli/)                                               | ✅      | 使用 `--ai kiro-cli`，别名为 `--ai kiro`                                                                                                   |
 | [Amp](https://ampcode.com/)                                                          | ✅      |                                                                                                                                           |
 | [Auggie CLI](https://docs.augmentcode.com/cli/overview)                              | ✅      |                                                                                                                                           |
 | [Claude Code](https://www.anthropic.com/claude-code)                                 | ✅      |                                                                                                                                           |
@@ -170,7 +170,7 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init --here 
 | [Cursor](https://cursor.sh/)                                                         | ✅      |                                                                                                                                           |
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli)                            | ✅      |                                                                                                                                           |
 | [GitHub Copilot](https://code.visualstudio.com/)                                     | ✅      |                                                                                                                                           |
-| [IBM Bob](https://www.ibm.com/products/bob)                                          | ✅      | IDE-based agent with slash command support                                                                                                |
+| [IBM Bob](https://www.ibm.com/products/bob)                                          | ✅      | 基于 IDE 的 agent，支持 slash commands                                                                                                     |
 | [Jules](https://jules.google.com/)                                                   | ✅      |                                                                                                                                           |
 | [Kilo Code](https://github.com/Kilo-Org/kilocode)                                    | ✅      |                                                                                                                                           |
 | [opencode](https://opencode.ai/)                                                     | ✅      |                                                                                                                                           |
@@ -181,35 +181,35 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify init --here 
 | [Mistral Vibe](https://github.com/mistralai/mistral-vibe)                            | ✅      |                                                                                                                                           |
 | [Windsurf](https://windsurf.com/)                                                    | ✅      |                                                                                                                                           |
 | [Antigravity (agy)](https://antigravity.google/)                                     | ✅      |                                                                                                                                           |
-| Generic                                                                              | ✅      | 自带代理接入方式。对未内置支持的代理，可通过 `--ai generic --ai-commands-dir <path>` 注入命令模板                                         |
+| Generic                                                                              | ✅      | 自定义代理接入方式。对未内置支持的代理，可通过 `--ai generic --ai-commands-dir <path>` 注入命令模板                                       |
 
 ## 🔧 Specify CLI 参考
 
 `specify` 命令支持以下能力与参数：
 
-### Commands
+### 命令
 
-| Command | Description                                                                                                                                             |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `init`  | 使用最新模板初始化一个新的 Specify 项目                                                                                                                 |
-| `check` | 检查本机是否安装所需工具（如 `git`、`claude`、`gemini`、`cursor-agent`、`codex`、`kiro-cli`、`qodercli`、`vibe` 等）                                 |
+| 命令 | 说明 |
+| ---- | ---- |
+| `init`  | 使用最新模板初始化一个新的 Specify 项目 |
+| `check` | 检查本机是否安装所需工具（如 `git`、`claude`、`gemini`、`cursor-agent`、`codex`、`kiro-cli`、`qodercli`、`vibe` 等） |
 
 ### `specify init` 参数与选项
 
-| Argument/Option        | Type     | Description                                                                                                                                                                                  |
-| ---------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `<project-name>`       | 参数     | 新项目目录名（使用 `--here` 时可省略，也可以用 `.` 表示当前目录）                                                                                                                            |
-| `--ai`                 | 选项     | 要接入的 AI 助手：`claude`、`gemini`、`copilot`、`cursor-agent`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（别名 `kiro`）、`agy`、`bob`、`qodercli`、`vibe` 或 `generic` |
-| `--ai-commands-dir`    | 选项     | 代理命令文件目录（与 `--ai generic` 配合使用，例如 `.myagent/commands/`）                                                                                                                    |
-| `--script`             | 选项     | 使用脚本类型：`sh`（bash/zsh）或 `ps`（PowerShell）                                                                                                                                           |
-| `--ignore-agent-tools` | 标志     | 跳过对 Claude Code 等 AI 工具的检查                                                                                                                                                          |
-| `--no-git`             | 标志     | 跳过 git 仓库初始化                                                                                                                                                                          |
-| `--here`               | 标志     | 直接在当前目录初始化，而不是新建目录                                                                                                                                                         |
-| `--force`              | 标志     | 当前目录非空时强制合并/覆盖并跳过确认                                                                                                                                                        |
-| `--skip-tls`           | 标志     | 跳过 SSL/TLS 校验（不推荐）                                                                                                                                                                  |
-| `--debug`              | 标志     | 开启详细调试输出，便于排查问题                                                                                                                                                               |
-| `--github-token`       | 选项     | 用于 GitHub API 请求的令牌（也可通过 `GH_TOKEN` / `GITHUB_TOKEN` 环境变量传入）                                                                                                             |
-| `--ai-skills`          | 标志     | 将 Prompt.MD 模板安装到代理专属的 `skills/` 目录中（需要配合 `--ai`）                                                                                                                       |
+| 参数/选项        | 类型     | 说明 |
+| ---------------- | -------- | ---- |
+| `<project-name>` | 参数     | 新项目目录名（使用 `--here` 时可省略，也可以用 `.` 表示当前目录） |
+| `--ai` | 选项 | 要接入的 AI 助手：`claude`、`gemini`、`copilot`、`cursor-agent`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（别名 `kiro`）、`agy`、`bob`、`qodercli`、`vibe` 或 `generic` |
+| `--ai-commands-dir` | 选项 | 代理命令文件目录（与 `--ai generic` 配合使用，例如 `.myagent/commands/`） |
+| `--script` | 选项 | 使用脚本类型：`sh`（bash/zsh）或 `ps`（PowerShell） |
+| `--ignore-agent-tools` | 标志 | 跳过对 Claude Code 等 AI 工具的检查 |
+| `--no-git` | 标志 | 跳过 git 仓库初始化 |
+| `--here` | 标志 | 直接在当前目录初始化，而不是新建目录 |
+| `--force` | 标志 | 当前目录非空时强制合并/覆盖并跳过确认 |
+| `--skip-tls` | 标志 | 跳过 SSL/TLS 校验（不推荐） |
+| `--debug` | 标志 | 开启详细调试输出，便于排查问题 |
+| `--github-token` | 选项 | 用于 GitHub API 请求的令牌（也可通过 `GH_TOKEN` / `GITHUB_TOKEN` 环境变量传入） |
+| `--ai-skills` | 标志 | 将 Prompt.MD 模板安装到代理专属的 `skills/` 目录中（需要配合 `--ai`） |
 
 ### 示例
 

@@ -1,31 +1,31 @@
 ---
-description: Create or update the project constitution from interactive or provided principle inputs, ensuring all dependent templates stay in sync.
+description: 根据交互输入或已提供原则创建或更新项目章程，并确保相关模板保持同步。
 handoffs: 
-  - label: Build Specification
+  - label: 构建规范
     agent: speckit.specify
-    prompt: Implement the feature specification based on the updated constitution. I want to build...
+    prompt: 基于更新后的章程创建功能规范。我想构建...
 ---
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- The constitution content, sync impact report, rationale, and final summary MUST be written in Simplified Chinese.
-- Keep version numbers, placeholder tokens, file paths, and other machine-readable identifiers unchanged where required.
+- 章程内容、同步影响报告、变更理由和最终摘要都必须使用简体中文。
+- 版本号、占位符、文件路径和其他机器可读标识在需要时保持不变。
 
-## Outline
+## 概述
 
-You are updating the project constitution at `.specify/memory/constitution.md`. This file is a TEMPLATE containing placeholder tokens in square brackets (e.g. `[PROJECT_NAME]`, `[PRINCIPLE_1_NAME]`). Your job is to (a) collect/derive concrete values, (b) fill the template precisely, and (c) propagate any amendments across dependent artifacts.
+你正在更新项目宪章文件 `.specify/memory/constitution.md`。该文件是一个模板，包含方括号占位符（例如 `[PROJECT_NAME]`、`[PRINCIPLE_1_NAME]`）。你的任务是：(a) 收集或推导具体值，(b) 精确填充模板，(c) 将修订同步到受影响的相关制品。
 
-**Note**: If `.specify/memory/constitution.md` does not exist yet, it should have been initialized from `.specify/templates/constitution-template.md` during project setup. If it's missing, copy the template first.
+**说明**：如果 `.specify/memory/constitution.md` 尚不存在，它应已在项目初始化时由 `.specify/templates/constitution-template.md` 创建。如果缺失，请先复制模板。
 
-Follow this execution flow:
+请遵循以下执行流程：
 
 1. Load the existing constitution at `.specify/memory/constitution.md`.
    - Identify every placeholder token of the form `[ALL_CAPS_IDENTIFIER]`.
@@ -57,10 +57,10 @@ Follow this execution flow:
 5. Produce a Sync Impact Report (prepend as an HTML comment at top of the constitution file after update):
    - Version change: old → new
    - List of modified principles (old title → new title if renamed)
-   - Added sections
-   - Removed sections
-   - Templates requiring updates (✅ updated / ⚠ pending) with file paths
-   - Follow-up TODOs if any placeholders intentionally deferred.
+   - 新增章节
+   - 删除章节
+   - 需要同步更新的模板（✅ 已更新 / ⚠ 待处理），附文件路径
+   - 若有故意延后的占位项，列出后续 TODO
 
 6. Validation before final output:
    - No remaining unexplained bracket tokens.

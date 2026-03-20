@@ -1,102 +1,102 @@
-# RFC: Spec Kit Extension System
+# RFC：Spec Kit 扩展系统
 
-**Status**: Draft
-**Author**: Stats Perform Engineering
-**Created**: 2026-01-28
-**Updated**: 2026-01-28
-
----
-
-## Table of Contents
-
-1. [Summary](#summary)
-2. [Motivation](#motivation)
-3. [Design Principles](#design-principles)
-4. [Architecture Overview](#architecture-overview)
-5. [Extension Manifest Specification](#extension-manifest-specification)
-6. [Extension Lifecycle](#extension-lifecycle)
-7. [Command Registration](#command-registration)
-8. [Configuration Management](#configuration-management)
-9. [Hook System](#hook-system)
-10. [Extension Discovery & Catalog](#extension-discovery--catalog)
-11. [CLI Commands](#cli-commands)
-12. [Compatibility & Versioning](#compatibility--versioning)
-13. [Security Considerations](#security-considerations)
-14. [Migration Strategy](#migration-strategy)
-15. [Implementation Phases](#implementation-phases)
-16. [Open Questions](#open-questions)
-17. [Appendices](#appendices)
+**状态**：草案
+**作者**：Stats Perform Engineering
+**创建时间**：2026-01-28
+**更新时间**：2026-01-28
 
 ---
 
-## Summary
+## 目录
 
-Introduce an extension system to Spec Kit that allows modular integration with external tools (Jira, Linear, Azure DevOps, etc.) without bloating the core framework. Extensions are self-contained packages installed into `.specify/extensions/` with declarative manifests, versioned independently, and discoverable through a central catalog.
-
----
-
-## Motivation
-
-### Current Problems
-
-1. **Monolithic Growth**: Adding Jira integration to core spec-kit creates:
-   - Large configuration files affecting all users
-   - Dependencies on Jira MCP server for everyone
-   - Merge conflicts as features accumulate
-
-2. **Limited Flexibility**: Different organizations use different tools:
-   - GitHub Issues vs Jira vs Linear vs Azure DevOps
-   - Custom internal tools
-   - No way to support all without bloat
-
-3. **Maintenance Burden**: Every integration adds:
-   - Documentation complexity
-   - Testing matrix expansion
-   - Breaking change surface area
-
-4. **Community Friction**: External contributors can't easily add integrations without core repo PR approval and release cycles.
-
-### Goals
-
-1. **Modularity**: Core spec-kit remains lean, extensions are opt-in
-2. **Extensibility**: Clear API for building new integrations
-3. **Independence**: Extensions version/release separately from core
-4. **Discoverability**: Central catalog for finding extensions
-5. **Safety**: Validation, compatibility checks, sandboxing
+1. [摘要](#摘要)
+2. [动机](#动机)
+3. [设计原则](#设计原则)
+4. [架构概览](#架构概览)
+5. [扩展 Manifest 规范](#扩展-manifest-规范)
+6. [扩展生命周期](#扩展生命周期)
+7. [命令注册](#命令注册)
+8. [配置管理](#配置管理)
+9. [Hook 系统](#hook-系统)
+10. [扩展发现与目录](#扩展发现与目录)
+11. [CLI 命令](#cli-命令)
+12. [兼容性与版本管理](#兼容性与版本管理)
+13. [安全考虑](#安全考虑)
+14. [迁移策略](#迁移策略)
+15. [实现阶段](#实现阶段)
+16. [开放问题](#开放问题)
+17. [附录](#附录)
 
 ---
 
-## Design Principles
+## 摘要
 
-### 1. Convention Over Configuration
+为 Spec Kit 引入扩展系统，使其可以在不膨胀核心框架的前提下，以模块化方式集成外部工具（如 Jira、Linear、Azure DevOps 等）。扩展将作为自包含的软件包安装到 `.specify/extensions/` 中，使用声明式 manifest，独立版本管理，并可通过中心目录被发现。
 
-- Standard directory structure (`.specify/extensions/{name}/`)
-- Declarative manifest (`extension.yml`)
-- Predictable command naming (`speckit.{extension}.{command}`)
+---
 
-### 2. Fail-Safe Defaults
+## 动机
 
-- Missing extensions gracefully degrade (skip hooks)
-- Invalid extensions warn but don't break core functionality
-- Extension failures isolated from core operations
+### 当前问题
 
-### 3. Backward Compatibility
+1. **单体化膨胀**：把 Jira 集成直接放进 core spec-kit 会带来：
+   - 影响所有用户的大型配置文件
+   - 所有人都必须承担 Jira MCP server 依赖
+   - 随着功能累积，合并冲突会越来越多
 
-- Core commands remain unchanged
-- Extensions additive only (no core modifications)
-- Old projects work without extensions
+2. **灵活性不足**：不同组织使用不同工具：
+   - GitHub Issues、Jira、Linear、Azure DevOps 各不相同
+   - 还可能有自定义内部工具
+   - 如果全部塞进核心系统，就无法避免膨胀
 
-### 4. Developer Experience
+3. **维护负担上升**：每引入一个集成，就会增加：
+   - 文档复杂度
+   - 测试矩阵规模
+   - 破坏性变更的影响面
 
-- Simple installation: `specify extension add jira`
-- Clear error messages for compatibility issues
-- Local development mode for testing extensions
+4. **社区协作阻力**：外部贡献者如果想增加集成，往往必须进入 core repo 的 PR 与 release 流程，门槛较高。
 
-### 5. Security First
+### 目标
 
-- Extensions run in same context as AI agent (trust boundary)
-- Manifest validation prevents malicious code
-- Verify signatures for official extensions (future)
+1. **模块化**：core spec-kit 保持精简，扩展为按需启用
+2. **可扩展性**：为新集成提供清晰 API
+3. **独立性**：扩展与核心分开版本化、分开发版
+4. **可发现性**：通过中心目录发现扩展
+5. **安全性**：提供校验、兼容性检查和隔离机制
+
+---
+
+## 设计原则
+
+### 1. 约定优于配置
+
+- 标准目录结构（`.specify/extensions/{name}/`）
+- 声明式 manifest（`extension.yml`）
+- 可预测的命令命名方式（`speckit.{extension}.{command}`）
+
+### 2. 安全失败的默认行为
+
+- 缺失扩展时优雅降级（例如跳过 hooks）
+- 无效扩展只给出警告，不破坏核心功能
+- 扩展失败与核心操作隔离
+
+### 3. 向后兼容
+
+- 核心命令保持不变
+- 扩展仅做增量增强（不修改核心）
+- 老项目在没有扩展时仍可正常工作
+
+### 4. 开发者体验
+
+- 安装简单：`specify extension add jira`
+- 对兼容性问题给出清晰报错
+- 提供本地开发模式用于测试扩展
+
+### 5. 安全优先
+
+- 扩展运行在与 AI agent 相同的上下文中（需要信任边界）
+- 通过 manifest 校验降低恶意代码风险
+- 未来可为官方扩展增加签名验证
 
 ---
 

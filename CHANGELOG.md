@@ -7,6 +7,42 @@ Recent changes to the Specify CLI and templates are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Versioning Strategy
+
+- `PATCH`: non-breaking fixes, documentation and localization improvements, test updates, and compatibility enhancements that do not change the public workflow contract.
+- `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
+- `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
+
+## [0.2.2] - 2026-03-20
+
+### Added
+
+- Added `specify doctor` to diagnose local environment, GitHub connectivity, project initialization state, and AI CLI availability in a more actionable format than `specify check`.
+- Added helper-based doctor diagnostics coverage in `tests/test_doctor.py`.
+
+### Changed
+
+- Structured doctor recommendations around direct next actions such as installing missing tools, configuring `GH_TOKEN`, initializing the current directory, or running `git init` for an existing spec project.
+
+## [0.2.1] - 2026-03-20
+
+### Added
+
+- Added comprehensive Simplified Chinese localization coverage across the `spec-kit-zh` CLI, templates, scripts, documentation, and extension guides.
+- Added [TERMINOLOGY.md](TERMINOLOGY.md) and [TRANSLATION_STANDARDS.md](TRANSLATION_STANDARDS.md) to define translation rules and terminology for ongoing maintenance.
+- Added TOML command template parsing support to `install_ai_skills()`, allowing `.toml`-based agent commands such as Gemini and Qwen to generate AI skills correctly.
+- Added test coverage for TOML command template to AI skill generation in `tests/test_ai_skills.py`.
+
+### Changed
+
+- Localized key user-facing output in `src/specify_cli/__init__.py` and `src/specify_cli/extensions.py` while preserving the newer `spec-kit-zh` mainline logic.
+- Localized core workflow templates and command templates without changing frontmatter, placeholders, or generated file structure.
+- Localized release-adjacent scripts and extension template examples so the generated developer experience stays consistent in Chinese.
+
+### Notes
+
+- This release is intentionally a `PATCH` version because the work focuses on localization, documentation, and non-breaking compatibility improvements rather than introducing a new public workflow contract.
+
 ## [0.2.0] - 2026-03-09
 
 ### Changed

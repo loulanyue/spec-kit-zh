@@ -1,32 +1,32 @@
 ---
-description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
+description: 在任务生成后，对 spec.md、plan.md 和 tasks.md 进行只读的一致性与质量分析。
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
   ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- The full analysis report, findings, severity explanations, coverage summary, and next-action recommendations MUST be written in Simplified Chinese.
-- Keep requirement keys, task IDs, file paths, and raw identifiers in their original machine-readable form.
+- 完整分析报告、问题发现、严重级别说明、覆盖摘要和下一步建议都必须使用简体中文。
+- requirement key、任务 ID、文件路径和原始标识保持机器可读原样。
 
-## Goal
+## 目标
 
-Identify inconsistencies, duplications, ambiguities, and underspecified items across the three core artifacts (`spec.md`, `plan.md`, `tasks.md`) before implementation. This command MUST run only after `/speckit.tasks` has successfully produced a complete `tasks.md`.
+在实施前，对三个核心制品 `spec.md`、`plan.md` 与 `tasks.md` 进行一致性检查，识别其中的不一致、重复、歧义与定义不足之处。本命令只能在 `/speckit.tasks` 已成功生成完整 `tasks.md` 后执行。
 
-## Operating Constraints
+## 操作约束
 
-**STRICTLY READ-ONLY**: Do **not** modify any files. Output a structured analysis report. Offer an optional remediation plan (user must explicitly approve before any follow-up editing commands would be invoked manually).
+**严格只读**：不得修改任何文件。仅输出结构化分析报告。可以提供可选的修复建议计划，但后续若需要编辑文件，必须先获得用户明确批准。
 
-**Constitution Authority**: The project constitution (`/memory/constitution.md`) is **non-negotiable** within this analysis scope. Constitution conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle. If a principle itself needs to change, that must occur in a separate, explicit constitution update outside `/speckit.analyze`.
+**宪章优先级**：项目宪章（`/memory/constitution.md`）在本分析范围内具有**不可协商**的优先级。凡与宪章冲突的问题，一律视为 CRITICAL，必须通过调整 spec、plan 或 tasks 来解决，而不能弱化、重解释或忽略宪章原则。若原则本身需要变更，必须通过独立且明确的宪章更新流程完成，而不能在 `/speckit.analyze` 中处理。
 
 ## Execution Steps
 

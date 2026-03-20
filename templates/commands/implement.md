@@ -1,26 +1,26 @@
 ---
-description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
+description: 读取并执行 tasks.md 中定义的全部任务，完成实施计划。
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
   ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- All user-facing progress updates, checklist status tables, hook guidance, implementation summaries, and completion reports MUST be written in Simplified Chinese.
-- Keep commands, file paths, task IDs, and code/config identifiers in their original machine-readable form.
+- 所有面向用户的进度更新、检查清单状态表、hook 指引、实施摘要和完成报告都必须使用简体中文。
+- 命令、文件路径、任务 ID 和代码/配置标识保持原始机器可读形式。
 
-## Pre-Execution Checks
+## 执行前检查
 
-**Check for extension hooks (before implementation)**:
+**检查扩展 hooks（实施前）**：
 - Check if `.specify/extensions.yml` exists in the project root.
 - If it exists, read it and look for entries under the `hooks.before_implement` key
 - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
@@ -52,9 +52,9 @@ You **MUST** consider the user input before proceeding (if not empty).
     ```
 - If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
-## Outline
+## 概述
 
-1. Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. 在仓库根目录执行 `{SCRIPT}`，并解析 FEATURE_DIR 与 AVAILABLE_DOCS 列表。所有路径都必须是绝对路径。若参数中包含单引号（例如 "I'm Groot"），请使用转义写法，例如 `'I'\''m Groot'`，或尽量改用双引号。
 
 2. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
    - Scan all checklist files in the checklists/ directory
@@ -176,7 +176,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit.tasks` first to regenerate the task list.
 
-10. **Check for extension hooks**: After completion validation, check if `.specify/extensions.yml` exists in the project root.
+10. **检查扩展 hooks**：在完成验证后，检查项目根目录是否存在 `.specify/extensions.yml`。
     - If it exists, read it and look for entries under the `hooks.after_implement` key
     - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
     - Filter to only hooks where `enabled: true`

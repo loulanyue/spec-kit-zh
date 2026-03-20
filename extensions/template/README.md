@@ -1,20 +1,20 @@
-# Extension Template
+# 扩展模板
 
-Starter template for creating a Spec Kit extension.
+这是一个用于创建 Spec Kit 扩展的起始模板。
 
-## Quick Start
+## 快速开始
 
-1. **Copy this template**:
+1. **复制此模板**：
 
    ```bash
    cp -r extensions/template my-extension
    cd my-extension
    ```
 
-2. **Customize `extension.yml`**:
-   - Change extension ID, name, description
-   - Update author and repository
-   - Define your commands
+2. **自定义 `extension.yml`**：
+   - 修改扩展 ID、名称和描述
+   - 更新作者和仓库地址
+   - 定义自己的命令
 
 3. **Create commands**:
    - Add command files in `commands/` directory
@@ -40,7 +40,7 @@ Starter template for creating a Spec Kit extension.
    - Create release
    - Submit to catalog (see EXTENSION-PUBLISHING-GUIDE.md)
 
-## Files in This Template
+## 模板内包含的文件
 
 - `extension.yml` - Extension manifest (CUSTOMIZE THIS)
 - `config-template.yml` - Configuration template (CUSTOMIZE THIS)
@@ -50,7 +50,7 @@ Starter template for creating a Spec Kit extension.
 - `CHANGELOG.md` - Version history (UPDATE THIS)
 - `.gitignore` - Git ignore rules
 
-## Customization Checklist
+## 自定义检查清单
 
 - [ ] Update `extension.yml` with your extension details
 - [ ] Change extension ID to your extension name
@@ -65,14 +65,14 @@ Starter template for creating a Spec Kit extension.
 - [ ] Create git repository
 - [ ] Create first release
 
-## Need Help?
+## 需要帮助？
 
 - **Development Guide**: See EXTENSION-DEVELOPMENT-GUIDE.md
 - **API Reference**: See EXTENSION-API-REFERENCE.md
 - **Publishing Guide**: See EXTENSION-PUBLISHING-GUIDE.md
 - **User Guide**: See EXTENSION-USER-GUIDE.md
 
-## Template Version
+## 模板版本
 
 - Version: 1.0.0
 - Last Updated: 2026-01-28

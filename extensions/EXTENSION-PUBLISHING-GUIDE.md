@@ -1,57 +1,57 @@
-# Extension Publishing Guide
+# 扩展发布指南
 
-This guide explains how to publish your extension to the Spec Kit extension catalog, making it discoverable by `specify extension search`.
+本指南说明如何将你的扩展发布到 Spec Kit 扩展目录中，使其能够被 `specify extension search` 发现。
 
-## Table of Contents
+## 目录
 
-1. [Prerequisites](#prerequisites)
-2. [Prepare Your Extension](#prepare-your-extension)
-3. [Submit to Catalog](#submit-to-catalog)
-4. [Verification Process](#verification-process)
-5. [Release Workflow](#release-workflow)
-6. [Best Practices](#best-practices)
-
----
-
-## Prerequisites
-
-Before publishing an extension, ensure you have:
-
-1. **Valid Extension**: A working extension with a valid `extension.yml` manifest
-2. **Git Repository**: Extension hosted on GitHub (or other public git hosting)
-3. **Documentation**: README.md with installation and usage instructions
-4. **License**: Open source license file (MIT, Apache 2.0, etc.)
-5. **Versioning**: Semantic versioning (e.g., 1.0.0)
-6. **Testing**: Extension tested on real projects
+1. [前置条件](#前置条件)
+2. [准备扩展](#准备扩展)
+3. [提交到目录](#提交到目录)
+4. [验证流程](#验证流程)
+5. [发布流程](#发布流程)
+6. [最佳实践](#最佳实践)
 
 ---
 
-## Prepare Your Extension
+## 前置条件
 
-### 1. Extension Structure
+在发布扩展之前，请确保你已经具备以下条件：
 
-Ensure your extension follows the standard structure:
+1. **有效扩展**：拥有可运行、且 `extension.yml` 有效的扩展
+2. **Git 仓库**：扩展托管在 GitHub（或其他公开 Git 托管平台）
+3. **文档**：README.md 中包含安装与使用说明
+4. **许可证**：带有开源许可证文件（如 MIT、Apache 2.0）
+5. **版本管理**：采用语义化版本（例如 1.0.0）
+6. **测试**：扩展已在真实项目中测试过
+
+---
+
+## 准备扩展
+
+### 1. 扩展目录结构
+
+请确保扩展符合标准目录结构：
 
 ```text
 your-extension/
-├── extension.yml              # Required: Extension manifest
-├── README.md                  # Required: Documentation
-├── LICENSE                    # Required: License file
-├── CHANGELOG.md               # Recommended: Version history
-├── .gitignore                 # Recommended: Git ignore rules
+├── extension.yml              # 必需：扩展清单
+├── README.md                  # 必需：文档
+├── LICENSE                    # 必需：许可证文件
+├── CHANGELOG.md               # 推荐：版本历史
+├── .gitignore                 # 推荐：Git ignore 规则
 │
-├── commands/                  # Extension commands
+├── commands/                  # 扩展命令
 │   ├── command1.md
 │   └── command2.md
 │
-├── config-template.yml        # Config template (if needed)
+├── config-template.yml        # 配置模板（如有需要）
 │
-└── docs/                      # Additional documentation
+└── docs/                      # 额外文档
     ├── usage.md
     └── examples/
 ```
 
-### 2. extension.yml Validation
+### 2. 校验 extension.yml
 
 Verify your manifest is valid:
 
@@ -59,9 +59,9 @@ Verify your manifest is valid:
 schema_version: "1.0"
 
 extension:
-  id: "your-extension"           # Unique lowercase-hyphenated ID
-  name: "Your Extension Name"     # Human-readable name
-  version: "1.0.0"                # Semantic version
+  id: "your-extension"           # 唯一的小写连字符 ID
+  name: "Your Extension Name"    # 人类可读名称
+  version: "1.0.0"               # 语义化版本
   description: "Brief description (one sentence)"
   author: "Your Name or Organization"
   repository: "https://github.com/your-org/spec-kit-your-extension"
@@ -69,86 +69,86 @@ extension:
   homepage: "https://github.com/your-org/spec-kit-your-extension"
 
 requires:
-  speckit_version: ">=0.1.0"    # Required spec-kit version
+  speckit_version: ">=0.1.0"    # 所需 spec-kit 版本
 
 provides:
-  commands:                       # List all commands
+  commands:                      # 列出所有命令
     - name: "speckit.your-extension.command"
       file: "commands/command.md"
       description: "Command description"
 
-tags:                             # 2-5 relevant tags
+tags:                            # 2-5 个相关标签
   - "category"
   - "tool-name"
 ```
 
-**Validation Checklist**:
+**校验清单：**
 
-- ✅ `id` is lowercase with hyphens only (no underscores, spaces, or special characters)
-- ✅ `version` follows semantic versioning (X.Y.Z)
-- ✅ `description` is concise (under 100 characters)
-- ✅ `repository` URL is valid and public
-- ✅ All command files exist in the extension directory
-- ✅ Tags are lowercase and descriptive
+- ✅ `id` 只使用小写字母和连字符（不能有下划线、空格或特殊字符）
+- ✅ `version` 符合语义化版本规则（X.Y.Z）
+- ✅ `description` 简洁明确（建议不超过 100 字符）
+- ✅ `repository` URL 有效且可公开访问
+- ✅ 所有命令文件都存在于扩展目录中
+- ✅ 标签使用小写，且具备描述性
 
-### 3. Create GitHub Release
+### 3. 创建 GitHub Release
 
-Create a GitHub release for your extension version:
+为当前扩展版本创建 GitHub Release：
 
 ```bash
-# Tag the release
+# 打 tag
 git tag v1.0.0
 git push origin v1.0.0
 
-# Create release on GitHub
+// 在 GitHub 上创建 Release
 # Go to: https://github.com/your-org/spec-kit-your-extension/releases/new
 # - Tag: v1.0.0
 # - Title: v1.0.0 - Release Name
 # - Description: Changelog/release notes
 ```
 
-The release archive URL will be:
+生成的 Release 压缩包 URL 形如：
 
 ```text
 https://github.com/your-org/spec-kit-your-extension/archive/refs/tags/v1.0.0.zip
 ```
 
-### 4. Test Installation
+### 4. 测试安装
 
-Test that users can install from your release:
+验证用户是否可以从你的 Release 安装扩展：
 
 ```bash
-# Test dev installation
+# 测试本地开发安装
 specify extension add --dev /path/to/your-extension
 
-# Test from GitHub archive
+# 测试从 GitHub 压缩包安装
 specify extension add --from https://github.com/your-org/spec-kit-your-extension/archive/refs/tags/v1.0.0.zip
 ```
 
 ---
 
-## Submit to Catalog
+## 提交到目录
 
-### Understanding the Catalogs
+### 理解目录机制
 
-Spec Kit uses a dual-catalog system. For details about how catalogs work, see the main [Extensions README](README.md#extension-catalogs).
+Spec Kit 使用双目录系统。关于目录如何工作的详细说明，请参考主文档 [Extensions README](README.md#扩展目录)。
 
-**For extension publishing**: All community extensions should be added to `catalog.community.json`. Users browse this catalog and copy extensions they trust into their own `catalog.json`.
+**对于扩展发布来说**：所有社区扩展都应加入 `catalog.community.json`。用户会先浏览这个目录，再把自己信任的扩展复制到自己的 `catalog.json` 中。
 
-### 1. Fork the spec-kit Repository
+### 1. Fork spec-kit 仓库
 
 ```bash
-# Fork on GitHub
+# 先在 GitHub 上 fork
 # https://github.com/loulanyue/spec-kit-zh/fork
 
-# Clone your fork
+# 再克隆你的 fork
 git clone https://github.com/YOUR-USERNAME/spec-kit.git
 cd spec-kit
 ```
 
-### 2. Add Extension to Community Catalog
+### 2. 将扩展加入社区目录
 
-Edit `extensions/catalog.community.json` and add your extension:
+编辑 `extensions/catalog.community.json`，加入你的扩展：
 
 ```json
 {
@@ -197,24 +197,24 @@ Edit `extensions/catalog.community.json` and add your extension:
 }
 ```
 
-**Important**:
+**注意：**
 
-- Set `verified: false` (maintainers will verify)
-- Set `downloads: 0` and `stars: 0` (auto-updated later)
-- Use current timestamp for `created_at` and `updated_at`
-- Update the top-level `updated_at` to current time
+- 将 `verified` 设为 `false`（由维护者审核后再更新）
+- 将 `downloads` 和 `stars` 设为 `0`（后续可自动更新）
+- `created_at` 和 `updated_at` 使用当前时间戳
+- 顶层的 `updated_at` 也要同步更新为当前时间
 
-### 3. Update Extensions README
+### 3. 更新 Extensions README
 
-Add your extension to the Available Extensions table in `extensions/README.md`:
+将你的扩展加入 `extensions/README.md` 的“可用社区扩展”表格中：
 
 ```markdown
 | Your Extension Name | Brief description of what it does | [repo-name](https://github.com/your-org/spec-kit-your-extension) |
 ```
 
-Insert your extension in alphabetical order in the table.
+请按字母顺序插入你的扩展。
 
-### 4. Submit Pull Request
+### 4. 提交 Pull Request
 
 ```bash
 # Create a branch

@@ -1,13 +1,13 @@
 ---
-description: Execute the implementation planning workflow using the plan template to generate design artifacts.
+description: 执行实施规划工作流，并使用计划模板生成设计制品。
 handoffs: 
-  - label: Create Tasks
+  - label: 创建任务
     agent: speckit.tasks
-    prompt: Break the plan into tasks
+    prompt: 将计划拆解为任务
     send: true
-  - label: Create Checklist
+  - label: 创建检查清单
     agent: speckit.checklist
-    prompt: Create a checklist for the following domain...
+    prompt: 为以下领域创建检查清单...
 scripts:
   sh: scripts/bash/setup-plan.sh --json
   ps: scripts/powershell/setup-plan.ps1 -Json
@@ -16,20 +16,20 @@ agent_scripts:
   ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 ---
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- All generated user-facing artifacts and summaries, including `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, contract descriptions, and completion reports, MUST be written in Simplified Chinese.
-- Keep file paths, commands, IDs, and code/config keys in their original machine-readable form when necessary.
+- 所有面向用户的生成制品与摘要，包括 `plan.md`、`research.md`、`data-model.md`、`quickstart.md`、合同描述和完成报告，都必须使用简体中文。
+- 文件路径、命令、ID 和代码/配置键在需要时保持机器可读原样。
 
-## Outline
+## 概述
 
 1. **Setup**: Run `{SCRIPT}` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 

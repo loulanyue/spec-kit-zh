@@ -1,23 +1,23 @@
-# 功能规格说明：[功能名称]
+# 功能规范：[功能名称]
 
 **功能分支**：`[###-feature-name]`  
-**创建日期**：[DATE]  
+**创建时间**：[DATE]  
 **状态**：草稿  
 **输入**：用户描述："$ARGUMENTS"
 
 ## 用户场景与测试（必填）
 
 <!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
+  重要说明：用户故事应按重要性排序，并以用户旅程的形式表达。
+  每个用户故事/旅程都必须能够独立测试，这意味着即使只实现其中一个，
+  仍应形成一个可交付价值的 MVP（最小可行产品）。
+
+  请为每个故事分配优先级（P1、P2、P3 等），其中 P1 最关键。
+  将每个故事视为一个可独立拆分的功能切片，它应当能够：
+  - 独立开发
+  - 独立测试
+  - 独立部署
+  - 独立向用户演示
 -->
 
 ### 用户故事 1 - [简短标题]（优先级：P1）
@@ -68,8 +68,8 @@
 ### 边界情况
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
+  需要操作：本节内容目前是占位符。
+  请根据具体功能补充真实的边界情况。
 -->
 
 - 当出现[边界条件]时，会发生什么？
@@ -78,8 +78,8 @@
 ## 需求（必填）
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
+  需要操作：本节内容目前是占位符。
+  请根据具体功能补充真实的功能需求。
 -->
 
 ### 功能需求
@@ -103,8 +103,8 @@
 ## 成功标准（必填）
 
 <!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
+  需要操作：请定义可衡量的成功标准。
+  这些标准必须与具体技术实现无关，并且可以验证。
 -->
 
 ### 可衡量结果

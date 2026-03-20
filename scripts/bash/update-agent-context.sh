@@ -93,7 +93,7 @@ NEW_PROJECT_TYPE=""
 #==============================================================================
 
 log_info() {
-    echo "INFO: $1"
+    echo "信息：$1"
 }
 
 log_success() {
@@ -101,11 +101,11 @@ log_success() {
 }
 
 log_error() {
-    echo "ERROR: $1" >&2
+    echo "错误：$1" >&2
 }
 
 log_warning() {
-    echo "WARNING: $1" >&2
+    echo "警告：$1" >&2
 }
 
 # Cleanup function for temporary files
@@ -126,29 +126,29 @@ trap cleanup EXIT INT TERM
 validate_environment() {
     # Check if we have a current branch/feature (git or non-git)
     if [[ -z "$CURRENT_BRANCH" ]]; then
-        log_error "Unable to determine current feature"
+        log_error "无法确定当前功能上下文"
         if [[ "$HAS_GIT" == "true" ]]; then
-            log_info "Make sure you're on a feature branch"
+            log_info "请确认当前位于功能分支上"
         else
-            log_info "Set SPECIFY_FEATURE environment variable or create a feature first"
+            log_info "请设置 SPECIFY_FEATURE 环境变量，或先创建一个功能"
         fi
         exit 1
     fi
     
     # Check if plan.md exists
     if [[ ! -f "$NEW_PLAN" ]]; then
-        log_error "No plan.md found at $NEW_PLAN"
-        log_info "Make sure you're working on a feature with a corresponding spec directory"
+        log_error "未在 $NEW_PLAN 找到 plan.md"
+        log_info "请确认你当前正位于具有对应 spec 目录的功能上下文中"
         if [[ "$HAS_GIT" != "true" ]]; then
-            log_info "Use: export SPECIFY_FEATURE=your-feature-name or create a new feature first"
+            log_info "可执行：export SPECIFY_FEATURE=your-feature-name，或先创建新功能"
         fi
         exit 1
     fi
     
     # Check if template exists (needed for new files)
     if [[ ! -f "$TEMPLATE_FILE" ]]; then
-        log_warning "Template file not found at $TEMPLATE_FILE"
-        log_warning "Creating new agent files will fail"
+        log_warning "未在 $TEMPLATE_FILE 找到模板文件"
+        log_warning "此时将无法创建新的 agent 文件"
     fi
 }
 
@@ -177,11 +177,11 @@ parse_plan_data() {
     fi
     
     if [[ ! -r "$plan_file" ]]; then
-        log_error "Plan file is not readable: $plan_file"
+        log_error "计划文件不可读：$plan_file"
         return 1
     fi
     
-    log_info "Parsing plan data from $plan_file"
+    log_info "正在从 $plan_file 解析计划数据"
     
     NEW_LANG=$(extract_plan_field "Language/Version" "$plan_file")
     NEW_FRAMEWORK=$(extract_plan_field "Primary Dependencies" "$plan_file")
@@ -190,21 +190,21 @@ parse_plan_data() {
     
     # Log what we found
     if [[ -n "$NEW_LANG" ]]; then
-        log_info "Found language: $NEW_LANG"
+        log_info "识别到语言：$NEW_LANG"
     else
-        log_warning "No language information found in plan"
+        log_warning "未在计划中找到语言信息"
     fi
     
     if [[ -n "$NEW_FRAMEWORK" ]]; then
-        log_info "Found framework: $NEW_FRAMEWORK"
+        log_info "识别到框架：$NEW_FRAMEWORK"
     fi
     
     if [[ -n "$NEW_DB" ]] && [[ "$NEW_DB" != "N/A" ]]; then
-        log_info "Found database: $NEW_DB"
+        log_info "识别到数据库：$NEW_DB"
     fi
     
     if [[ -n "$NEW_PROJECT_TYPE" ]]; then
-        log_info "Found project type: $NEW_PROJECT_TYPE"
+        log_info "识别到项目类型：$NEW_PROJECT_TYPE"
     fi
 }
 
@@ -260,14 +260,14 @@ get_commands_for_language() {
             echo "npm test \\&\\& npm run lint"
             ;;
         *)
-            echo "# Add commands for $lang"
+            echo "# 请补充 $lang 的常用命令"
             ;;
     esac
 }
 
 get_language_conventions() {
     local lang="$1"
-    echo "$lang: Follow standard conventions"
+    echo "$lang：遵循该语言的标准约定"
 }
 
 create_new_agent_file() {
@@ -312,24 +312,24 @@ create_new_agent_file() {
     # Build technology stack and recent change strings conditionally
     local tech_stack
     if [[ -n "$escaped_lang" && -n "$escaped_framework" ]]; then
-        tech_stack="- $escaped_lang + $escaped_framework ($escaped_branch)"
+        tech_stack="- $escaped_lang + $escaped_framework（$escaped_branch）"
     elif [[ -n "$escaped_lang" ]]; then
-        tech_stack="- $escaped_lang ($escaped_branch)"
+        tech_stack="- $escaped_lang（$escaped_branch）"
     elif [[ -n "$escaped_framework" ]]; then
-        tech_stack="- $escaped_framework ($escaped_branch)"
+        tech_stack="- $escaped_framework（$escaped_branch）"
     else
-        tech_stack="- ($escaped_branch)"
+        tech_stack="- （$escaped_branch）"
     fi
 
     local recent_change
     if [[ -n "$escaped_lang" && -n "$escaped_framework" ]]; then
-        recent_change="- $escaped_branch: Added $escaped_lang + $escaped_framework"
+        recent_change="- $escaped_branch：新增 $escaped_lang + $escaped_framework"
     elif [[ -n "$escaped_lang" ]]; then
-        recent_change="- $escaped_branch: Added $escaped_lang"
+        recent_change="- $escaped_branch：新增 $escaped_lang"
     elif [[ -n "$escaped_framework" ]]; then
-        recent_change="- $escaped_branch: Added $escaped_framework"
+        recent_change="- $escaped_branch：新增 $escaped_framework"
     else
-        recent_change="- $escaped_branch: Added"
+        recent_change="- $escaped_branch：新增"
     fi
 
     local substitutions=(
@@ -361,7 +361,7 @@ create_new_agent_file() {
     if [[ "$target_file" == *.mdc ]]; then
         local frontmatter_file
         frontmatter_file=$(mktemp) || return 1
-        printf '%s\n' "---" "description: Project Development Guidelines" "globs: [\"**/*\"]" "alwaysApply: true" "---" "" > "$frontmatter_file"
+        printf '%s\n' "---" "description: 项目开发指南" "globs: [\"**/*\"]" "alwaysApply: true" "---" "" > "$frontmatter_file"
         cat "$temp_file" >> "$frontmatter_file"
         mv "$frontmatter_file" "$temp_file"
     fi
@@ -392,29 +392,29 @@ update_existing_agent_file() {
     
     # Prepare new technology entries
     if [[ -n "$tech_stack" ]] && ! grep -q "$tech_stack" "$target_file"; then
-        new_tech_entries+=("- $tech_stack ($CURRENT_BRANCH)")
+        new_tech_entries+=("- $tech_stack（$CURRENT_BRANCH）")
     fi
     
     if [[ -n "$NEW_DB" ]] && [[ "$NEW_DB" != "N/A" ]] && [[ "$NEW_DB" != "NEEDS CLARIFICATION" ]] && ! grep -q "$NEW_DB" "$target_file"; then
-        new_tech_entries+=("- $NEW_DB ($CURRENT_BRANCH)")
+        new_tech_entries+=("- $NEW_DB（$CURRENT_BRANCH）")
     fi
     
     # Prepare new change entry
     if [[ -n "$tech_stack" ]]; then
-        new_change_entry="- $CURRENT_BRANCH: Added $tech_stack"
+        new_change_entry="- $CURRENT_BRANCH：新增 $tech_stack"
     elif [[ -n "$NEW_DB" ]] && [[ "$NEW_DB" != "N/A" ]] && [[ "$NEW_DB" != "NEEDS CLARIFICATION" ]]; then
-        new_change_entry="- $CURRENT_BRANCH: Added $NEW_DB"
+        new_change_entry="- $CURRENT_BRANCH：新增 $NEW_DB"
     fi
     
     # Check if sections exist in the file
     local has_active_technologies=0
     local has_recent_changes=0
     
-    if grep -q "^## Active Technologies" "$target_file" 2>/dev/null; then
+    if grep -q "^## 当前技术栈" "$target_file" 2>/dev/null; then
         has_active_technologies=1
     fi
     
-    if grep -q "^## Recent Changes" "$target_file" 2>/dev/null; then
+    if grep -q "^## 最近变更" "$target_file" 2>/dev/null; then
         has_recent_changes=1
     fi
     
@@ -427,8 +427,8 @@ update_existing_agent_file() {
     local file_ended=false
     
     while IFS= read -r line || [[ -n "$line" ]]; do
-        # Handle Active Technologies section
-        if [[ "$line" == "## Active Technologies" ]]; then
+        # Handle 当前技术栈 section
+        if [[ "$line" == "## 当前技术栈" ]]; then
             echo "$line" >> "$temp_file"
             in_tech_section=true
             continue
@@ -451,8 +451,8 @@ update_existing_agent_file() {
             continue
         fi
         
-        # Handle Recent Changes section
-        if [[ "$line" == "## Recent Changes" ]]; then
+        # Handle 最近变更 section
+        if [[ "$line" == "## 最近变更" ]]; then
             echo "$line" >> "$temp_file"
             # Add new change entry right after the heading
             if [[ -n "$new_change_entry" ]]; then
@@ -475,14 +475,14 @@ update_existing_agent_file() {
         fi
         
         # Update timestamp
-        if [[ "$line" =~ \*\*Last\ updated\*\*:.*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] ]]; then
+        if [[ "$line" =~ 最后更新：.*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] ]]; then
             echo "$line" | sed "s/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/$current_date/" >> "$temp_file"
         else
             echo "$line" >> "$temp_file"
         fi
     done < "$target_file"
     
-    # Post-loop check: if we're still in the Active Technologies section and haven't added new entries
+    # Post-loop check: if we're still in the 当前技术栈 section and haven't added new entries
     if [[ $in_tech_section == true ]] && [[ $tech_entries_added == false ]] && [[ ${#new_tech_entries[@]} -gt 0 ]]; then
         printf '%s\n' "${new_tech_entries[@]}" >> "$temp_file"
         tech_entries_added=true
@@ -491,14 +491,14 @@ update_existing_agent_file() {
     # If sections don't exist, add them at the end of the file
     if [[ $has_active_technologies -eq 0 ]] && [[ ${#new_tech_entries[@]} -gt 0 ]]; then
         echo "" >> "$temp_file"
-        echo "## Active Technologies" >> "$temp_file"
+        echo "## 当前技术栈" >> "$temp_file"
         printf '%s\n' "${new_tech_entries[@]}" >> "$temp_file"
         tech_entries_added=true
     fi
     
     if [[ $has_recent_changes -eq 0 ]] && [[ -n "$new_change_entry" ]]; then
         echo "" >> "$temp_file"
-        echo "## Recent Changes" >> "$temp_file"
+        echo "## 最近变更" >> "$temp_file"
         echo "$new_change_entry" >> "$temp_file"
         changes_entries_added=true
     fi
@@ -508,7 +508,7 @@ update_existing_agent_file() {
         if ! head -1 "$temp_file" | grep -q '^---'; then
             local frontmatter_file
             frontmatter_file=$(mktemp) || { rm -f "$temp_file"; return 1; }
-            printf '%s\n' "---" "description: Project Development Guidelines" "globs: [\"**/*\"]" "alwaysApply: true" "---" "" > "$frontmatter_file"
+            printf '%s\n' "---" "description: 项目开发指南" "globs: [\"**/*\"]" "alwaysApply: true" "---" "" > "$frontmatter_file"
             cat "$temp_file" >> "$frontmatter_file"
             mv "$frontmatter_file" "$temp_file"
         fi
@@ -771,7 +771,7 @@ update_all_existing_agents() {
     
     # If no agent files exist, create a default Claude file
     if [[ "$found_agent" == false ]]; then
-        log_info "No existing agent files found, creating default Claude file..."
+        log_info "未发现现有 agent 文件，正在创建默认 Claude 文件..."
         update_agent_file "$CLAUDE_FILE" "Claude Code"
     fi
 }
@@ -780,15 +780,15 @@ print_summary() {
     log_info "Summary of changes:"
     
     if [[ -n "$NEW_LANG" ]]; then
-        echo "  - Added language: $NEW_LANG"
+        echo "  - 新增语言：$NEW_LANG"
     fi
     
     if [[ -n "$NEW_FRAMEWORK" ]]; then
-        echo "  - Added framework: $NEW_FRAMEWORK"
+        echo "  - 新增框架：$NEW_FRAMEWORK"
     fi
     
     if [[ -n "$NEW_DB" ]] && [[ "$NEW_DB" != "N/A" ]]; then
-        echo "  - Added database: $NEW_DB"
+        echo "  - 新增数据库：$NEW_DB"
     fi
     
     echo

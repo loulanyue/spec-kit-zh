@@ -1,37 +1,37 @@
 ---
-description: Create or update the feature specification from a natural language feature description.
+description: 从自然语言功能描述创建或更新功能规范。
 handoffs: 
-  - label: Build Technical Plan
+  - label: 构建技术计划
     agent: speckit.plan
-    prompt: Create a plan for the spec. I am building with...
-  - label: Clarify Spec Requirements
+    prompt: 为该规范创建计划。我正在构建...
+  - label: 澄清规范需求
     agent: speckit.clarify
-    prompt: Clarify specification requirements
+    prompt: 澄清规范需求
     send: true
 scripts:
   sh: scripts/bash/create-new-feature.sh "{ARGS}"
   ps: scripts/powershell/create-new-feature.ps1 "{ARGS}"
 ---
 
-## User Input
+## 用户输入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在继续之前，你**必须**考虑用户输入（如果不为空）。
 
-## Language Requirement
+## 语言要求
 
-- All generated user-facing content, including `spec.md`, checklist content, clarification questions, summaries, and status reports, MUST be written in Simplified Chinese.
-- Keep branch names, file paths, IDs, and other machine-oriented identifiers in ASCII when needed for compatibility.
-- If the user provides English terminology, preserve the term where necessary and explain it in Chinese.
+- 所有面向用户的生成内容，包括 `spec.md`、检查清单、澄清问题、摘要和状态报告，都必须使用简体中文。
+- 分支名、文件路径、ID 和其他机器导向标识在兼容性需要时保持 ASCII。
+- 如果用户提供英文术语，应在必要时保留原词，并以中文补充说明。
 
-## Outline
+## 概述
 
-The text the user typed after `/speckit.specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `{ARGS}` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
+用户在触发消息中 `/speckit.specify` 后输入的文本**就是**功能描述。即使下面字面显示 `{ARGS}`，也应假设你始终可以在本次对话中访问该描述。除非用户输入为空，否则不要要求用户重复描述。
 
-Given that feature description, do this:
+基于该功能描述，请执行以下操作：
 
 1. **Generate a concise short name** (2-4 words) for the branch:
    - When the original request is in Chinese, generate an ASCII short name for the branch based on the feature meaning; do not use Chinese characters in branch names

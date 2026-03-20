@@ -11,9 +11,9 @@ $ErrorActionPreference = 'Stop'
 
 # Show help if requested
 if ($Help) {
-    Write-Output "Usage: ./setup-plan.ps1 [-Json] [-Help]"
-    Write-Output "  -Json     Output results in JSON format"
-    Write-Output "  -Help     Show this help message"
+    Write-Output "用法：./setup-plan.ps1 [-Json] [-Help]"
+    Write-Output "  -Json     以 JSON 格式输出结果"
+    Write-Output "  -Help     显示帮助信息"
     exit 0
 }
 
@@ -35,9 +35,9 @@ New-Item -ItemType Directory -Path $paths.FEATURE_DIR -Force | Out-Null
 $template = Join-Path $paths.REPO_ROOT '.specify/templates/plan-template.md'
 if (Test-Path $template) { 
     Copy-Item $template $paths.IMPL_PLAN -Force
-    Write-Output "Copied plan template to $($paths.IMPL_PLAN)"
+    Write-Output "已复制计划模板到 $($paths.IMPL_PLAN)"
 } else {
-    Write-Warning "Plan template not found at $template"
+    Write-Warning "未在 $template 找到计划模板"
     # Create a basic plan file if template doesn't exist
     New-Item -ItemType File -Path $paths.IMPL_PLAN -Force | Out-Null
 }

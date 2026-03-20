@@ -1,81 +1,81 @@
-# Extension Development Guide
+# 扩展开发指南
 
-A guide for creating Spec Kit extensions.
+本指南介绍如何创建 Spec Kit 扩展。
 
 ---
 
-## Quick Start
+## 快速开始
 
-### 1. Create Extension Directory
+### 1. 创建扩展目录
 
 ```bash
 mkdir my-extension
 cd my-extension
 ```
 
-### 2. Create `extension.yml` Manifest
+### 2. 创建 `extension.yml` 清单文件
 
 ```yaml
 schema_version: "1.0"
 
 extension:
-  id: "my-ext"                          # Lowercase, alphanumeric + hyphens only
+  id: "my-ext"                          # 仅允许小写字母、数字和连字符
   name: "My Extension"
-  version: "1.0.0"                      # Semantic versioning
+  version: "1.0.0"                      # 语义化版本
   description: "My custom extension"
   author: "Your Name"
   repository: "https://github.com/you/spec-kit-my-ext"
   license: "MIT"
 
 requires:
-  speckit_version: ">=0.1.0"            # Minimum spec-kit version
-  tools:                                # Optional: External tools required
+  speckit_version: ">=0.1.0"            # 最低 spec-kit 版本
+  tools:                                # 可选：所需外部工具
     - name: "my-tool"
       required: true
       version: ">=1.0.0"
-  commands:                             # Optional: Core commands needed
+  commands:                             # 可选：依赖的核心命令
     - "speckit.tasks"
 
 provides:
   commands:
-    - name: "speckit.my-ext.hello"      # Must follow pattern: speckit.{ext-id}.{cmd}
+    - name: "speckit.my-ext.hello"      # 必须符合模式：speckit.{ext-id}.{cmd}
       file: "commands/hello.md"
       description: "Say hello"
-      aliases: ["speckit.hello"]        # Optional aliases
+      aliases: ["speckit.hello"]        # 可选：命令别名
 
-  config:                               # Optional: Config files
+  config:                               # 可选：配置文件
     - name: "my-ext-config.yml"
       template: "my-ext-config.template.yml"
       description: "Extension configuration"
       required: false
 
-hooks:                                  # Optional: Integration hooks
+hooks:                                  # 可选：集成 hooks
   after_tasks:
     command: "speckit.my-ext.hello"
     optional: true
     prompt: "Run hello command?"
 
-tags:                                   # Optional: For catalog search
+tags:                                   # 可选：用于目录搜索
   - "example"
   - "utility"
 ```
 
-### 3. Create Commands Directory
+### 3. 创建 commands 目录
 
 ```bash
 mkdir commands
 ```
 
-### 4. Create Command File
+### 4. 创建命令文件
 
-**File**: `commands/hello.md`
+**文件**：`commands/hello.md`
 
 ```markdown
 ---
 description: "Say hello command"
-tools:                              # Optional: AI tools this command uses
+tools:                              # 可选：命令会调用的 AI 工具
   - 'some-tool/function'
-scripts:                            # Optional: Helper scripts
+scripts:                            # 可选：辅助脚本
   sh: ../../scripts/bash/helper.sh
   ps: ../../scripts/powershell/helper.ps1
 ---
@@ -102,122 +102,122 @@ echo "Arguments: $ARGUMENTS"
 
 Load extension config from `.specify/extensions/my-ext/my-ext-config.yml`.
 
-### 5. Test Locally
+### 5. 本地测试
 
 ```bash
 cd /path/to/spec-kit-project
 specify extension add --dev /path/to/my-extension
 ```
 
-### 6. Verify Installation
+### 6. 验证安装结果
 
 ```bash
 specify extension list
 
-# Should show:
+# 预期输出：
 #  ✓ My Extension (v1.0.0)
 #     My custom extension
 #     Commands: 1 | Hooks: 1 | Status: Enabled
 ```
 
-### 7. Test Command
+### 7. 测试命令
 
-If using Claude:
+如果你使用 Claude：
 
 ```bash
 claude
 > /speckit.my-ext.hello world
 ```
 
-The command will be available in `.claude/commands/speckit.my-ext.hello.md`.
+命令文件会出现在 `.claude/commands/speckit.my-ext.hello.md`。
 
 ---
 
-## Manifest Schema Reference
+## Manifest Schema 参考
 
-### Required Fields
+### 必填字段
 
 #### `schema_version`
 
-Extension manifest schema version. Currently: `"1.0"`
+扩展 manifest 的 schema 版本。当前值为：`"1.0"`
 
 #### `extension`
 
-Extension metadata block.
+扩展元数据块。
 
-**Required sub-fields**:
+**必填子字段：**
 
-- `id`: Extension identifier (lowercase, alphanumeric, hyphens)
-- `name`: Human-readable name
-- `version`: Semantic version (e.g., "1.0.0")
-- `description`: Short description
+- `id`：扩展标识（小写、数字、连字符）
+- `name`：可读名称
+- `version`：语义化版本（例如 `"1.0.0"`）
+- `description`：简短描述
 
-**Optional sub-fields**:
+**可选子字段：**
 
-- `author`: Extension author
-- `repository`: Source code URL
-- `license`: SPDX license identifier
-- `homepage`: Extension homepage URL
+- `author`：扩展作者
+- `repository`：源码仓库 URL
+- `license`：SPDX license 标识
+- `homepage`：扩展主页 URL
 
 #### `requires`
 
-Compatibility requirements.
+兼容性要求。
 
-**Required sub-fields**:
+**必填子字段：**
 
-- `speckit_version`: Semantic version specifier (e.g., ">=0.1.0,<2.0.0")
+- `speckit_version`：语义化版本约束（例如 `" >=0.1.0,<2.0.0"`）
 
-**Optional sub-fields**:
+**可选子字段：**
 
-- `tools`: External tools required (array of tool objects)
-- `commands`: Core spec-kit commands needed (array of command names)
-- `scripts`: Core scripts required (array of script names)
+- `tools`：所需外部工具（工具对象数组）
+- `commands`：依赖的 core spec-kit commands（命令名数组）
+- `scripts`：依赖的 core scripts（脚本名数组）
 
 #### `provides`
 
-What the extension provides.
+扩展提供的能力。
 
-**Required sub-fields**:
+**必填子字段：**
 
-- `commands`: Array of command objects (must have at least one)
+- `commands`：命令对象数组（至少提供一个）
 
-**Command object**:
+**命令对象字段：**
 
-- `name`: Command name (must match `speckit.{ext-id}.{command}`)
-- `file`: Path to command file (relative to extension root)
-- `description`: Command description (optional)
-- `aliases`: Alternative command names (optional, array)
+- `name`：命令名（必须匹配 `speckit.{ext-id}.{command}`）
+- `file`：命令文件路径（相对扩展根目录）
+- `description`：命令描述（可选）
+- `aliases`：命令别名（可选，数组）
 
-### Optional Fields
+### 可选字段
 
 #### `hooks`
 
-Integration hooks for automatic execution.
+用于自动执行的集成 hooks。
 
-Available hook points:
+可用的 hook 点：
 
-- `after_tasks`: After `/speckit.tasks` completes
-- `after_implement`: After `/speckit.implement` completes (future)
+- `after_tasks`：在 `/speckit.tasks` 完成后触发
+- `after_implement`：在 `/speckit.implement` 完成后触发（未来能力）
 
-Hook object:
+Hook 对象字段：
 
-- `command`: Command to execute (must be in `provides.commands`)
-- `optional`: If true, prompt user before executing
-- `prompt`: Prompt text for optional hooks
-- `description`: Hook description
-- `condition`: Execution condition (future)
+- `command`：要执行的命令（必须出现在 `provides.commands` 中）
+- `optional`：为 `true` 时，执行前提示用户确认
+- `prompt`：可选 hook 的提示语
+- `description`：hook 描述
+- `condition`：执行条件（未来能力）
 
 #### `tags`
 
-Array of tags for catalog discovery.
+用于目录发现的标签数组。
 
 #### `defaults`
 
-Default extension configuration values.
+扩展默认配置值。
 
 #### `config_schema`
 
-JSON Schema for validating extension configuration.
+用于校验扩展配置的 JSON Schema。
 
 ---
 
