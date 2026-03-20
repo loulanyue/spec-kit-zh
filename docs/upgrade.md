@@ -442,4 +442,4 @@ After upgrading:
 - **Test new slash commands:** Run `/speckit.constitution` or another command to verify everything works
 - **Review release notes:** Check [GitHub Releases](https://github.com/loulanyue/spec-kit-zh/releases) for new features and breaking changes
 - **Update workflows:** If new commands were added, update your team's development workflows
-- **Check documentation:** Visit [github.io/spec-kit](https://github.github.io/spec-kit/) for updated guides
+- **Check documentation:** Visit [the repository docs](https://github.com/loulanyue/spec-kit-zh/tree/main/docs) for updated guides
