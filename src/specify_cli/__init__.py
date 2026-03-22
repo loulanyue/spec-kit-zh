@@ -10,7 +10,7 @@
 # ]
 # ///
 """
-Specify CLI - 规范驱动开发项目设置工具
+specify-cli-zh - 规范驱动开发项目设置工具
 
 Usage:
     uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project-name>
@@ -38,6 +38,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import typer
+from specify_cli.constants import DIST_NAME, CMD_NAME, BRAND_DISPLAY, UPSTREAM_REPO, TAGLINE
 import httpx
 from rich.console import Console
 from rich.panel import Panel
@@ -321,7 +322,7 @@ BANNER = """
 ╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝   
 """
 
-TAGLINE = "GitHub Spec Kit ZH - 规范驱动开发工具包"
+TAGLINE = TAGLINE
 class StepTracker:
     """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
     Supports live auto-refresh via an attached refresh callback.
@@ -514,8 +515,8 @@ class BannerGroup(TyperGroup):
 
 
 app = typer.Typer(
-    name="specify-zh",
-    help="Spec Kit 规范驱动开发项目设置工具",
+    name=CMD_NAME,
+    help="specify-cli-zh 规范驱动开发项目设置工具",
     add_completion=False,
     invoke_without_command=True,
     cls=BannerGroup,
@@ -536,13 +537,17 @@ def show_banner():
     console.print()
 
 
-def _get_cli_distribution_version() -> str:
-    """Resolve installed CLI version, preferring the zh distribution name."""
+def _get_cli_distribution_version() -> tuple[str, str]:
+    """Resolve installed CLI version and run mode.
+
+    Returns:
+        A (version, source) tuple where source is 'installed' or 'local'.
+    """
     import importlib.metadata
 
-    for package_name in ("specify-cli-zh", "specify-cli"):
+    for package_name in (DIST_NAME, "specify-cli"):
         try:
-            return importlib.metadata.version(package_name)
+            return importlib.metadata.version(package_name), "installed"
         except Exception:
             continue
 
@@ -551,11 +556,12 @@ def _get_cli_distribution_version() -> str:
         if pyproject_path.exists():
             with open(pyproject_path, "rb") as f:
                 data = tomllib.load(f)
-                return data.get("project", {}).get("version", "unknown")
+                ver = data.get("project", {}).get("version", "unknown")
+                return ver, "local"
     except Exception:
         pass
 
-    return "unknown"
+    return "unknown", "unknown"
 
 @app.callback()
 def callback(ctx: typer.Context):
@@ -576,10 +582,10 @@ def run_command(cmd: list[str], check_return: bool = True, capture: bool = False
             return None
     except subprocess.CalledProcessError as e:
         if check_return:
-            console.print(f"[red]Error running command:[/red] {' '.join(cmd)}")
-            console.print(f"[red]Exit code:[/red] {e.returncode}")
+            console.print(f"[red]执行命令出错：[/red] {' '.join(cmd)}")
+            console.print(f"[red]退出码：[/red] {e.returncode}")
             if hasattr(e, 'stderr') and e.stderr:
-                console.print(f"[red]Error output:[/red] {e.stderr}")
+                console.print(f"[red]错误输出：[/red] {e.stderr}")
             raise
         return None
 
@@ -686,6 +692,9 @@ def _check_github_connectivity(timeout: float = 5.0) -> tuple[bool, str]:
 
 def _collect_doctor_diagnostics(project_path: Path | None = None) -> dict:
     """Collect environment and project diagnostics for the doctor command."""
+    import shutil
+    import importlib.metadata
+
     current_path = project_path or Path.cwd()
     spec_dir = current_path / ".specify"
     has_github_token = bool(_github_token())
@@ -697,6 +706,15 @@ def _collect_doctor_diagnostics(project_path: Path | None = None) -> dict:
         required_agent_cli[agent_key] = check_tool(agent_key)
 
     github_ok, github_detail = _check_github_connectivity()
+
+    dist_ok = False
+    try:
+        importlib.metadata.version(DIST_NAME)
+        dist_ok = True
+    except Exception:
+        pass
+        
+    cmd_path = shutil.which(CMD_NAME)
 
     return {
         "path": current_path,
@@ -711,6 +729,8 @@ def _collect_doctor_diagnostics(project_path: Path | None = None) -> dict:
         "required_agent_cli": required_agent_cli,
         "available_agent_count": sum(1 for ok in required_agent_cli.values() if ok),
         "missing_agents": sorted([agent for agent, ok in required_agent_cli.items() if not ok]),
+        "dist_ok": dist_ok,
+        "cmd_path": cmd_path,
     }
 
 
@@ -726,12 +746,14 @@ def _build_doctor_recommendations(diagnostics: dict) -> list[str]:
 
     if not diagnostics["has_github_token"]:
         recommendations.append(
-            "建议配置 `GH_TOKEN` 或 `GITHUB_TOKEN`，可显著提升 GitHub API 限流阈值。"
+            "建议配置 `GH_TOKEN` 或 `GITHUB_TOKEN`，可显著提升 GitHub API 限流阈值。\n"
+            "   [dim]执行命令：export GITHUB_TOKEN=ghp_xxxxx （或配置 gh auth login）[/dim]"
         )
 
     if not diagnostics["github_connectivity_ok"]:
         recommendations.append(
-            f"{diagnostics['github_connectivity_detail']}。若在受限网络环境中，请稍后重试、配置代理，或改用离线模板包。"
+            f"{diagnostics['github_connectivity_detail']}。若在受限网络环境中，请稍后重试、配置代理，或改用离线模板包。\n"
+            "   [dim]离线方案：手动下载模板仓库到本地，使用 specify-zh init --template-dir <本地路径>[/dim]"
         )
 
     if not diagnostics["is_spec_project"]:
@@ -786,7 +808,7 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> Tuple[bool, Option
             error_msg += f"\nOutput: {e.stdout.strip()}"
         
         if not quiet:
-            console.print(f"[red]Error initializing git repository:[/red] {e}")
+            console.print(f"[red]初始化 Git 仓库出错：[/red] {e}")
         return False, error_msg
     finally:
         os.chdir(original_cwd)
@@ -1000,7 +1022,7 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
             tracker.error("fetch", str(e))
         else:
             if verbose:
-                console.print(f"[red]Error downloading template:[/red] {e}")
+                console.print(f"[red]下载模板出错：[/red] {e}")
         raise
 
     if tracker:
@@ -1098,9 +1120,9 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
             tracker.error("extract", str(e))
         else:
             if verbose:
-                console.print(f"[red]Error extracting template:[/red] {e}")
+                console.print(f"[red]解压模板出错：[/red] {e}")
                 if debug:
-                    console.print(Panel(str(e), title="Extraction Error", border_style="red"))
+                    console.print(Panel(str(e), title="解压错误", border_style="red"))
 
         if not is_current_dir and project_path.exists():
             shutil.rmtree(project_path)
@@ -1110,14 +1132,14 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
             tracker.complete("extract")
     finally:
         if tracker:
-            tracker.add("cleanup", "Remove temporary archive")
+            tracker.add("cleanup", "清理临时压缩包")
 
         if zip_path.exists():
             zip_path.unlink()
             if tracker:
                 tracker.complete("cleanup")
             elif verbose:
-                console.print(f"Cleaned up: {zip_path.name}")
+                console.print(f"已清理：{zip_path.name}")
 
     return project_path
 
@@ -1197,13 +1219,13 @@ def ensure_constitution_from_template(project_path: Path, tracker: StepTracker |
             tracker.add("constitution", "Constitution setup")
             tracker.complete("constitution", "copied from template")
         else:
-            console.print("[cyan]Initialized constitution from template[/cyan]")
+            console.print("[cyan]已从模板初始化章程[/cyan]")
     except Exception as e:
         if tracker:
             tracker.add("constitution", "Constitution setup")
             tracker.error("constitution", str(e))
         else:
-            console.print(f"[yellow]Warning: Could not initialize constitution: {e}[/yellow]")
+            console.print(f"[yellow]警告：无法初始化章程：{e}[/yellow]")
 
 # Agent-specific skill directory overrides for agents whose skills directory
 # doesn't follow the standard <agent_folder>/skills/ pattern
@@ -1419,9 +1441,13 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
     return installed_count > 0 or skipped_count > 0
 
 
+def _print_json_error(msg: str):
+    import sys, json
+    sys.stdout.write(json.dumps({"status": "error", "message": msg}) + "\n")
+
 @app.command()
 def init(
-    project_name: str = typer.Argument(None, help="新项目目录名称（使用 --here 时可省略，也可用 '.' 表示当前目录）"),
+    project_name: Optional[str] = typer.Argument(None, help="新项目目录名称（使用 --here 时可省略，也可用 '.' 表示当前目录）"),
     ai_assistant: str = typer.Option(None, "--ai", help=AI_ASSISTANT_HELP),
     ai_commands_dir: str = typer.Option(None, "--ai-commands-dir", help="agent 命令文件目录（使用 --ai generic 时必填，例如 .myagent/commands/）"),
     script_type: str = typer.Option(None, "--script", help="使用的脚本类型：sh 或 ps"),
@@ -1433,6 +1459,8 @@ def init(
     debug: bool = typer.Option(False, "--debug", help="显示网络与解压失败的详细诊断信息"),
     github_token: str = typer.Option(None, "--github-token", help="用于 API 请求的 GitHub Token（也可通过 GH_TOKEN 或 GITHUB_TOKEN 设置）"),
     ai_skills: bool = typer.Option(False, "--ai-skills", help="将 Prompt.MD 模板安装为 agent skills（需搭配 --ai）"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="预览将要创建的文件清单，不执行实际写入"),
+    json_output: bool = typer.Option(False, "--json", help="以 JSON 格式输出初始化结果，不显示交互式进度"),
 ):
     """
     使用最新模板初始化一个新的 Specify 项目。
@@ -1463,6 +1491,11 @@ def init(
         specify-zh init my-project --ai generic --ai-commands-dir .myagent/commands/  # 自定义 agent
     """
 
+    if json_output:
+        import io
+        global console
+        console.file = io.StringIO()
+
     show_banner()
 
     # Detect when option values are likely misinterpreted flags (parameter ordering issue)
@@ -1471,6 +1504,8 @@ def init(
         console.print("[yellow]提示：[/yellow] 你可能忘了给 --ai 提供取值。")
         console.print("[yellow]示例：[/yellow] specify-zh init --ai claude --here")
         console.print(f"[yellow]可用 agents：[/yellow] {', '.join(AGENT_CONFIG.keys())}")
+        if json_output:
+            _print_json_error(f"Invalid value for --ai: '{ai_assistant}'")
         raise typer.Exit(1)
     
     if ai_commands_dir and ai_commands_dir.startswith("--"):
@@ -1488,11 +1523,19 @@ def init(
 
     if here and project_name:
         console.print("[red]错误：[/red] 不能同时指定项目名和 --here")
+        if json_output: _print_json_error("不能同时指定项目名和 --here")
         raise typer.Exit(1)
 
     if not here and not project_name:
-        console.print("[red]错误：[/red] 必须提供项目名，或使用 '.' 表示当前目录，或使用 --here")
-        raise typer.Exit(1)
+        if sys.stdin.isatty() and not json_output:
+            project_name = typer.prompt("请输入新项目目录名称（或输入 '.' 在当前目录初始化）")
+            if project_name == ".":
+                here = True
+                project_name = None
+        else:
+            console.print("[red]错误：[/red] 必须提供项目名，或使用 '.' 表示当前目录，或使用 --here")
+            if json_output: _print_json_error("必须提供项目名")
+            raise typer.Exit(1)
 
     if ai_skills and not ai_assistant:
         console.print("[red]错误：[/red] --ai-skills 必须搭配 --ai 使用")
@@ -1503,30 +1546,49 @@ def init(
         project_name = Path.cwd().name
         project_path = Path.cwd()
 
-        existing_items = list(project_path.iterdir())
-        if existing_items:
-            console.print(f"[yellow]警告：[/yellow] 当前目录非空（{len(existing_items)} 个条目）")
-            console.print("[yellow]模板文件会与现有内容合并，并可能覆盖已有文件[/yellow]")
-            if force:
-                console.print("[cyan]已提供 --force：跳过确认，直接继续合并[/cyan]")
-            else:
-                response = typer.confirm("是否继续？")
+        target_spec_dir = project_path / ".specify"
+        if target_spec_dir.exists():
+            console.print("[yellow]警告：[/yellow] 目标路径已存在 .specify/ 目录（项目可能已初始化）。")
+            if not force and not json_output:
+                response = typer.confirm("检测到已初始化的项目，是否覆盖？", default=False)
                 if not response:
                     console.print("[yellow]已取消操作[/yellow]")
                     raise typer.Exit(0)
+        else:
+            existing_items = list(project_path.iterdir())
+            if existing_items:
+                console.print(f"[yellow]警告：[/yellow] 当前目录非空（{len(existing_items)} 个条目）")
+                console.print("[yellow]模板文件会与现有内容合并，并可能覆盖已有文件[/yellow]")
+                if force or json_output:
+                    console.print("[cyan]已提供 --force 或 --json：跳过确认，直接继续合并[/cyan]")
+                else:
+                    response = typer.confirm("是否继续？")
+                    if not response:
+                        console.print("[yellow]已取消操作[/yellow]")
+                        raise typer.Exit(0)
     else:
         project_path = Path(project_name).resolve()
         if project_path.exists():
-            error_panel = Panel(
-                f"Directory '[cyan]{project_name}[/cyan]' already exists\n"
-                "请选择其他项目名称，或先移除现有目录。",
-                title="[red]目录冲突[/red]",
-                border_style="red",
-                padding=(1, 2)
-            )
-            console.print()
-            console.print(error_panel)
-            raise typer.Exit(1)
+            target_spec_dir = project_path / ".specify"
+            if target_spec_dir.exists():
+                console.print("[yellow]警告：[/yellow] 目标路径已存在 .specify/ 目录（项目可能已初始化）。")
+                if not force and not json_output:
+                    response = typer.confirm("检测到已初始化的项目，是否覆盖？", default=False)
+                    if not response:
+                        console.print("[yellow]已取消操作[/yellow]")
+                        raise typer.Exit(0)
+            else:
+                error_panel = Panel(
+                    f"Directory '[cyan]{project_name}[/cyan]' already exists\n"
+                    "请选择其他项目名称，或先移除现有目录。",
+                    title="[red]目录冲突[/red]",
+                    border_style="red",
+                    padding=(1, 2)
+                )
+                console.print()
+                console.print(error_panel)
+                if json_output: _print_json_error("目录冲突：已有同名非空目录")
+                raise typer.Exit(1)
 
     current_dir = Path.cwd()
 
@@ -1555,7 +1617,11 @@ def init(
         selected_ai = ai_assistant
     else:
         # Create options dict for selection (agent_key: display_name)
-        ai_choices = {key: config["name"] for key, config in AGENT_CONFIG.items()}
+        ai_choices = {
+            key: f"{config['name']} " + ("[dim](CLI 工具)[/dim]" if config.get("requires_cli") else "[dim](IDE 扩展)[/dim]")
+            for key, config in AGENT_CONFIG.items() if key != "generic"
+        }
+        ai_choices["generic"] = "Custom Agent [dim](自定义)[/dim]"
         selected_ai = select_with_arrows(
             ai_choices, 
             "选择你的 AI 助手：", 
@@ -1637,6 +1703,37 @@ def init(
 
     # Track git error message outside Live context so it persists
     git_error_message = None
+
+    if not force and not json_output and sys.stdin.isatty():
+        console.print()
+        response = typer.confirm("确认以上配置并开始初始化？", default=True)
+        if not response:
+            console.print("[yellow]已取消初始化[/yellow]")
+            raise typer.Exit(0)
+
+    if dry_run:
+        console.print("\n[bold yellow]--- Dry Run 预览 ---[/bold yellow]")
+        console.print(f"目标目录: {project_path}")
+        console.print(f"AI 助手: {selected_ai}")
+        console.print(f"脚本类型: {selected_script}")
+        console.print(f"执行内容: 将下载并解压 {selected_ai} 模板")
+        if ai_skills:
+            console.print("执行内容: 将安装 agent skills")
+        if not no_git and should_init_git:
+            console.print("执行内容: 将初始化 git 仓库")
+        
+        if json_output:
+            import sys
+            json_data = {
+                "status": "dry-run",
+                "project_path": str(project_path),
+                "ai_assistant": selected_ai,
+                "script_type": selected_script,
+                "ai_skills": ai_skills,
+                "init_git": not no_git and should_init_git
+            }
+            sys.stdout.write(json.dumps(json_data, indent=2) + "\n")
+        raise typer.Exit(0)
 
     with Live(tracker.render(), console=console, refresh_per_second=8, transient=True) as live:
         tracker.attach_refresh(lambda: live.update(tracker.render()))
@@ -1824,7 +1921,7 @@ def check():
             agent_results[agent_key] = check_tool(agent_key, tracker=tracker)
         else:
             # IDE-based agent - skip CLI check and mark as optional
-            tracker.skip(agent_key, "IDE 型 agent，无需 CLI 检测")
+            tracker.skip(agent_key, "[dim]IDE 型，跳过[/dim]")
             agent_results[agent_key] = False  # Don't count IDE agents as "found"
 
     # Check VS Code variants (not in agent config)
@@ -1836,13 +1933,46 @@ def check():
 
     console.print(tracker.render())
 
+    # --- P1-9: Summary Panel ---
+    cli_agents = [k for k, v in AGENT_CONFIG.items() if v.get("requires_cli")]
+    ide_agents = [k for k, v in AGENT_CONFIG.items() if not v.get("requires_cli") and k != "generic"]
+    
+    total_cli_count = len(cli_agents)
+    installed_cli_count = sum(1 for k in cli_agents if agent_results.get(k))
+    missing_cli_count = total_cli_count - installed_cli_count
+    
+    summary_table = Table(show_header=False, box=None, padding=(0, 2))
+    summary_table.add_column("项目", style="cyan", justify="right")
+    summary_table.add_column("数值", style="white")
+    
+    summary_table.add_row("已安装 CLI", f"{installed_cli_count}/{total_cli_count}")
+    summary_table.add_row("缺失 CLI", f"{missing_cli_count}/{total_cli_count}")
+    summary_table.add_row("IDE 型（无需 CLI）", str(len(ide_agents)))
+    
+    console.print()
+    console.print(
+        Panel(
+            summary_table,
+            title="[bold cyan]检测汇总[/bold cyan]",
+            border_style="cyan",
+            padding=(1, 2)
+        )
+    )
+
     console.print("\n[bold green]specify-zh 已可使用！[/bold green]")
 
     if not git_ok:
         console.print("[dim]提示：安装 git 以启用仓库管理[/dim]")
 
-    if not any(agent_results.values()):
-        console.print("[dim]提示：安装 AI 助手可获得最佳体验[/dim]")
+    if missing_cli_count > 0:
+        missing_names = [AGENT_CONFIG[k]["name"] for k in cli_agents if not agent_results.get(k)]
+        # Recommend top 3 popular CLI tools
+        popular = ["Claude Code", "Cursor", "Gemini CLI"]
+        recommend = [n for n in popular if n in missing_names]
+        if recommend:
+            console.print(f"[dim]提示：推荐优先安装 CLI 工具（如 {', '.join(recommend[:3])}）以获得最佳体验[/dim]")
+        elif not any(agent_results.values()):
+            console.print("[dim]提示：安装 AI 助手可获得最佳体验[/dim]")
 
 
 @app.command()
@@ -1906,6 +2036,8 @@ def doctor():
     summary_table.add_column("项", style="cyan", justify="right")
     summary_table.add_column("值", style="white")
     summary_table.add_row("当前路径", str(diagnostics["path"]))
+    summary_table.add_row("分发包名", DIST_NAME if diagnostics["dist_ok"] else "[yellow]异常 (未找到安装记录)[/yellow]")
+    summary_table.add_row("命令入口", diagnostics["cmd_path"] if diagnostics["cmd_path"] else "[yellow]异常 (不在 PATH 中)[/yellow]")
     summary_table.add_row("Spec Kit 项目", "是" if diagnostics["is_spec_project"] else "否")
     summary_table.add_row("Git 仓库", "是" if diagnostics["is_git_repo"] else "否")
     summary_table.add_row("GitHub Token", "已配置" if diagnostics["has_github_token"] else "未配置")
@@ -1960,20 +2092,25 @@ def doctor():
 def version():
     """显示版本与系统信息。"""
     import platform
-    
+    import shutil
+
     show_banner()
-    
-    # Get CLI version from package metadata
-    cli_version = _get_cli_distribution_version()
-    
+
+    # Get CLI version and run mode from package metadata
+    cli_version, run_source = _get_cli_distribution_version()
+    run_mode = "已安装" if run_source == "installed" else "本地开发"
+
+    # Detect specify-zh executable path
+    cmd_path = shutil.which(CMD_NAME) or "未在 PATH 中找到"
+
     # Fetch latest template release version
     repo_owner = "github"
     repo_name = "spec-kit"
     api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
-    
+
     template_version = "unknown"
     release_date = "unknown"
-    
+
     try:
         response = client.get(
             api_url,
@@ -2002,7 +2139,12 @@ def version():
     info_table.add_column("Key", style="cyan", justify="right")
     info_table.add_column("Value", style="white")
 
+    info_table.add_row("分发包名", DIST_NAME)
+    info_table.add_row("命令入口", CMD_NAME)
     info_table.add_row("CLI 版本", cli_version)
+    info_table.add_row("运行模式", run_mode)
+    info_table.add_row("", "")
+    info_table.add_row("模板仓库", f"github/{repo_name}")
     info_table.add_row("模板版本", template_version)
     info_table.add_row("发布时间", release_date)
     info_table.add_row("", "")
@@ -2013,7 +2155,7 @@ def version():
 
     panel = Panel(
         info_table,
-        title="[bold cyan]Specify CLI 信息[/bold cyan]",
+        title="[bold cyan]specify-cli-zh 信息[/bold cyan]",
         border_style="cyan",
         padding=(1, 2)
     )
@@ -2041,7 +2183,8 @@ extension_app.add_typer(catalog_app, name="catalog")
 
 def get_speckit_version() -> str:
     """Get current spec-kit version."""
-    return _get_cli_distribution_version()
+    version, _ = _get_cli_distribution_version()
+    return version
 
 
 @extension_app.command("list")
@@ -2497,7 +2640,7 @@ def extension_search(
 
         for ext in results:
             # Extension header
-            verified_badge = " [green]✓ Verified[/green]" if ext.get("verified") else ""
+            verified_badge = " [green]✓ 已验证[/green]" if ext.get("verified") else ""
             console.print(f"[bold]{ext['name']}[/bold] (v{ext['version']}){verified_badge}")
             console.print(f"  {ext['description']}")
 
@@ -2541,16 +2684,16 @@ def extension_search(
             console.print()
 
     except ExtensionError as e:
-        console.print(f"\n[red]Error:[/red] {e}")
+        console.print(f"\n[red]错误：[/red] {e}")
         console.print("\n提示：目录可能暂时不可用，请稍后重试。")
         raise typer.Exit(1)
 
 
-@extension_app.command("info")
+@extension_app.command("信息")
 def extension_info(
-    extension: str = typer.Argument(help="Extension ID or name"),
+    extension: str = typer.Argument(help="扩展 ID 或名称"),
 ):
-    """Show detailed information about an extension."""
+    """显示扩展的详细信息。"""
     from .extensions import ExtensionCatalog, ExtensionManager, ExtensionError
 
     project_root = Path.cwd()
@@ -2558,8 +2701,8 @@ def extension_info(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 非 spec-kit 项目（未找到 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录下执行此命令")
         raise typer.Exit(1)
 
     catalog = ExtensionCatalog(project_root)
@@ -2569,12 +2712,12 @@ def extension_info(
         ext_info = catalog.get_extension_info(extension)
 
         if not ext_info:
-            console.print(f"[red]Error:[/red] Extension '{extension}' not found in catalog")
-            console.print("\nTry: specify extension search")
+            console.print(f"[red]错误：[/red] 在目录中未找到扩展 '{extension}'")
+            console.print("\n可运行：specify-zh extension search")
             raise typer.Exit(1)
 
         # Header
-        verified_badge = " [green]✓ Verified[/green]" if ext_info.get("verified") else ""
+        verified_badge = " [green]✓ 已验证[/green]" if ext_info.get("verified") else ""
         console.print(f"\n[bold]{ext_info['name']}[/bold] (v{ext_info['version']}){verified_badge}")
         console.print(f"ID: {ext_info['id']}")
         console.print()
@@ -2584,19 +2727,19 @@ def extension_info(
         console.print()
 
         # Author and License
-        console.print(f"[dim]Author:[/dim] {ext_info.get('author', 'Unknown')}")
-        console.print(f"[dim]License:[/dim] {ext_info.get('license', 'Unknown')}")
+        console.print(f"[dim]作者：[/dim] {ext_info.get('author', '未知')}")
+        console.print(f"[dim]许可证：[/dim] {ext_info.get('license', '未知')}")
 
         # Source catalog
         if ext_info.get("_catalog_name"):
             install_allowed = ext_info.get("_install_allowed", True)
-            install_note = "" if install_allowed else " [yellow](discovery only)[/yellow]"
-            console.print(f"[dim]Source catalog:[/dim] {ext_info['_catalog_name']}{install_note}")
+            install_note = "" if install_allowed else " [yellow](仅发现)[/yellow]"
+            console.print(f"[dim]来源目录：[/dim] {ext_info['_catalog_name']}{install_note}")
         console.print()
 
         # Requirements
         if ext_info.get('requires'):
-            console.print("[bold]Requirements:[/bold]")
+            console.print("[bold]依赖要求：[/bold]")
             reqs = ext_info['requires']
             if reqs.get('speckit_version'):
                 console.print(f"  • Spec Kit: {reqs['speckit_version']}")
@@ -2604,76 +2747,76 @@ def extension_info(
                 for tool in reqs['tools']:
                     tool_name = tool['name']
                     tool_version = tool.get('version', 'any')
-                    required = " (required)" if tool.get('required') else " (optional)"
+                    required = " （必需）" if tool.get('required') else " （可选）"
                     console.print(f"  • {tool_name}: {tool_version}{required}")
             console.print()
 
         # Provides
         if ext_info.get('provides'):
-            console.print("[bold]Provides:[/bold]")
+            console.print("[bold]提供内容：[/bold]")
             provides = ext_info['provides']
             if provides.get('commands'):
-                console.print(f"  • Commands: {provides['commands']}")
+                console.print(f"  • 命令：{provides['commands']}")
             if provides.get('hooks'):
-                console.print(f"  • Hooks: {provides['hooks']}")
+                console.print(f"  • 钉子：{provides['hooks']}")
             console.print()
 
         # Tags
         if ext_info.get('tags'):
             tags_str = ", ".join(ext_info['tags'])
-            console.print(f"[bold]Tags:[/bold] {tags_str}")
+            console.print(f"[bold]标签：[/bold] {tags_str}")
             console.print()
 
         # Statistics
         stats = []
         if ext_info.get('downloads') is not None:
-            stats.append(f"Downloads: {ext_info['downloads']:,}")
+            stats.append(f"下载量：{ext_info['downloads']:,}")
         if ext_info.get('stars') is not None:
-            stats.append(f"Stars: {ext_info['stars']}")
+            stats.append(f"星标：{ext_info['stars']}")
         if stats:
-            console.print(f"[bold]Statistics:[/bold] {' | '.join(stats)}")
+            console.print(f"[bold]统计信息：[/bold] {' | '.join(stats)}")
             console.print()
 
         # Links
-        console.print("[bold]Links:[/bold]")
+        console.print("[bold]链接：[/bold]")
         if ext_info.get('repository'):
-            console.print(f"  • Repository: {ext_info['repository']}")
+            console.print(f"  • 仓库：{ext_info['repository']}")
         if ext_info.get('homepage'):
-            console.print(f"  • Homepage: {ext_info['homepage']}")
+            console.print(f"  • 主页：{ext_info['homepage']}")
         if ext_info.get('documentation'):
-            console.print(f"  • Documentation: {ext_info['documentation']}")
+            console.print(f"  • 文档：{ext_info['documentation']}")
         if ext_info.get('changelog'):
-            console.print(f"  • Changelog: {ext_info['changelog']}")
+            console.print(f"  • 更新日志：{ext_info['changelog']}")
         console.print()
 
         # Installation status and command
         is_installed = manager.registry.is_installed(ext_info['id'])
         install_allowed = ext_info.get("_install_allowed", True)
         if is_installed:
-            console.print("[green]✓ Installed[/green]")
-            console.print(f"\nTo remove: specify extension remove {ext_info['id']}")
+            console.print("[green]✓ 已安装[/green]")
+            console.print(f"\n如需卸载：specify-zh extension remove {ext_info['id']}")
         elif install_allowed:
-            console.print("[yellow]Not installed[/yellow]")
-            console.print(f"\n[cyan]Install:[/cyan] specify-zh extension add {ext_info['id']}")
+            console.print("[yellow]未安装[/yellow]")
+            console.print(f"\n[cyan]安装：[/cyan] specify-zh extension add {ext_info['id']}")
         else:
             catalog_name = ext_info.get("_catalog_name", "community")
-            console.print("[yellow]Not installed[/yellow]")
+            console.print("[yellow]未安装[/yellow]")
             console.print(
-                f"\n[yellow]⚠[/yellow]  '{ext_info['id']}' is available in the '{catalog_name}' catalog "
-                f"but not in your approved catalog. Add it to .specify/extension-catalogs.yml "
-                f"with install_allowed: true to enable installation."
+                f"\n[yellow]⚠[/yellow]  '{ext_info['id']}' 在 '{catalog_name}' 目录中可用，"
+                f"但不在已批准目录中。将其加入 .specify/extension-catalogs.yml "
+                f"并设置 install_allowed: true 即可安装。"
             )
 
     except ExtensionError as e:
-        console.print(f"\n[red]Error:[/red] {e}")
+        console.print(f"\n[red]错误：[/red] {e}")
         raise typer.Exit(1)
 
 
-@extension_app.command("update")
+@extension_app.command("更新")
 def extension_update(
-    extension: str = typer.Argument(None, help="Extension ID to update (or all)"),
+    extension: str = typer.Argument(None, help="要更新的扩展 ID（或 all）"),
 ):
-    """Update extension(s) to latest version."""
+    """将扩展更新到最新版本。"""
     from .extensions import ExtensionManager, ExtensionCatalog, ExtensionError
     from packaging import version as pkg_version
 
@@ -2682,8 +2825,8 @@ def extension_update(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 非 spec-kit 项目（未找到 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录下执行此命令")
         raise typer.Exit(1)
 
     manager = ExtensionManager(project_root)
@@ -2703,10 +2846,10 @@ def extension_update(
             extensions_to_update = [ext["id"] for ext in installed]
 
         if not extensions_to_update:
-            console.print("[yellow]No extensions installed[/yellow]")
+            console.print("[yellow]未安装任何扩展[/yellow]")
             raise typer.Exit(0)
 
-        console.print("🔄 Checking for updates...\n")
+        console.print("🔄 正在检查更新...\n")
 
         updates_available = []
 
@@ -2718,7 +2861,7 @@ def extension_update(
             # Get catalog info
             ext_info = catalog.get_extension_info(ext_id)
             if not ext_info:
-                console.print(f"⚠  {ext_id}: Not found in catalog (skipping)")
+                console.print(f"⚠  {ext_id}：在目录中未找到（已跳过）")
                 continue
 
             catalog_version = pkg_version.Version(ext_info["version"])
@@ -2733,54 +2876,54 @@ def extension_update(
                     }
                 )
             else:
-                console.print(f"✓ {ext_id}: Up to date (v{installed_version})")
+                console.print(f"✓ {ext_id}：已是最新（v{installed_version}）")
 
         if not updates_available:
-            console.print("\n[green]All extensions are up to date![/green]")
+            console.print("\n[green]所有扩展均已是最新版本！[/green]")
             raise typer.Exit(0)
 
         # Show available updates
-        console.print("\n[bold]Updates available:[/bold]\n")
+        console.print("\n[bold]有可用更新：[/bold]\n")
         for update in updates_available:
             console.print(
                 f"  • {update['id']}: {update['installed']} → {update['available']}"
             )
 
         console.print()
-        confirm = typer.confirm("Update these extensions?")
+        confirm = typer.confirm("是否更新这些扩展？")
         if not confirm:
-            console.print("Cancelled")
+            console.print("已取消")
             raise typer.Exit(0)
 
         # Perform updates
         console.print()
         for update in updates_available:
             ext_id = update["id"]
-            console.print(f"📦 Updating {ext_id}...")
+            console.print(f"📦 正在更新 {ext_id}...")
 
-            # TODO: Implement download and reinstall from URL
-            # For now, just show  message
+            # TODO: 实现从 URL 下载并重新安装
+            # 目前仅显示提示信息
             console.print(
-                "[yellow]Note:[/yellow] Automatic update not yet implemented. "
-                "Please update manually:"
+                "[yellow]提示：[/yellow] 自动更新功能尚未实现。"
+                "请手动更新："
             )
-            console.print(f"  specify extension remove {ext_id} --keep-config")
+            console.print(f"  specify-zh extension remove {ext_id} --keep-config")
             console.print(f"  specify-zh extension add {ext_id}")
 
         console.print(
-            "\n[cyan]Tip:[/cyan] Automatic updates will be available in a future version"
+            "\n[cyan]提示：[/cyan] 自动更新将在后续版本推出"
         )
 
     except ExtensionError as e:
-        console.print(f"\n[red]Error:[/red] {e}")
+        console.print(f"\n[red]错误：[/red] {e}")
         raise typer.Exit(1)
 
 
-@extension_app.command("enable")
+@extension_app.command("启用")
 def extension_enable(
-    extension: str = typer.Argument(help="Extension ID to enable"),
+    extension: str = typer.Argument(help="要启用的扩展 ID"),
 ):
-    """Enable a disabled extension."""
+    """启用已禁用的扩展。"""
     from .extensions import ExtensionManager, HookExecutor
 
     project_root = Path.cwd()
@@ -2788,21 +2931,21 @@ def extension_enable(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 非 spec-kit 项目（未找到 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录下执行此命令")
         raise typer.Exit(1)
 
     manager = ExtensionManager(project_root)
     hook_executor = HookExecutor(project_root)
 
     if not manager.registry.is_installed(extension):
-        console.print(f"[red]Error:[/red] Extension '{extension}' is not installed")
+        console.print(f"[red]错误：[/red] 扩展 '{extension}' 未安装")
         raise typer.Exit(1)
 
     # Update registry
     metadata = manager.registry.get(extension)
     if metadata.get("enabled", True):
-        console.print(f"[yellow]Extension '{extension}' is already enabled[/yellow]")
+        console.print(f"[yellow]扩展 '{extension}' 已处于启用状态[/yellow]")
         raise typer.Exit(0)
 
     metadata["enabled"] = True
@@ -2817,14 +2960,14 @@ def extension_enable(
                     hook["enabled"] = True
         hook_executor.save_project_config(config)
 
-    console.print(f"[green]✓[/green] Extension '{extension}' enabled")
+    console.print(f"[green]✓[/green] 扩展 '{extension}' 已启用")
 
 
-@extension_app.command("disable")
+@extension_app.command("禁用")
 def extension_disable(
-    extension: str = typer.Argument(help="Extension ID to disable"),
+    extension: str = typer.Argument(help="要禁用的扩展 ID"),
 ):
-    """Disable an extension without removing it."""
+    """禁用扩展（不卸载）。"""
     from .extensions import ExtensionManager, HookExecutor
 
     project_root = Path.cwd()
@@ -2832,21 +2975,21 @@ def extension_disable(
     # Check if we're in a spec-kit project
     specify_dir = project_root / ".specify"
     if not specify_dir.exists():
-        console.print("[red]Error:[/red] Not a spec-kit project (no .specify/ directory)")
-        console.print("Run this command from a spec-kit project root")
+        console.print("[red]错误：[/red] 非 spec-kit 项目（未找到 .specify/ 目录）")
+        console.print("请在 spec-kit 项目根目录下执行此命令")
         raise typer.Exit(1)
 
     manager = ExtensionManager(project_root)
     hook_executor = HookExecutor(project_root)
 
     if not manager.registry.is_installed(extension):
-        console.print(f"[red]Error:[/red] Extension '{extension}' is not installed")
+        console.print(f"[red]错误：[/red] 扩展 '{extension}' 未安装")
         raise typer.Exit(1)
 
     # Update registry
     metadata = manager.registry.get(extension)
     if not metadata.get("enabled", True):
-        console.print(f"[yellow]Extension '{extension}' is already disabled[/yellow]")
+        console.print(f"[yellow]扩展 '{extension}' 已处于禁用状态[/yellow]")
         raise typer.Exit(0)
 
     metadata["enabled"] = False
@@ -2861,9 +3004,9 @@ def extension_disable(
                     hook["enabled"] = False
         hook_executor.save_project_config(config)
 
-    console.print(f"[green]✓[/green] Extension '{extension}' disabled")
-    console.print("\nCommands will no longer be available. Hooks will not execute.")
-    console.print(f"To re-enable: specify extension enable {extension}")
+    console.print(f"[green]✓[/green] 扩展 '{extension}' 已禁用")
+    console.print("\n命令将不可用，钉子将不再执行。")
+    console.print(f"重新启用：specify-zh extension enable {extension}")
 
 
 def main():

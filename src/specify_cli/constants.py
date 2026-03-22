@@ -1,0 +1,5 @@
+DIST_NAME = "specify-cli-zh"
+CMD_NAME = "specify-zh"
+BRAND_DISPLAY = "specify-cli-zh"
+UPSTREAM_REPO = "loulanyue/spec-kit-zh"
+TAGLINE = "specify-cli-zh - 规范驱动开发工具包"

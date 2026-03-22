@@ -64,13 +64,29 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <pro
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --ai claude --ignore-agent-tools
 ```
 
-## 验证
+## 验证安装
+
+> [!TIP]
+> **安装包名** vs **执行命令名**
+>
+> | 用途 | 名称 |
+> |------|------|
+> | pip/uv 安装时使用 | `specify-cli-zh` |
+> | 终端运行时使用 | `specify-zh` |
+
+安装完成后，运行以下命令验证：
+
+```bash
+specify-zh --help    # 期望：显示命令帮助列表，且品牌名为 specify-cli-zh
+specify-zh version   # 期望：显示版本号和环境信息
+specify-zh check     # 期望：显示工具链检测结果
+```
 
 初始化完成后，你应当能在 AI Agent 中看到以下命令：
 
-- `/speckit.specify` - Create specifications
-- `/speckit.plan` - Generate implementation plans  
-- `/speckit.tasks` - Break down into actionable tasks
+- `/speckit.specify` - 创建规范
+- `/speckit.plan` - 生成实施计划
+- `/speckit.tasks` - 分解为可执行任务
 
 `.specify/scripts` 目录中会同时包含 `.sh` 和 `.ps1` 脚本。
 

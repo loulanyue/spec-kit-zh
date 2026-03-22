@@ -9,9 +9,11 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/loulanyue/spec-kit-zh/stargazers"><img src="https://img.shields.io/github/stars/loulanyue/spec-kit-zh?style=social" alt="GitHub stars"/></a>
-    <a href="https://github.com/loulanyue/spec-kit-zh/blob/main/LICENSE"><img src="https://img.shields.io/github/license/loulanyue/spec-kit-zh" alt="License"/></a>
-    <a href="https://github.com/loulanyue/spec-kit-zh/tree/main/docs"><img src="https://img.shields.io/badge/docs-Repository-blue" alt="Documentation"/></a>
+    <img src="https://img.shields.io/badge/version-0.4.0-blue?style=flat" alt="Version"/>
+    <a href="https://github.com/loulanyue/spec-kit-zh/releases/latest"><img src="https://img.shields.io/github/v/release/loulanyue/spec-kit-zh?style=flat" alt="Latest Release"/></a>
+    <a href="https://github.com/loulanyue/spec-kit-zh/stargazers"><img src="https://img.shields.io/github/stars/loulanyue/spec-kit-zh?style=flat" alt="GitHub stars"/></a>
+    <a href="https://github.com/loulanyue/spec-kit-zh/blob/main/LICENSE"><img src="https://img.shields.io/github/license/loulanyue/spec-kit-zh?style=flat" alt="License"/></a>
+    <a href="https://github.com/loulanyue/spec-kit-zh/tree/main/docs"><img src="https://img.shields.io/badge/docs-Repository-blue?style=flat" alt="Documentation"/></a>
 </p>
 
 ---
@@ -42,6 +44,33 @@
 
 <a id="quickstart"></a>
 ## ⚡ 快速开始
+
+### ⏱️ 3 分钟上手
+
+**第 1 步：安装**
+```bash
+uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git
+```
+> [!IMPORTANT]
+> 📦 **安装包名**：`specify-cli-zh` (用于 pip / uv install 下载)  
+> 🚀 **执行命令**：`specify-zh` (用于在终端执行工具)
+
+**第 2 步：初始化项目**
+```bash
+specify-zh init my-project
+```
+
+**第 3 步：验证**
+```bash
+specify-zh check
+```
+
+### 🤷‍♂️ 我应该用哪个命令？ (FAQ)
+- **`specify-cli-zh`**：这是本中文分支在 Python 包管理系统中的**分发包名**。但在运行工具本身时，请**不要**输入 `specify-cli-zh`。
+- **`specify-zh`**：这是您真正在终端执行的**命令名**。所有的命令前缀都应为 `specify-zh` 以避免冲突。
+- **`specify`**：这是上游英文原版的默认命令名。如果你只安装了本工具，并且环境中没有安装过冲突工具，你可以为其配置 alias，但在本项目文档和教程中，我们将始终称之为 `specify-zh`。
+
+---
 
 ### 1. 安装 `specify-cli-zh`
 
@@ -99,7 +128,25 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init --he
 - 可以使用 `uv tool list`、`uv tool upgrade`、`uv tool uninstall` 做更完整的工具管理
 - shell 配置更简洁
 
-### 2. 建立项目原则
+### 2. 验证安装
+
+安装完成后，运行以下命令确认 CLI 正常工作：
+
+```bash
+specify-zh --help    # 显示命令帮助，且品牌名为 specify-cli-zh
+specify-zh version   # 显示版本号和环境信息
+specify-zh check     # 检测本机工具链（git、AI agent 等）
+```
+
+> [!TIP]
+> **安装包名** vs **执行命令名**
+>
+> | 用途 | 名称 |
+> |------|------|
+> | pip/uv 安装时使用 | `specify-cli-zh` |
+> | 终端运行时使用 | `specify-zh` |
+
+### 3. 建立项目原则
 
 在项目目录中启动你的 AI 助手。初始化完成后，助手中就会提供 `/speckit.*` 命令。
 
@@ -289,208 +336,192 @@ specify-zh init --here --ai gemini --ai-skills
 specify-zh check
 ```
 
-### Available Slash Commands
+### 可用斜杠命令 (Available Slash Commands)
 
-After running `specify-zh init`, your AI coding agent will have access to these slash commands for structured development:
+运行 `specify-zh init` 后，你的 AI 代码代理将获得以下斜杠命令用于结构化开发：
 
-#### Core Commands
+#### 核心命令 (Core Commands)
 
-Essential commands for the Spec-Driven Development workflow:
+规范驱动开发流程的必备命令：
 
-| Command                 | Description                                                              |
+| 命令                    | 描述                                                              |
 | ----------------------- | ------------------------------------------------------------------------ |
-| `/speckit.constitution` | Create or update project governing principles and development guidelines |
-| `/speckit.specify`      | Define what you want to build (requirements and user stories)            |
-| `/speckit.plan`         | Create technical implementation plans with your chosen tech stack        |
-| `/speckit.tasks`        | Generate actionable task lists for implementation                        |
-| `/speckit.implement`    | Execute all tasks to build the feature according to the plan             |
+| `/speckit.constitution` | 创建或更新项目治理原则与开发准则 |
+| `/speckit.specify`      | 定义你要构建什么（需求与用户故事）            |
+| `/speckit.plan`         | 创建包含所选技术栈的技术实施计划        |
+| `/speckit.tasks`        | 生成可执行的任务清单                        |
+| `/speckit.implement`    | 执行所有任务，按照计划构建功能             |
 
-#### Optional Commands
+#### 可选命令 (Optional Commands)
 
-Additional commands for enhanced quality and validation:
+用于增强质量与验证的附加命令：
 
-| Command              | Description                                                                                                                          |
+| 命令                 | 描述                                                                                                                          |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `/speckit.clarify`   | Clarify underspecified areas (recommended before `/speckit.plan`; formerly `/quizme`)                                                |
-| `/speckit.analyze`   | Cross-artifact consistency & coverage analysis (run after `/speckit.tasks`, before `/speckit.implement`)                             |
-| `/speckit.checklist` | Generate custom quality checklists that validate requirements completeness, clarity, and consistency (like "unit tests for English") |
+| `/speckit.clarify`   | 澄清描述不足的地方（建议在 `/speckit.plan` 前使用；原 `/quizme` 命令）                                                |
+| `/speckit.analyze`   | 跨工件一致性与覆盖度分析（在 `/speckit.tasks` 后、`/speckit.implement` 前运行）                             |
+| `/speckit.checklist` | 生成自定义质量检查单，验证需求的完整性、清晰度与一致性（类似于"自然语言版的单元测试"） |
 
-### Environment Variables
+### 环境变量
 
-| Variable          | Description                                                                                                                                                                                                                                                                                            |
+| 变量              | 描述                                                                                                                                                                                                                                                                                            |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SPECIFY_FEATURE` | Override feature detection for non-Git repositories. Set to the feature directory name (e.g., `001-photo-albums`) to work on a specific feature when not using Git branches.<br/>\*\*Must be set in the context of the agent you're working with prior to using `/speckit.plan` or follow-up commands. |
+| `SPECIFY_FEATURE` | 对于非 Git 仓库，覆盖功能特性分支检测。将其设置为功能特性目录名（例如 `001-photo-albums`），以便在不使用 Git 分支的情况下开发特定功能。<br/>**必须在使用 `/speckit.plan` 或后续命令之前，在与 Agent 交互的上下文中设置此变量。** |
 
 <a id="core-philosophy"></a>
-## 📚 Core Philosophy
+## 📚 核心理念 (Core Philosophy)
 
-Spec-Driven Development is a structured process that emphasizes:
+规范驱动开发 (Spec-Driven Development) 是一个强调以下几点的结构化流程：
 
-- **Intent-driven development** where specifications define the "*what*" before the "*how*"
-- **Rich specification creation** using guardrails and organizational principles
-- **Multi-step refinement** rather than one-shot code generation from prompts
-- **Heavy reliance** on advanced AI model capabilities for specification interpretation
+- **意图驱动开发**：规范优于实现，先定义"做什么"(what)，再定义"怎么做"(how)
+- **丰富的规范创建**：使用护栏 (guardrails) 和组织原则进行约束
+- **多步迭代细化**：而不是指望通过提示词生成一次性代码
+- **高度依赖**高级 AI 模型对规范的解读能力
 
 <a id="development-phases"></a>
-## 🌟 Development Phases
+## 🌟 开发阶段 (Development Phases)
 
-| Phase                                    | Focus                    | Key Activities                                                                                                                                                     |
+| 阶段                                     | 关注点                   | 关键活动                                                                                                                                                     |
 | ---------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **0-to-1 Development** ("Greenfield")    | Generate from scratch    | <ul><li>Start with high-level requirements</li><li>Generate specifications</li><li>Plan implementation steps</li><li>Build production-ready applications</li></ul> |
-| **Creative Exploration**                 | Parallel implementations | <ul><li>Explore diverse solutions</li><li>Support multiple technology stacks & architectures</li><li>Experiment with UX patterns</li></ul>                         |
-| **Iterative Enhancement** ("Brownfield") | Brownfield modernization | <ul><li>Add features iteratively</li><li>Modernize legacy systems</li><li>Adapt processes</li></ul>                                                                |
+| **0 到 1 开发** ("Greenfield")           | 从零生成                 | <ul><li>从高层级需求开始</li><li>生成规范</li><li>计划实施步骤</li><li>构建生产就绪的应用</li></ul> |
+| **创造性探索**                           | 并行实现                 | <ul><li>探索多种解决方案</li><li>支持多样的技术栈与架构</li><li>实验不同的 UX 模式</li></ul>                         |
+| **迭代增强** ("Brownfield")              | 存量系统现代化           | <ul><li>迭代添加功能</li><li>存量遗留系统现代化改造</li><li>适应流程</li></ul>                                                                |
 
 <a id="experimental-goals"></a>
-## 🎯 Experimental Goals
+## 🎯 实验目标 (Experimental Goals)
 
-Our research and experimentation focus on:
+我们的研究与实验主要集中在以下方面：
 
-### Technology independence
+### 技术栈独立
 
-- Create applications using diverse technology stacks
-- Validate the hypothesis that Spec-Driven Development is a process not tied to specific technologies, programming languages, or frameworks
+- 使用不同的技术栈创建应用程序
+- 验证"规范驱动开发是一种不绑定于特定技术、编程语言或框架的流程"这一假设
 
-### Enterprise constraints
+### 企业级约束
 
-- Demonstrate mission-critical application development
-- Incorporate organizational constraints (cloud providers, tech stacks, engineering practices)
-- Support enterprise design systems and compliance requirements
+- 演示关键业务应用程序的开发
+- 结合组织架构约束（云提供商、技术栈、工程实践）
+- 支持企业设计系统与合规性要求
 
-### User-centric development
+### 以用户为中心的开发
 
-- Build applications for different user cohorts and preferences
-- Support various development approaches (from vibe-coding to AI-native development)
+- 为不同的用户群体和偏好构建应用程序
+- 支持多种开发方式（从 vibe-coding 到 AI 原生开发）
 
-### Creative & iterative processes
+### 创新性与迭代流程
 
-- Validate the concept of parallel implementation exploration
-- Provide robust iterative feature development workflows
-- Extend processes to handle upgrades and modernization tasks
+- 验证并行实验与对比实施概念的可行性
+- 提供稳健的迭代式功能开发工作流
+- 扩展流程以处理升级和现代化重构任务
 
 <a id="prerequisites"></a>
-## 🔧 Prerequisites
+## 🔧 前置要求
 
-- **Linux/macOS/Windows**
-- [Supported](#supported-ai-agents) AI coding agent.
-- [uv](https://docs.astral.sh/uv/) for package management
+- **Linux / macOS / Windows**
+- [支持的](#supported-ai-agents) AI 编码代理
+- 用于包管理的 [uv](https://docs.astral.sh/uv/)
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
 
-If you encounter issues with an agent, please open an issue so we can refine the integration.
+如果在与 Agent 工具的集成中遇到任何问题，请提交 issue，以便我们不断优化集成体验。
 
 <a id="learn-more"></a>
-## 📖 Learn More
+## 📖 了解更多
 
-- **[Complete Spec-Driven Development Methodology](./spec-driven.md)** - Deep dive into the full process
-- **[Detailed Walkthrough](#detailed-process)** - Step-by-step implementation guide
+- **[完整的规范驱动开发方法论](./spec-driven.md)** - 深入了解整个工作流
+- **[详细演练流程](#detailed-process)** - 分步操作指南
+- **[从旧版本迁移](./docs/migration.md)** - 从原版 spec-kit 等的迁移指南
 
 ---
 
 <a id="detailed-process"></a>
-## 📋 Detailed Process
+## 📋 详细流程 (Detailed Process)
 
 <details>
-<summary>Click to expand the detailed step-by-step walkthrough</summary>
+<summary>点击展开分步详细演练流程</summary>
 
-You can use the `specify-cli-zh` distribution through the `specify-zh` command to bootstrap your project. Run:
+你可以通过 `specify-zh` 命令使用 `specify-cli-zh` 工具包来引导你的项目。运行：
 
 ```bash
 specify-zh init <project_name>
 ```
 
-Or initialize in the current directory:
+或者在当前目录初始化：
 
 ```bash
 specify-zh init .
-# or use the --here flag
+# 或者使用 --here 标志
 specify-zh init --here
-# Skip confirmation when the directory already has files
+# 当目录非空时跳过确认操作
 specify-zh init . --force
-# or
+# 或者
 specify-zh init --here --force
 ```
 
-![specify-zh bootstrapping a new project in the terminal](./media/specify_cli.gif)
+![在终端使用 specify-zh 初始化新项目](./media/specify_cli.gif)
 
-You will be prompted to select the AI agent you are using. You can also proactively specify it directly in the terminal:
+你将被提示选择正在使用的 AI 代理。你也可以在终端直接指定：
 
 ```bash
 specify-zh init <project_name> --ai claude
 specify-zh init <project_name> --ai gemini
 specify-zh init <project_name> --ai copilot
 
-# Or in current directory:
+# 或在当前目录中：
 specify-zh init . --ai claude
 specify-zh init . --ai codex
 
-# or use --here flag
+# 或使用 --here 标志
 specify-zh init --here --ai claude
 specify-zh init --here --ai codex
 
-# Force merge into a non-empty current directory
+# 强行合并到非空当前目录中
 specify-zh init . --force --ai claude
 
-# or
+# 或者
 specify-zh init --here --force --ai claude
 ```
 
-The `specify-zh` command will check if you have Claude Code, Gemini CLI, Cursor CLI, Qwen CLI, opencode, Codex CLI, Qoder CLI, Tabnine CLI, Kiro CLI, or Mistral Vibe installed. If you do not, or you prefer to get the templates without checking for the right tools, use `--ignore-agent-tools` with your command:
+`specify-zh` 命令将检查你是否安装了对应的 CLI 工具（例如 Claude Code, Gemini CLI, Cursor 等）。如果不具备对应工具，或不想进行工具检测，可以在命令中添加 `--ignore-agent-tools` 标志强行跳过检查：
 
 ```bash
 specify-zh init <project_name> --ai claude --ignore-agent-tools
 ```
 
-### **STEP 1:** Establish project principles
+### **第 1 步：** 建立项目章程
 
-Go to the project folder and run your AI agent. In our example, we're using `claude`.
+进入项目文件夹并运行你的 AI 代理程序。在示例中我们使用的是 `claude`。
 
-![Bootstrapping Claude Code environment](./media/bootstrap-claude-code.gif)
+![引导 Claude Code 环境](./media/bootstrap-claude-code.gif)
 
-You will know that things are configured correctly if you see the `/speckit.constitution`, `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, and `/speckit.implement` commands available.
+如果看到终端输出了 `/speckit.constitution`, `/speckit.specify`, `/speckit.plan`, `/speckit.tasks` 及 `/speckit.implement` 等命令，即代表配置正确。
 
-The first step should be establishing your project's governing principles using the `/speckit.constitution` command. This helps ensure consistent decision-making throughout all subsequent development phases:
+开发的第一步，是使用 `/speckit.constitution` 命令确立该项目的章程 (Constitution)。这能确保在后续所有阶段技术决策和表现具备一致性。
 
 ```text
-/speckit.constitution Create principles focused on code quality, testing standards, user experience consistency, and performance requirements. Include governance for how these principles should guide technical decisions and implementation choices.
+/speckit.constitution 建立专注于代码质量、测试标准、用户体验一致性及性能要求的项目章程。包括有关这些原则如何指导技术决策和底层实现的准则。
 ```
 
-This step creates or updates the `.specify/memory/constitution.md` file with your project's foundational guidelines that the AI agent will reference during specification, planning, and implementation phases.
+此步骤将在 `.specify/memory/constitution.md` 中为你建立基础章程。AI 代理将在之后的规范定义、实施规划及具体施工阶段中反复参考此文件。
 
-### **STEP 2:** Create project specifications
+### **第 2 步：** 创建项目规格说明
 
-With your project principles established, you can now create the functional specifications. Use the `/speckit.specify` command and then provide the concrete requirements for the project you want to develop.
+确立项目原则后，你就可以开始构思功能需求大纲。使用 `/speckit.specify` 命令，并输入你想开发的项目的具体要求。
 
 > [!IMPORTANT]
-> Be as explicit as possible about *what* you are trying to build and *why*. **Do not focus on the tech stack at this point**.
+> 尽可能明确地说明你**尝试构建什么**以及**为什么要构建它**。**此时不要聚焦于技术栈。**
 
-An example prompt:
+输入提示词的示例：
 
 ```text
-Develop Taskify, a team productivity platform. It should allow users to create projects, add team members,
-assign tasks, comment and move tasks between boards in Kanban style. In this initial phase for this feature,
-let's call it "Create Taskify," let's have multiple users but the users will be declared ahead of time, predefined.
-I want five users in two different categories, one product manager and four engineers. Let's create three
-different sample projects. Let's have the standard Kanban columns for the status of each task, such as "To Do,"
-"In Progress," "In Review," and "Done." There will be no login for this application as this is just the very
-first testing thing to ensure that our basic features are set up. For each task in the UI for a task card,
-you should be able to change the current status of the task between the different columns in the Kanban work board.
-You should be able to leave an unlimited number of comments for a particular card. You should be able to, from that task
-card, assign one of the valid users. When you first launch Taskify, it's going to give you a list of the five users to pick
-from. There will be no password required. When you click on a user, you go into the main view, which displays the list of
-projects. When you click on a project, you open the Kanban board for that project. You're going to see the columns.
-You'll be able to drag and drop cards back and forth between different columns. You will see any cards that are
-assigned to you, the currently logged in user, in a different color from all the other ones, so you can quickly
-see yours. You can edit any comments that you make, but you can't edit comments that other people made. You can
-delete any comments that you made, but you can't delete comments anybody else made.
+开发 Taskify，一个团队生产力平台。允许用户建立项目、添加团队成员、分配任务、跨看板评论与拖拽任务（看板模式）。在此特性的初始开发阶段（我们就叫它“创建 Taskify”吧），先预设五名固定用户：一名产品经理和四名工程师。建立三个样本项目。需要包含标准的看板状态列，例如“待办”、“进行中”、“审核中”与“完成”。第一版不用做登录模块。在任务卡片 UI 中，能够更改状态（在不同列中拖拽或切换）。能够为任意卡片留下无限数量的评论并允许分配用户。...
 ```
 
-After this prompt is entered, you should see Claude Code kick off the planning and spec drafting process. Claude Code will also trigger some of the built-in scripts to set up the repository.
+发出此提示后，你将看到 AI 开始进行规范草稿拟定。对于提供该能力的 CLI，它还将执行内置的创建新特性的 shell 脚本，例如自动帮你创建一个 Git 分支。
 
-Once this step is completed, you should have a new branch created (e.g., `001-create-taskify`), as well as a new specification in the `specs/001-create-taskify` directory.
+在此任务完成后，你应该能看到一个新的代码分支被建立（例如 `001-create-taskify`），并在 `specs/001-create-taskify` 下拥有了一套完整的需求规范，包括模板定义好的各类用户故事与验收标准。
 
-The produced specification should contain a set of user stories and functional requirements, as defined in the template.
-
-At this stage, your project folder contents should resemble the following:
+这时的项目目录结构大致如下：
 
 ```text
 └── .specify
@@ -511,46 +542,38 @@ At this stage, your project folder contents should resemble the following:
         └── tasks-template.md
 ```
 
-### **STEP 3:** Functional specification clarification (required before planning)
+### **第 3 步：** 澄清需求与确认验收单（建议在规划前执行）
 
-With the baseline specification created, you can go ahead and clarify any of the requirements that were not captured properly within the first shot attempt.
+当基础规格说明创建好后，你可以开始逐步澄清那些在首次请求中未被精准捕获的需求。
 
-You should run the structured clarification workflow **before** creating a technical plan to reduce rework downstream.
+你应在制定实施计划**之前**运行澄清工作流，以最小化后续可能出现的返工。
 
-Preferred order:
+推荐的循序渐进法：
 
-1. Use `/speckit.clarify` (structured) – sequential, coverage-based questioning that records answers in a Clarifications section.
-2. Optionally follow up with ad-hoc free-form refinement if something still feels vague.
+1. 使用 `/speckit.clarify`（结构化机制）—— 递进式提供覆盖度补全的问题，以理清细节，并将回答记录在“Clarifications”段落中。
+2. （可选）仍然允许自由对话补充任意细节。
 
-If you intentionally want to skip clarification (e.g., spike or exploratory prototype), explicitly state that so the agent doesn't block on missing clarifications.
+如果你因为原型探路或摸鱼性质的需求而刻意跳过该步骤，也可以显式声明无需澄清。
 
-Example free-form refinement prompt (after `/speckit.clarify` if still needed):
+在完成所有补充细节后，你可以要求 AI 针对本规范生成的**Review & Acceptance Checklist (验收检查单)** 逐一划勾确认。
 
-```text
-For each sample project or project that you create there should be a variable number of tasks between 5 and 15
-tasks for each one randomly distributed into different states of completion. Make sure that there's at least
-one task in each stage of completion.
-```
-
-You should also ask Claude Code to validate the **Review & Acceptance Checklist**, checking off the things that are validated/pass the requirements, and leave the ones that are not unchecked. The following prompt can be used:
+提示词示例：
 
 ```text
-Read the review and acceptance checklist, and check off each item in the checklist if the feature spec meets the criteria. Leave it empty if it does not.
+阅读并逐项检查验收标准 checklist。如果当前规范文档已充分满足该检查项的判定要求则打勾。若未满足则保持留空。
 ```
 
-It's important to use the interaction with Claude Code as an opportunity to clarify and ask questions around the specification - **do not treat its first attempt as final**.
+将你与 AI 共建的过程视为向它澄清需求、提出反向拷问的机会——**切勿将它输出的初稿视作最终定稿**。
 
-### **STEP 4:** Generate a plan
+### **第 4 步：** 生成架构与实施计划
 
-You can now be specific about the tech stack and other technical requirements. You can use the `/speckit.plan` command that is built into the project template with a prompt like this:
+既然你已完成需求梳理，现在就可以具体地探讨技术栈与其它技术要求。使用 `/speckit.plan` 命令，附加你的技术偏好提示语：
 
 ```text
-We are going to generate this using .NET Aspire, using Postgres as the database. The frontend should use
-Blazor server with drag-and-drop task boards, real-time updates. There should be a REST API created with a projects API,
-tasks API, and a notifications API.
+我期望使用 .NET Aspire 与 Postgres 数据库搭建这个项目。前端应用 Blazor Server，利用拖拽组件进行任务看板交互，并达成实时渲染更新。建立一套包含对 projects/tasks/notifications 支持的 REST API 后端服务。
 ```
 
-The output of this step will include a number of implementation detail documents, with your directory tree resembling this:
+这时的输出不仅是一份实施计划，还将伴随一套实现细节档案。这时的文件树形同如下：
 
 ```text
 .
@@ -580,102 +603,91 @@ The output of this step will include a number of implementation detail documents
     └── tasks-template.md
 ```
 
-Check the `research.md` document to ensure that the right tech stack is used, based on your instructions. You can ask Claude Code to refine it if any of the components stand out, or even have it check the locally-installed version of the platform/framework you want to use (e.g., .NET).
+你可以查阅生成的 `research.md` 文档，确保它基于你的指令选取了正确的技术栈。如果某些细节看起来不够合适，你可以要求 AI 重新思考，或者干脆提示它读取你本地已安装框架的版本资料库。
 
-Additionally, you might want to ask Claude Code to research details about the chosen tech stack if it's something that is rapidly changing (e.g., .NET Aspire, JS frameworks), with a prompt like this:
+此外，对于频繁变动的技术栈（比如最新版 .NET 或者是最新的前端框架），你还可以要求 AI 主动针对计划发起并行的研究搜索。示例提示：
 
 ```text
-I want you to go through the implementation plan and implementation details, looking for areas that could
-benefit from additional research as .NET Aspire is a rapidly changing library. For those areas that you identify that
-require further research, I want you to update the research document with additional details about the specific
-versions that we are going to be using in this Taskify application and spawn parallel research tasks to clarify
-any details using research from the web.
+我希望你通读一下 plan.md（实施计划）与各个实现细节文档，找出能够从外部搜索研究中获益的技术细节，因为 .NET Aspire 的库改动往往非常快。找出这些有待深挖的细节任务后，更新研究文档 (research.md)，对这版应用即将采纳的精确框架版本进行调研核实。请就此孵化出对应的研究分任务，并发启动研究工作。
 ```
 
-During this process, you might find that Claude Code gets stuck researching the wrong thing - you can help nudge it in the right direction with a prompt like this:
+在此过程中，你可能会发现 AI 在研究没用的废知识——你可以用以下提示帮其收敛并引导在正确的路上：
 
 ```text
-I think we need to break this down into a series of steps. First, identify a list of tasks
-that you would need to do during implementation that you're not sure of or would benefit
-from further research. Write down a list of those tasks. And then for each one of these tasks,
-I want you to spin up a separate research task so that the net results is we are researching
-all of those very specific tasks in parallel. What I saw you doing was it looks like you were
-researching .NET Aspire in general and I don't think that's gonna do much for us in this case.
-That's way too untargeted research. The research needs to help you solve a specific targeted question.
+我觉得得给你拆成几个步骤。首先，列出行将开发却不甚明朗、需要作进一步调研的子任务清单（比如只写下来需要查什么API）。然后再针对清单内容开启各自独立的研究任务。总而言之，我们只要把每个专门的不确定点各自查清就行了。你刚刚查半天的泛泛而谈全都是些没头苍蝇式的没用信息。调研必须帮你解答针对性极强的开发疑惑，而不是一揽子概述。
 ```
 
 > [!NOTE]
-> Claude Code might be over-eager and add components that you did not ask for. Ask it to clarify the rationale and the source of the change.
+> AI 可能会自作多情加一些你想都没想过的新控件。直接怼它并让其对自作主张的更改给出合理解释。
 
-### **STEP 5:** Have Claude Code validate the plan
+### **第 5 步：** 让 AI 代理验证实施计划
 
-With the plan in place, you should have Claude Code run through it to make sure that there are no missing pieces. You can use a prompt like this:
+在计划生成后，你要立刻让它自行再通排几遍逻辑，以免存在断层或者实施遗漏项。可以使用如下提示词：
 
 ```text
-Now I want you to go and audit the implementation plan and the implementation detail files.
-Read through it with an eye on determining whether or not there is a sequence of tasks that you need
-to be doing that are obvious from reading this. Because I don't know if there's enough here. For example,
-when I look at the core implementation, it would be useful to reference the appropriate places in the implementation
-details where it can find the information as it walks through each step in the core implementation or in the refinement.
+现在去审计一轮前前后后的实施计划跟所有的附属文件资料。仔细阅读以判断那些原本看似不言自明的隐含操作是否其实有断档隐患（因为我无法确信这计划能照章实施）。比方说：如果核心层里写了某某功能，而对应文档里却压根找不到落地的相关条文，这就麻烦了。去审计。
 ```
 
-This helps refine the implementation plan and helps you avoid potential blind spots that Claude Code missed in its planning cycle. Once the initial refinement pass is complete, ask Claude Code to go through the checklist once more before you can get to the implementation.
-
-You can also ask Claude Code (if you have the [GitHub CLI](https://docs.github.com/en/github-cli/github-cli) installed) to go ahead and create a pull request from your current branch to `main` with a detailed description, to make sure that the effort is properly tracked.
+这个动作能极其有效的避免 AI 在自我规划闭环中"盲人摸象"带来的暗病。一旦基础审查打底完毕，记得让它去对应的 checklist 里重行检查确认，随后才能放心进入敲代码阶段。
 
 > [!NOTE]
-> Before you have the agent implement it, it's also worth prompting Claude Code to cross-check the details to see if there are any over-engineered pieces (remember - it can be over-eager). If over-engineered components or decisions exist, you can ask Claude Code to resolve them. Ensure that Claude Code follows the [constitution](base/memory/constitution.md) as the foundational piece that it must adhere to when establishing the plan.
+> 这是防止 AI 产生“过度工程” (Over-engineering) 或瞎扯出一些奇葩重构方案的绝佳防线（别忘了，这帮模型个个都是爱现鬼）。你可以反复强调让它仔细看看 `constitution.md` (宪章内约定的项目核心原则) 中写明白的纪律条约，并命令它收手。
 
-### **STEP 6:** Generate task breakdown with /speckit.tasks
+### **第 6 步：** 使用 /speckit.tasks 生成实现任务清单
 
-With the implementation plan validated, you can now break down the plan into specific, actionable tasks that can be executed in the correct order. Use the `/speckit.tasks` command to automatically generate a detailed task breakdown from your implementation plan:
+一旦技术计划落实经过验证，你可以把整个项目庞大的蓝图揉成一个个明确排序、具体且真正具备可执行落地能力的排期清单。使用 `/speckit.tasks`：
 
 ```text
 /speckit.tasks
 ```
 
-This step creates a `tasks.md` file in your feature specification directory that contains:
+此步骤会在你的需求专属目录下派生出一份 `tasks.md` 列出如下内容：
 
-- **Task breakdown organized by user story** - Each user story becomes a separate implementation phase with its own set of tasks
-- **Dependency management** - Tasks are ordered to respect dependencies between components (e.g., models before services, services before endpoints)
-- **Parallel execution markers** - Tasks that can run in parallel are marked with `[P]` to optimize development workflow
-- **File path specifications** - Each task includes the exact file paths where implementation should occur
-- **Test-driven development structure** - If tests are requested, test tasks are included and ordered to be written before implementation
-- **Checkpoint validation** - Each user story phase includes checkpoints to validate independent functionality
+- **基于用户故事拆解的结构** —— 各个用户故事被妥善转变为含有一揽子步骤的实施纪元（phase）。
+- **依赖关系管理** —— 将前后置依赖项排序（例如得先起一个数据库 Model 才能再往上糊 Service，等 Service 写完了才配写 Endpoint 接口等）。
+- **并行执行标记** —— 用 `[P]` 框出哪些步骤是独立互不干涉的，随时可被并发落地的工作流（方便你大方地撒手放权）。
+- **文件路径精确声明** —— 不再允许“AI 随机在各处大小便”而搞出的重复创建乱象，精准将函数落户。
+- **预埋敏捷驱动与测试流 (TDD 模式)** —— 若先前声明过需有单元测试等约束，那些测试项也将被完美抢排在实现操作的前头。
+- **阶段性落体验收 (Checkpoint)** —— 定期自我拷打校验独立交付物的正常工作状态。
 
-The generated tasks.md provides a clear roadmap for the `/speckit.implement` command, ensuring systematic implementation that maintains code quality and allows for incremental delivery of user stories.
+这份精雕细琢过的 `tasks.md` 即是一张针对后续 `/speckit.implement` 操作发大招使用的详略得当、循序渐进的作战地图。
 
-### **STEP 7:** Implementation
+### **第 7 步：** 冲锋！进入代码实施与构建阶段
 
-Once ready, use the `/speckit.implement` command to execute your implementation plan:
+一切皆准备就绪时，下达终极出击指令：
 
 ```text
 /speckit.implement
 ```
 
-The `/speckit.implement` command will:
+`/speckit.implement` 指令将履行以下行动：
 
-- Validate that all prerequisites are in place (constitution, spec, plan, and tasks)
-- Parse the task breakdown from `tasks.md`
-- Execute tasks in the correct order, respecting dependencies and parallel execution markers
-- Follow the TDD approach defined in your task plan
-- Provide progress updates and handle errors appropriately
+- 验证一切前置资料素材库（准则、需求、实施、排期单）到底有无配齐。
+- 全盘读取并掌握来自 `tasks.md` 上的详细步骤和流程结构。
+- 遵循前置依赖与逻辑关系挨个儿写代码。
+- 确保测试先行等 TDD （如果选了此方案的话）策略落地。
+- 常规的错误处理自己兜底并持续汇报当前战果。
 
 > [!IMPORTANT]
-> The AI agent will execute local CLI commands (such as `dotnet`, `npm`, etc.) - make sure you have the required tools installed on your machine.
+> Agent 代码终端机必然将会调用底层宿主机系统的各类构建组件（指 `dotnet`, `npm`，甚至是包管理那些杂七杂八的东西）——确保你的电脑和它对接的网络等环境没有拦路虎。
 
-Once the implementation is complete, test the application and resolve any runtime errors that may not be visible in CLI logs (e.g., browser console errors). You can copy and paste such errors back to your AI agent for resolution.
+当然了，等到代码大功告成的时候，你自己也要去实操体验一通它搭建的应用。对于它自得其乐却忽略了控制台那些（压根没法给终端抛出而只抛在浏览器面板上等）隐性日志引发的页面故障或者其他死角逻辑错漏——只需要把你找的错或者复制下来的报错文儿甩脸给正在等候发落的 Agent 客户端，并督促它完成修补工作就好啦。
 
 </details>
 
 ---
 
 <a id="troubleshooting"></a>
-## 🔍 Troubleshooting
+## 🔍 故障排除 (Troubleshooting)
 
-### Git Credential Manager on Linux
+请查阅 [常见问题与排障指南 (Troubleshooting Docs)](./docs/troubleshooting.md) 获取更全面的解决方案，包含：
+- 安装包冲突或执行失败策略
+- GitHub API 时不时挂掉或限流的配置手段
+- 初始化网络超时打结
 
-If you're having issues with Git authentication on Linux, you can install Git Credential Manager:
+### （参考样例）Linux 上由于 Git 凭据引起报错时的修复脚本
+
+如果你使用的是 Linux 原生环境，它大概率在卡 GitHub 时会触发鉴权弹框问题，这时你大可以上一个 Git Credential Manager 先把事对付明白：
 
 ```bash
 #!/usr/bin/env bash
@@ -691,16 +703,16 @@ rm gcm-linux_amd64.2.6.1.deb
 ```
 
 <a id="support"></a>
-## 💬 Support
+## 💬 支持 (Support)
 
-For support, please open a [GitHub issue](https://github.com/loulanyue/spec-kit-zh/issues/new). We welcome bug reports, feature requests, and questions about using Spec-Driven Development.
+如果需要技术支持、报告错误或是交流有关规范驱动开发的火花思路，请尽情到仓库里提 [GitHub Issue](https://github.com/loulanyue/spec-kit-zh/issues)。别客气，我们很期待听听大家的声音。
 
 <a id="acknowledgements"></a>
-## 🙏 Acknowledgements
+## 🙏 致谢 (Acknowledgements)
 
-This project is heavily influenced by and based on the work and research of [John Lam](https://github.com/jflam).
+此系统深深致敬、并承接于开源前驱 [John Lam](https://github.com/jflam) 和背后社区团体内那些关于 Agent 上限探索的才华结晶与辛勤耕耘的杰出工作。
 
 <a id="license"></a>
-## 📄 License
+## 📄 许可证 (License)
 
-This project is licensed under the terms of the MIT open source license. Please refer to the [LICENSE](./LICENSE) file for the full terms.
+本项目开源授权基于 MIT 许可证。详阅随附的 [LICENSE](./LICENSE) 全本合约。

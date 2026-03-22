@@ -1205,7 +1205,7 @@ class ExtensionCatalog:
                 catalog_data = json.loads(response.read())
 
             if "schema_version" not in catalog_data or "extensions" not in catalog_data:
-                raise ExtensionError(f"Invalid catalog format from {entry.url}")
+                raise ExtensionError(f"目录格式无效，来源：{entry.url}")
 
             # Save to cache
             self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -1218,9 +1218,9 @@ class ExtensionCatalog:
             return catalog_data
 
         except urllib.error.URLError as e:
-            raise ExtensionError(f"Failed to fetch catalog from {entry.url}: {e}")
+            raise ExtensionError(f"获取扩展目录失败，来源：{entry.url}：{e}")
         except json.JSONDecodeError as e:
-            raise ExtensionError(f"Invalid JSON in catalog from {entry.url}: {e}")
+            raise ExtensionError(f"扩展目录 JSON 格式无效，来源：{entry.url}：{e}")
 
     def _get_merged_extensions(self, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """Fetch and merge extensions from all active catalogs.
@@ -1269,7 +1269,7 @@ class ExtensionCatalog:
                     }
 
         if not any_success and active_catalogs:
-            raise ExtensionError("Failed to fetch any extension catalog")
+            raise ExtensionError("未能获取任何扩展目录")
 
         return list(merged.values())
 
@@ -1323,7 +1323,7 @@ class ExtensionCatalog:
 
             # Validate catalog structure
             if "schema_version" not in catalog_data or "extensions" not in catalog_data:
-                raise ExtensionError("Invalid catalog format")
+                raise ExtensionError("目录格式无效")
 
             # Save to cache
             self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -1339,9 +1339,9 @@ class ExtensionCatalog:
             return catalog_data
 
         except urllib.error.URLError as e:
-            raise ExtensionError(f"Failed to fetch catalog from {catalog_url}: {e}")
+            raise ExtensionError(f"获取目录失败：{catalog_url}：{e}")
         except json.JSONDecodeError as e:
-            raise ExtensionError(f"Invalid JSON in catalog: {e}")
+            raise ExtensionError(f"目录 JSON 格式无效：{e}")
 
     def search(
         self,
@@ -1435,11 +1435,11 @@ class ExtensionCatalog:
         # Get extension info from catalog
         ext_info = self.get_extension_info(extension_id)
         if not ext_info:
-            raise ExtensionError(f"Extension '{extension_id}' not found in catalog")
+            raise ExtensionError(f"在目录中未找到扩展 '{extension_id}'")
 
         download_url = ext_info.get("download_url")
         if not download_url:
-            raise ExtensionError(f"Extension '{extension_id}' has no download URL")
+            raise ExtensionError(f"扩展 '{extension_id}' 没有下载地址")
 
         # Validate download URL requires HTTPS (prevent man-in-the-middle attacks)
         from urllib.parse import urlparse
@@ -1468,9 +1468,9 @@ class ExtensionCatalog:
             return zip_path
 
         except urllib.error.URLError as e:
-            raise ExtensionError(f"Failed to download extension from {download_url}: {e}")
+            raise ExtensionError(f"从 {download_url} 下载扩展失败：{e}")
         except IOError as e:
-            raise ExtensionError(f"Failed to save extension ZIP: {e}")
+            raise ExtensionError(f"保存扩展压缩包失败：{e}")
 
     def clear_cache(self):
         """Clear the catalog cache (both legacy and URL-hash-based files)."""

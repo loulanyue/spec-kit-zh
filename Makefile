@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: help venv install format lint test check clean
+.PHONY: help venv install format lint test smoke check clean
 
 help:
 	@echo "make venv     - create virtualenv"
@@ -10,6 +10,7 @@ help:
 	@echo "make format   - format code"
 	@echo "make lint     - run lint checks"
 	@echo "make test     - run tests"
+	@echo "make smoke    - run smoke tests (CLI entry point validation)"
 	@echo "make check    - full validation"
 	@echo "make clean    - remove caches/build artifacts"
 
@@ -29,6 +30,9 @@ lint:
 
 test:
 	$(BIN)/pytest
+
+smoke:
+	$(BIN)/pytest tests/test_smoke.py -v
 
 check: format lint test
 	$(BIN)/python -m build
