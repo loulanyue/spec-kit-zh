@@ -161,6 +161,10 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 
 在项目目录中启动你的 AI 助手。初始化完成后，助手中就会提供 `/speckit.*` 命令。
 
+> [!TIP]
+> 对于 Codex，请直接使用 `/speckit.constitution`、`/speckit.specify` 这类命令。
+> 不需要也不应该输入 `/prompt.speckit.constitution`、`/prompts.speckit.constitution` 或 `/prompt.speckit.*`。
+
 使用 **`/speckit.constitution`** 创建项目的治理原则与开发准则，它们会贯穿后续所有规范、计划与实现阶段。
 
 ```bash
@@ -523,7 +527,23 @@ specify-zh init <project_name> --ai claude --ignore-agent-tools
 
 ![引导 Claude Code 环境](./media/bootstrap-claude-code.gif)
 
-如果看到终端输出了 `/speckit.constitution`, `/speckit.specify`, `/speckit.plan`, `/speckit.tasks` 及 `/speckit.implement` 等命令，即代表配置正确。
+如果看到 AI 助手中出现了 `/speckit.constitution`, `/speckit.specify`, `/speckit.plan`, `/speckit.tasks` 及 `/speckit.implement` 等命令，即代表配置正确。
+
+对于 Codex，也可以直接检查项目内是否存在以下文件：
+
+```bash
+ls -la .codex/prompts/
+```
+
+正常情况下你会看到：
+
+```text
+speckit.constitution.md
+speckit.specify.md
+speckit.plan.md
+speckit.tasks.md
+speckit.implement.md
+```
 
 开发的第一步，是使用 `/speckit.constitution` 命令确立该项目的章程 (Constitution)。这能确保在后续所有阶段技术决策和表现具备一致性。
 

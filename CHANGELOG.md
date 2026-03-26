@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.6.1] - 2026-03-26
+
+### Fixed
+
+- Fixed `specify-zh init --ai codex` so it now materializes missing `.codex/prompts/speckit.*.md` files from bundled command templates when a release asset does not provide them.
+- Bundled the markdown command templates into the wheel so Codex prompt generation works consistently for `uv tool install specify-cli-zh --from git+...` installs, not just source checkouts.
+
 ## [0.6.0] - 2026-03-26
 
 ### Added

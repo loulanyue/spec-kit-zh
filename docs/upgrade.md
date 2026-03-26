@@ -51,7 +51,7 @@ When Spec Kit releases new features (like new slash commands or updated template
 
 Running `specify-zh init --here --force` will update:
 
-- ✅ **Slash command files** (`.claude/commands/`, `.github/prompts/`, etc.)
+- ✅ **Slash command files** (`.claude/commands/`, `.codex/prompts/`, `.github/agents/`, etc.)
 - ✅ **Script files** (`.specify/scripts/`)
 - ✅ **Template files** (`.specify/templates/`)
 - ✅ **Shared memory files** (`.specify/memory/`) - **⚠️ See warnings below**
@@ -334,7 +334,7 @@ This warning appears when you run `specify-zh init --here` (or `specify-zh init 
 
 Only Spec Kit infrastructure files:
 
-- Agent command files (`.claude/commands/`, `.github/prompts/`, etc.)
+- Agent command files (`.claude/commands/`, `.codex/prompts/`, `.github/agents/`, etc.)
 - Scripts in `.specify/scripts/`
 - Templates in `.specify/templates/`
 - Memory files in `.specify/memory/` (including constitution)
@@ -399,25 +399,35 @@ The `specify-zh` CLI tool is used for:
 - **Upgrades:** `specify-zh init --here --force` to update templates and commands
 - **Diagnostics:** `specify-zh check` to verify tool installation
 
-Once you've run `specify-zh init`, the slash commands (like `/speckit.specify`, `/speckit.plan`, etc.) are **permanently installed** in your project's agent folder (`.claude/`, `.github/prompts/`, etc.). Your AI assistant reads these command files directly—no need to run `specify-zh` again.
+Once you've run `specify-zh init`, the slash commands (like `/speckit.specify`, `/speckit.plan`, etc.) are **permanently installed** in your project's agent folder (`.claude/`, `.codex/prompts/`, `.github/agents/`, etc.). Your AI assistant reads these command files directly—no need to run `specify-zh` again.
 
 **If your agent isn't recognizing slash commands:**
 
 1. **Verify command files exist:**
 
    ```bash
-   # For GitHub Copilot
-   ls -la .github/prompts/
-
    # For Claude
    ls -la .claude/commands/
+
+   # For Codex
+   ls -la .codex/prompts/
+
+   # For GitHub Copilot
+   ls -la .github/agents/
    ```
+
+   For Codex, you should see files such as `speckit.constitution.md` and `speckit.specify.md`.
 
 2. **Restart your IDE/editor completely** (not just reload window)
 
 3. **Check you're in the correct directory** where you ran `specify-zh init`
 
 4. **For some agents**, you may need to reload the workspace or clear cache
+
+5. **Use the slash command directly**
+
+   For Codex, use `/speckit.constitution ...` directly.
+   Do not use `/prompt.speckit.constitution` or `/prompts.speckit.constitution`.
 
 **Related issue:** If Copilot can't open local files or uses PowerShell commands unexpectedly, this is typically an IDE context issue, not related to `specify-zh`. Try:
 

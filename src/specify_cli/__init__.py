@@ -66,6 +66,7 @@ except ModuleNotFoundError:
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
 BUNDLED_DOCS_DIR = Path(__file__).resolve().parent / "_bundled_docs"
+BUNDLED_TEMPLATES_DIR = Path(__file__).resolve().parent / "_bundled_templates"
 CONVENTIONS_DIRNAME = "conventions"
 
 def _github_token(cli_token: str | None = None) -> str | None:
@@ -1367,6 +1368,69 @@ def ensure_coding_conventions_from_docs(project_path: Path, tracker: StepTracker
     else:
         console.print(f"[cyan]已初始化编码规范目录：{target_dir.relative_to(project_path)}[/cyan]")
 
+
+def _get_command_templates_dir() -> Path | None:
+    """Return the best available command template directory."""
+    bundled_dir = BUNDLED_TEMPLATES_DIR / "commands"
+    if bundled_dir.exists():
+        return bundled_dir
+
+    repo_dir = Path(__file__).resolve().parents[2] / "templates" / "commands"
+    if repo_dir.exists():
+        return repo_dir
+
+    return None
+
+
+def ensure_codex_prompts_from_templates(project_path: Path, selected_ai: str, tracker: StepTracker | None = None) -> None:
+    """Materialize Codex prompt files from bundled markdown templates when missing."""
+    step_name = "codex-prompts"
+
+    if selected_ai != "codex":
+        if tracker:
+            tracker.add(step_name, "补齐 Codex prompts")
+            tracker.skip(step_name, "当前 agent 非 Codex")
+        return
+
+    prompts_dir = project_path / ".codex" / "prompts"
+    existing_prompts = sorted(prompts_dir.glob("*.md")) if prompts_dir.exists() else []
+    if existing_prompts:
+        if tracker:
+            tracker.add(step_name, "补齐 Codex prompts")
+            tracker.skip(step_name, f"已存在 {len(existing_prompts)} 个 prompt")
+        return
+
+    templates_dir = _get_command_templates_dir()
+    if templates_dir is None:
+        if tracker:
+            tracker.add(step_name, "补齐 Codex prompts")
+            tracker.error(step_name, "未找到命令模板")
+        else:
+            console.print("[yellow]警告：未找到 Codex prompt 模板，跳过补齐[/yellow]")
+        return
+
+    command_templates = sorted(templates_dir.glob("*.md"))
+    if not command_templates:
+        if tracker:
+            tracker.add(step_name, "补齐 Codex prompts")
+            tracker.error(step_name, "命令模板目录为空")
+        else:
+            console.print("[yellow]警告：Codex prompt 模板目录为空，跳过补齐[/yellow]")
+        return
+
+    prompts_dir.mkdir(parents=True, exist_ok=True)
+    created = 0
+    for template_file in command_templates:
+        destination = prompts_dir / f"speckit.{template_file.name}"
+        shutil.copy2(template_file, destination)
+        created += 1
+
+    if tracker:
+        tracker.add(step_name, "补齐 Codex prompts")
+        tracker.complete(step_name, f"新增 {created} 个 prompt")
+    else:
+        console.print(f"[cyan]已为 Codex 生成 {created} 个 prompt：{prompts_dir.relative_to(project_path)}[/cyan]")
+
 # Agent-specific skill directory overrides for agents whose skills directory
 # doesn't follow the standard <agent_folder>/skills/ pattern
 AGENT_SKILLS_DIR_OVERRIDES = {
@@ -1827,6 +1891,7 @@ def init(
         ("extract", "解压模板"),
         ("zip-list", "归档内容"),
         ("extracted-summary", "解压摘要"),
+        ("codex-prompts", "补齐 Codex prompts"),
         ("chmod", "确保脚本可执行"),
         ("constitution", "初始化章程"),
         ("conventions", "初始化编码规范"),
@@ -1895,6 +1960,7 @@ def init(
                     if speckit_dir.is_dir() and not any(speckit_dir.iterdir()):
                         speckit_dir.rmdir()
 
+            ensure_codex_prompts_from_templates(project_path, selected_ai, tracker=tracker)
             ensure_executable_scripts(project_path, tracker=tracker)
 
             ensure_constitution_from_template(project_path, tracker=tracker)

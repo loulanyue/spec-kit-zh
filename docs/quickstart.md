@@ -33,6 +33,10 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PRO
 
 在 AI Agent 的聊天界面中，使用 `/speckit.constitution` slash command 为项目建立核心规则与原则。你应当把项目的具体原则作为参数提供进去。
 
+> [!TIP]
+> 如果你使用的是 Codex，请直接输入 `/speckit.constitution ...`。
+> 不需要使用 `/prompt.speckit.constitution` 或 `/prompts.speckit.constitution` 这类前缀。
+
 ```markdown
 /speckit.constitution This project follows a "Library-First" approach. All features must be implemented as standalone libraries first. We use TDD strictly. We prefer functional programming patterns.
 ```
