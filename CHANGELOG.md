@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.8.0] - 2026-03-27
+
+### Added
+
+- Added an init fallback path for GitHub release failures: when GitHub API or asset download fails, `specify-zh init` now attempts to bootstrap from the GitLab mirror at `http://idp-gitlab.lj.cn/operation-ai-code/spec-kit-zh.git`.
+
+### Changed
+
+- If the GitLab mirror is unavailable, init now falls back again to local source templates when running from a source checkout, instead of failing immediately on GitHub rate limits.
+- Improved init tracker output to explain when zip download is skipped because the project is being built from a fallback source.
+
 ## [0.7.0] - 2026-03-26
 
 ### Added

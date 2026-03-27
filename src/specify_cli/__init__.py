@@ -69,6 +69,9 @@ BUNDLED_DOCS_DIR = Path(__file__).resolve().parent / "_bundled_docs"
 BUNDLED_TEMPLATES_DIR = Path(__file__).resolve().parent / "_bundled_templates"
 CONVENTIONS_DIRNAME = "conventions"
 CODEX_GLOBAL_PROMPTS_DIR = Path.home() / ".codex" / "prompts"
+FALLBACK_GITLAB_REPO_URL = "http://idp-gitlab.lj.cn/operation-ai-code/spec-kit-zh.git"
+FALLBACK_GITLAB_INSTALL_URL = "git+http://idp-gitlab.lj.cn/operation-ai-code/spec-kit-zh.git"
+TOML_AGENTS = {"gemini", "qwen", "tabnine"}
 
 def _github_token(cli_token: str | None = None) -> str | None:
     """Return sanitized GitHub token (cli arg takes precedence) or None."""
@@ -881,6 +884,187 @@ def merge_json_files(existing_path: Path, new_content: dict, verbose: bool = Fal
 
     return merged
 
+
+def _repo_root_from_source() -> Path | None:
+    """Return the local repository root when running from source checkout."""
+    repo_root = Path(__file__).resolve().parents[2]
+    if (repo_root / "templates").exists() and (repo_root / "scripts").exists():
+        return repo_root
+    return None
+
+
+def _parse_markdown_command_template(template_path: Path) -> tuple[dict, str]:
+    """Parse markdown command template into frontmatter and body."""
+    content = template_path.read_text(encoding="utf-8")
+    if content.startswith("---"):
+        parts = content.split("---", 2)
+        if len(parts) >= 3:
+            frontmatter = yaml.safe_load(parts[1]) or {}
+            if not isinstance(frontmatter, dict):
+                frontmatter = {}
+            return frontmatter, parts[2].strip() + "\n"
+    return {}, content
+
+
+def _render_agent_command(template_path: Path, ai_assistant: str) -> tuple[str, str]:
+    """Render a generic command template into the selected agent's command format."""
+    command_name = template_path.stem
+    frontmatter, body = _parse_markdown_command_template(template_path)
+    description = str(frontmatter.get("description", "")).strip()
+
+    if ai_assistant in TOML_AGENTS:
+        prompt_body = body.replace("$ARGUMENTS", "{{args}}").rstrip()
+        lines = []
+        if description:
+            lines.append(f'description = {json.dumps(description, ensure_ascii=False)}')
+            lines.append("")
+        lines.append('prompt = """')
+        lines.append(prompt_body)
+        lines.append('"""')
+        return f"speckit.{command_name}.toml", "\n".join(lines) + "\n"
+
+    rendered_frontmatter = dict(frontmatter)
+    if ai_assistant == "copilot":
+        rendered_frontmatter["mode"] = f"speckit.{command_name}"
+    frontmatter_text = yaml.safe_dump(rendered_frontmatter, sort_keys=False, allow_unicode=True).strip()
+    content = f"---\n{frontmatter_text}\n---\n\n{body.rstrip()}\n"
+    return f"speckit.{command_name}.md", content
+
+
+def _build_template_tree_from_source(source_root: Path, staging_root: Path, ai_assistant: str) -> None:
+    """Build a project template tree from a source checkout."""
+    specify_root = staging_root / ".specify"
+    templates_target = specify_root / "templates"
+    scripts_target = specify_root / "scripts"
+
+    shutil.copytree(source_root / "templates", templates_target, dirs_exist_ok=True)
+    shutil.copytree(source_root / "scripts", scripts_target, dirs_exist_ok=True)
+
+    vscode_settings = source_root / "templates" / "vscode-settings.json"
+    if vscode_settings.exists():
+        vscode_dir = staging_root / ".vscode"
+        vscode_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(vscode_settings, vscode_dir / "settings.json")
+
+    commands_source = source_root / "templates" / "commands"
+    if not commands_source.exists():
+        return
+
+    if ai_assistant == "generic":
+        command_target = staging_root / ".speckit" / "commands"
+    else:
+        agent_config = AGENT_CONFIG.get(ai_assistant, {})
+        agent_folder = agent_config.get("folder")
+        commands_subdir = agent_config.get("commands_subdir", "commands")
+        if not agent_folder:
+            return
+        command_target = staging_root / agent_folder.rstrip("/") / commands_subdir
+
+    command_target.mkdir(parents=True, exist_ok=True)
+    for template_path in sorted(commands_source.glob("*.md")):
+        filename, rendered = _render_agent_command(template_path, ai_assistant)
+        (command_target / filename).write_text(rendered, encoding="utf-8")
+
+
+def _copy_tree_into_project(source_dir: Path, project_path: Path, is_current_dir: bool, *, verbose: bool = True, tracker: StepTracker | None = None) -> None:
+    """Copy a staged template tree into the target project path."""
+    if is_current_dir:
+        for item in source_dir.iterdir():
+            dest_path = project_path / item.name
+            if item.is_dir():
+                if dest_path.exists():
+                    for sub_item in item.rglob("*"):
+                        if sub_item.is_file():
+                            rel_path = sub_item.relative_to(item)
+                            dest_file = dest_path / rel_path
+                            dest_file.parent.mkdir(parents=True, exist_ok=True)
+                            if dest_file.name == "settings.json" and dest_file.parent.name == ".vscode":
+                                handle_vscode_settings(sub_item, dest_file, rel_path, verbose, tracker)
+                            else:
+                                shutil.copy2(sub_item, dest_file)
+                else:
+                    shutil.copytree(item, dest_path)
+            else:
+                dest_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(item, dest_path)
+        return
+
+    project_path.mkdir(parents=True, exist_ok=True)
+    for item in source_dir.iterdir():
+        dest_path = project_path / item.name
+        if item.is_dir():
+            shutil.copytree(item, dest_path, dirs_exist_ok=True)
+        else:
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(item, dest_path)
+
+
+def bootstrap_template_from_fallback_source(
+    project_path: Path,
+    ai_assistant: str,
+    script_type: str,
+    is_current_dir: bool = False,
+    *,
+    verbose: bool = True,
+    tracker: StepTracker | None = None,
+    debug: bool = False,
+) -> Path:
+    """Bootstrap a project from GitLab mirror or local source when GitHub release fetch fails."""
+    clone_dir = None
+    source_root = None
+    clone_error = None
+
+    if tracker:
+        tracker.start("fetch", "GitHub 不可用，尝试 GitLab 镜像")
+
+    try:
+        temp_clone_parent = Path(tempfile.mkdtemp(prefix="spec-kit-zh-fallback-"))
+        clone_dir = temp_clone_parent / "repo"
+        subprocess.run(
+            ["git", "clone", "--depth", "1", FALLBACK_GITLAB_REPO_URL, str(clone_dir)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        source_root = clone_dir
+        if tracker:
+            tracker.complete("fetch", "已切换到 GitLab 镜像源")
+    except Exception as exc:
+        clone_error = str(exc)
+        source_root = _repo_root_from_source()
+        if tracker:
+            if source_root is not None:
+                tracker.complete("fetch", "GitLab 不可用，改用本地源码模板")
+            else:
+                tracker.error("fetch", f"GitLab 镜像失败：{clone_error}")
+
+    if source_root is None:
+        raise RuntimeError(
+            "GitHub release 拉取失败，且无法从 GitLab 镜像或本地源码构建模板。\n"
+            f"可手动安装/更新：uv tool install specify-cli-zh --from {FALLBACK_GITLAB_INSTALL_URL}"
+        )
+
+    if tracker:
+        tracker.add("download", "下载模板")
+        tracker.skip("download", "已改用源码构建，无需下载 zip")
+        tracker.add("extract", "解压模板")
+        tracker.start("extract", "从源码构建模板树")
+
+    with tempfile.TemporaryDirectory(prefix="spec-kit-zh-stage-") as staging_dir:
+        staging_root = Path(staging_dir)
+        _build_template_tree_from_source(source_root, staging_root, ai_assistant)
+        _copy_tree_into_project(staging_root, project_path, is_current_dir, verbose=verbose, tracker=tracker)
+
+    if tracker:
+        tracker.complete("extract", f"已从 {'GitLab 镜像' if clone_dir else '本地源码'} 构建模板")
+        tracker.add("cleanup", "清理临时压缩包")
+        tracker.skip("cleanup", "未生成 zip 文件")
+
+    if clone_dir is not None:
+        shutil.rmtree(clone_dir.parent, ignore_errors=True)
+
+    return project_path
+
 def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Tuple[Path, dict]:
     repo_owner = "github"
     repo_name = "spec-kit"
@@ -1032,12 +1216,26 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
             tracker.add("download", "Download template")
             tracker.complete("download", meta['filename'])
     except Exception as e:
-        if tracker:
-            tracker.error("fetch", str(e))
-        else:
-            if verbose:
-                console.print(f"[red]下载模板出错：[/red] {e}")
-        raise
+        if tracker is None and verbose:
+            console.print(f"[yellow]GitHub 模板拉取失败，准备尝试备用源：[/yellow] {e}")
+        try:
+            return bootstrap_template_from_fallback_source(
+                project_path,
+                ai_assistant,
+                script_type,
+                is_current_dir,
+                verbose=verbose,
+                tracker=tracker,
+                debug=debug,
+            )
+        except Exception as fallback_error:
+            if tracker:
+                tracker.error("fetch", str(fallback_error))
+            else:
+                if verbose:
+                    console.print(f"[red]下载模板出错：[/red] {e}")
+                    console.print(f"[red]备用源也失败：[/red] {fallback_error}")
+            raise
 
     if tracker:
         tracker.add("extract", "Extract template")
