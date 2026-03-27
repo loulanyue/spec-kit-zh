@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.8.2] - 2026-03-27
+
+### Fixed
+
+- Corrected Codex command guidance from `/speckit-...` to the actual namespace form `/speckit:...`, matching how Codex exposes custom prompts from files like `speckit-constitution.md`.
+- Updated Codex prompt rendering so in-prompt references to downstream Spec Kit commands also use the `/speckit:...` syntax.
+
 ## [0.8.1] - 2026-03-27
 
 ### Fixed

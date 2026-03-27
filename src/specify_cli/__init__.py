@@ -934,6 +934,8 @@ def _render_codex_prompt(template_path: Path) -> tuple[str, str]:
     rendered_frontmatter = _replace_speckit_frontmatter_refs(dict(frontmatter))
     rendered_frontmatter.setdefault("argument-hint", CODEX_ARGUMENT_HINT)
     frontmatter_text = yaml.safe_dump(rendered_frontmatter, sort_keys=False, allow_unicode=True).strip()
+    body = body.replace("/speckit.", "/speckit:")
+    body = body.replace("/speckit-", "/speckit:")
     content = f"---\n{frontmatter_text}\n---\n\n{body.rstrip()}\n"
     return f"speckit-{command_name}.md", content
 
@@ -2346,11 +2348,11 @@ def init(
     else:
         steps_lines.append(f"{step_num}. 开始使用 slash commands 与你的 AI 助手协作：")
         if selected_ai == "codex":
-            steps_lines.append("   2.1 [cyan]/speckit-constitution[/] - 建立项目原则")
-            steps_lines.append("   2.2 [cyan]/speckit-specify[/] - 创建基础规范")
-            steps_lines.append("   2.3 [cyan]/speckit-plan[/] - 生成实施计划")
-            steps_lines.append("   2.4 [cyan]/speckit-tasks[/] - 生成可执行任务")
-            steps_lines.append("   2.5 [cyan]/speckit-implement[/] - 执行实施")
+            steps_lines.append("   2.1 [cyan]/speckit:constitution[/] - 建立项目原则")
+            steps_lines.append("   2.2 [cyan]/speckit:specify[/] - 创建基础规范")
+            steps_lines.append("   2.3 [cyan]/speckit:plan[/] - 生成实施计划")
+            steps_lines.append("   2.4 [cyan]/speckit:tasks[/] - 生成可执行任务")
+            steps_lines.append("   2.5 [cyan]/speckit:implement[/] - 执行实施")
         else:
             steps_lines.append("   2.1 [cyan]/speckit.constitution[/] - 建立项目原则")
             steps_lines.append("   2.2 [cyan]/speckit.specify[/] - 创建基础规范")
@@ -2375,9 +2377,9 @@ def init(
             enhancement_lines = [
                 "这些是可选命令，可用于提升规范质量与信心 [bright_black](improve quality & confidence)[/bright_black]",
                 "",
-                "○ [cyan]/speckit-clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/speckit-plan[/] 前执行）",
-                "○ [cyan]/speckit-analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/speckit-tasks[/] 之后、[cyan]/speckit-implement[/] 之前执行）",
-                "○ [cyan]/speckit-checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/speckit-plan[/] 之后执行）"
+                "○ [cyan]/speckit:clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/speckit:plan[/] 前执行）",
+                "○ [cyan]/speckit:analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/speckit:tasks[/] 之后、[cyan]/speckit:implement[/] 之前执行）",
+                "○ [cyan]/speckit:checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/speckit:plan[/] 之后执行）"
             ]
         else:
             enhancement_lines = [
@@ -2561,7 +2563,7 @@ def doctor():
 
     if diagnostics["is_spec_project"]:
         follow_up = [
-            "1. 若使用 Codex，请运行 `/speckit-constitution` 建立或校准项目原则",
+            "1. 若使用 Codex，请运行 `/speckit:constitution` 建立或校准项目原则",
             "2. 若使用其他 agent，请运行 `/speckit.constitution` 明确同一步骤",
             "3. 接着继续对应风格的 specify / plan 工作流",
         ]
