@@ -69,6 +69,7 @@ BUNDLED_DOCS_DIR = Path(__file__).resolve().parent / "_bundled_docs"
 BUNDLED_TEMPLATES_DIR = Path(__file__).resolve().parent / "_bundled_templates"
 CONVENTIONS_DIRNAME = "conventions"
 CODEX_GLOBAL_PROMPTS_DIR = Path.home() / ".codex" / "prompts"
+CODEX_ARGUMENT_HINT = "command arguments"
 FALLBACK_GITLAB_REPO_URL = "http://idp-gitlab.lj.cn/operation-ai-code/spec-kit-zh.git"
 FALLBACK_GITLAB_INSTALL_URL = "git+http://idp-gitlab.lj.cn/operation-ai-code/spec-kit-zh.git"
 TOML_AGENTS = {"gemini", "qwen", "tabnine"}
@@ -906,11 +907,45 @@ def _parse_markdown_command_template(template_path: Path) -> tuple[dict, str]:
     return {}, content
 
 
+def _normalize_speckit_name(name: str) -> str:
+    """Normalize a speckit-prefixed command or skill name to its bare command name."""
+    if name.startswith("speckit."):
+        return name[len("speckit."):]
+    if name.startswith("speckit-"):
+        return name[len("speckit-"):]
+    return name
+
+
+def _replace_speckit_frontmatter_refs(value):
+    """Convert dot-style speckit references to hyphen-style references for Codex prompts."""
+    if isinstance(value, str):
+        return value.replace("speckit.", "speckit-")
+    if isinstance(value, list):
+        return [_replace_speckit_frontmatter_refs(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _replace_speckit_frontmatter_refs(item) for key, item in value.items()}
+    return value
+
+
+def _render_codex_prompt(template_path: Path) -> tuple[str, str]:
+    """Render a command template into a Codex-friendly slash-command prompt file."""
+    command_name = template_path.stem
+    frontmatter, body = _parse_markdown_command_template(template_path)
+    rendered_frontmatter = _replace_speckit_frontmatter_refs(dict(frontmatter))
+    rendered_frontmatter.setdefault("argument-hint", CODEX_ARGUMENT_HINT)
+    frontmatter_text = yaml.safe_dump(rendered_frontmatter, sort_keys=False, allow_unicode=True).strip()
+    content = f"---\n{frontmatter_text}\n---\n\n{body.rstrip()}\n"
+    return f"speckit-{command_name}.md", content
+
+
 def _render_agent_command(template_path: Path, ai_assistant: str) -> tuple[str, str]:
     """Render a generic command template into the selected agent's command format."""
     command_name = template_path.stem
     frontmatter, body = _parse_markdown_command_template(template_path)
     description = str(frontmatter.get("description", "")).strip()
+
+    if ai_assistant == "codex":
+        return _render_codex_prompt(template_path)
 
     if ai_assistant in TOML_AGENTS:
         prompt_body = body.replace("$ARGUMENTS", "{{args}}").rstrip()
@@ -1619,12 +1654,18 @@ def ensure_codex_prompts_from_templates(project_path: Path, selected_ai: str, tr
     for target_dir in target_dirs:
         target_dir.mkdir(parents=True, exist_ok=True)
         for template_file in command_templates:
-            destination = target_dir / f"speckit.{template_file.name}"
+            primary_name, rendered = _render_codex_prompt(template_file)
+            destination = target_dir / primary_name
             if destination.exists():
                 preserved += 1
-                continue
-            shutil.copy2(template_file, destination)
-            created += 1
+            else:
+                destination.write_text(rendered, encoding="utf-8")
+                created += 1
+
+            legacy_destination = target_dir / f"speckit.{template_file.name}"
+            if not legacy_destination.exists():
+                legacy_destination.write_text(rendered, encoding="utf-8")
+                created += 1
 
     if tracker:
         tracker.add(step_name, "补齐 Codex prompts")
@@ -1780,11 +1821,10 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
     for command_file in command_files:
         try:
             frontmatter, body, command_name = _parse_command_template(command_file)
-            # Normalize: extracted commands may be named "speckit.<cmd>.md";
-            # strip the "speckit." prefix so skill names stay clean and
-            # SKILL_DESCRIPTIONS lookups work.
-            if command_name.startswith("speckit."):
-                command_name = command_name[len("speckit."):]
+            # Normalize: extracted commands may be named "speckit.<cmd>.md"
+            # or "speckit-<cmd>.md"; strip the prefix so skill names stay
+            # clean and SKILL_DESCRIPTIONS lookups work.
+            command_name = _normalize_speckit_name(command_name)
             skill_name = f"speckit-{command_name}"
 
             # Create skill directory (additive — never removes existing content)
@@ -1799,11 +1839,13 @@ def install_ai_skills(project_path: Path, selected_ai: str, tracker: StepTracker
             # Use yaml.safe_dump to safely serialise the frontmatter and
             # avoid YAML injection from descriptions containing colons,
             # quotes, or newlines.
-            # Normalize source filename for metadata — strip speckit. prefix
+            # Normalize source filename for metadata — strip any speckit prefix
             # so it matches the canonical templates/commands/<cmd>.md path.
             source_name = command_file.name
-            if source_name.startswith("speckit."):
-                source_name = source_name[len("speckit."):]
+            if source_name.endswith(".md") or source_name.endswith(".toml"):
+                suffix = command_file.suffix
+                stem = _normalize_speckit_name(command_file.stem)
+                source_name = f"{stem}{suffix}"
 
             frontmatter_data = {
                 "name": skill_name,
@@ -2303,12 +2345,18 @@ def init(
             steps_lines.append("   2.5 使用 [cyan]speckit-implement[/] skill 执行实施")
     else:
         steps_lines.append(f"{step_num}. 开始使用 slash commands 与你的 AI 助手协作：")
-
-        steps_lines.append("   2.1 [cyan]/speckit.constitution[/] - 建立项目原则")
-        steps_lines.append("   2.2 [cyan]/speckit.specify[/] - 创建基础规范")
-        steps_lines.append("   2.3 [cyan]/speckit.plan[/] - 生成实施计划")
-        steps_lines.append("   2.4 [cyan]/speckit.tasks[/] - 生成可执行任务")
-        steps_lines.append("   2.5 [cyan]/speckit.implement[/] - 执行实施")
+        if selected_ai == "codex":
+            steps_lines.append("   2.1 [cyan]/speckit-constitution[/] - 建立项目原则")
+            steps_lines.append("   2.2 [cyan]/speckit-specify[/] - 创建基础规范")
+            steps_lines.append("   2.3 [cyan]/speckit-plan[/] - 生成实施计划")
+            steps_lines.append("   2.4 [cyan]/speckit-tasks[/] - 生成可执行任务")
+            steps_lines.append("   2.5 [cyan]/speckit-implement[/] - 执行实施")
+        else:
+            steps_lines.append("   2.1 [cyan]/speckit.constitution[/] - 建立项目原则")
+            steps_lines.append("   2.2 [cyan]/speckit.specify[/] - 创建基础规范")
+            steps_lines.append("   2.3 [cyan]/speckit.plan[/] - 生成实施计划")
+            steps_lines.append("   2.4 [cyan]/speckit.tasks[/] - 生成可执行任务")
+            steps_lines.append("   2.5 [cyan]/speckit.implement[/] - 执行实施")
 
     steps_panel = Panel("\n".join(steps_lines), title="后续步骤", border_style="cyan", padding=(1,2))
     console.print()
@@ -2323,13 +2371,22 @@ def init(
             "○ [cyan]speckit-checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性",
         ]
     else:
-        enhancement_lines = [
-            "这些是可选命令，可用于提升规范质量与信心 [bright_black](improve quality & confidence)[/bright_black]",
-            "",
-            "○ [cyan]/speckit.clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/speckit.plan[/] 前执行）",
-            "○ [cyan]/speckit.analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/speckit.tasks[/] 之后、[cyan]/speckit.implement[/] 之前执行）",
-            "○ [cyan]/speckit.checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/speckit.plan[/] 之后执行）"
-        ]
+        if selected_ai == "codex":
+            enhancement_lines = [
+                "这些是可选命令，可用于提升规范质量与信心 [bright_black](improve quality & confidence)[/bright_black]",
+                "",
+                "○ [cyan]/speckit-clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/speckit-plan[/] 前执行）",
+                "○ [cyan]/speckit-analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/speckit-tasks[/] 之后、[cyan]/speckit-implement[/] 之前执行）",
+                "○ [cyan]/speckit-checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/speckit-plan[/] 之后执行）"
+            ]
+        else:
+            enhancement_lines = [
+                "这些是可选命令，可用于提升规范质量与信心 [bright_black](improve quality & confidence)[/bright_black]",
+                "",
+                "○ [cyan]/speckit.clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/speckit.plan[/] 前执行）",
+                "○ [cyan]/speckit.analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/speckit.tasks[/] 之后、[cyan]/speckit.implement[/] 之前执行）",
+                "○ [cyan]/speckit.checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/speckit.plan[/] 之后执行）"
+            ]
     enhancements_panel = Panel("\n".join(enhancement_lines), title="增强命令", border_style="cyan", padding=(1,2))
     console.print()
     console.print(enhancements_panel)
@@ -2504,9 +2561,9 @@ def doctor():
 
     if diagnostics["is_spec_project"]:
         follow_up = [
-            "1. 运行 `/speckit.constitution` 建立或校准项目原则",
-            "2. 运行 `/speckit.specify` 明确需求与验收标准",
-            "3. 运行 `/speckit.plan` 生成实施计划",
+            "1. 若使用 Codex，请运行 `/speckit-constitution` 建立或校准项目原则",
+            "2. 若使用其他 agent，请运行 `/speckit.constitution` 明确同一步骤",
+            "3. 接着继续对应风格的 specify / plan 工作流",
         ]
     else:
         follow_up = [

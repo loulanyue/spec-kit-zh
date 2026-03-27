@@ -12,6 +12,8 @@
 | **项目文件** | `specify-zh init --here --force --ai <your-agent>` | 更新项目中的 slash commands、模板和脚本 |
 | **两者都升** | 先升级 CLI，再更新项目 | 推荐用于大版本升级 |
 
+> 对于 Codex，升级项目文件后优先使用 `/speckit-constitution`、`/speckit-specify` 这一类连字符命令。
+
 ---
 
 ## 第一部分：升级 CLI 工具
@@ -399,11 +401,11 @@ The `specify-zh` CLI tool is used for:
 - **Upgrades:** `specify-zh init --here --force` to update templates and commands
 - **Diagnostics:** `specify-zh check` to verify tool installation
 
-Once you've run `specify-zh init`, the slash commands (like `/speckit.specify`, `/speckit.plan`, etc.) are installed into the agent-specific prompt location. For Codex, `specify-zh` now syncs them to `~/.codex/prompts/` and keeps a project-local `.codex/prompts/` copy for compatibility. Your AI assistant reads these command files directly—no need to run `specify-zh` again.
+Once you've run `specify-zh init`, the slash commands (like `/speckit.specify`, `/speckit.plan`, etc.) are installed into the agent-specific prompt location. For Codex, use the hyphenated form such as `/speckit-specify` and `/speckit-plan`; `specify-zh` syncs those prompts to `~/.codex/prompts/` and keeps a project-local `.codex/prompts/` copy for compatibility. Your AI assistant reads these command files directly—no need to run `specify-zh` again.
 
 > [!IMPORTANT]
 > If you initialized with `--ai-skills`, your agent may receive `skills` instead of slash commands.
-> For Codex specifically, this usually means `.agents/skills/speckit-*` rather than `.codex/prompts/speckit.*.md`.
+> For Codex specifically, this usually means `.agents/skills/speckit-*` rather than `.codex/prompts/speckit-*.md`.
 
 **If your agent isn't recognizing slash commands:**
 
@@ -420,7 +422,7 @@ Once you've run `specify-zh init`, the slash commands (like `/speckit.specify`, 
    ls -la .github/agents/
    ```
 
-   For Codex, you should see files such as `speckit.constitution.md` and `speckit.specify.md`.
+   For Codex, you should see files such as `speckit-constitution.md` and `speckit-specify.md`.
 
 2. **Restart your IDE/editor completely** (not just reload window)
 
@@ -430,7 +432,7 @@ Once you've run `specify-zh init`, the slash commands (like `/speckit.specify`, 
 
 5. **Use the slash command directly**
 
-   For Codex, use `/speckit.constitution ...` directly.
+   For Codex, use `/speckit-constitution ...` directly.
    Do not use `/prompt.speckit.constitution` or `/prompts.speckit.constitution`.
 
 **If you initialized with `--ai-skills` instead of slash commands:**
@@ -441,7 +443,7 @@ Once you've run `specify-zh init`, the slash commands (like `/speckit.specify`, 
    ls -la .agents/skills/
    ```
 
-2. **For Codex, do not expect `/speckit.*` to exist**
+2. **For Codex skills mode, do not expect `/speckit-*` to exist**
 
    In skills mode, `speckit-constitution`, `speckit-specify`, and the other `speckit-*` entries are installed as skills, not slash commands.
 
@@ -473,7 +475,7 @@ Spec Kit follows semantic versioning for major releases. The CLI and project fil
 
 After upgrading:
 
-- **Test new slash commands:** Run `/speckit.constitution` or another command to verify everything works
+- **Test new slash commands:** For Codex, run `/speckit-constitution`; for other agents, run `/speckit.constitution`
 - **Review release notes:** Check [GitHub Releases](https://github.com/loulanyue/spec-kit-zh/releases) for new features and breaking changes
 - **Update workflows:** If new commands were added, update your team's development workflows
 - **Check documentation:** Visit [the repository docs](https://github.com/loulanyue/spec-kit-zh/tree/main/docs) for updated guides

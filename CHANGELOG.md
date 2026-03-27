@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.8.1] - 2026-03-27
+
+### Fixed
+
+- Fixed Codex slash-command generation to emit Codex-friendly `speckit-*.md` prompt files instead of relying only on `speckit.*.md`, which Codex was not recognizing reliably.
+- Added compatibility prompt syncing so Codex projects now receive both the new hyphenated prompt files and legacy dot-named copies during initialization.
+
+### Changed
+
+- Updated Codex-specific init guidance, doctor recommendations, and documentation to use `/speckit-constitution`, `/speckit-specify`, and related hyphenated commands.
+
 ## [0.8.0] - 2026-03-27
 
 ### Added

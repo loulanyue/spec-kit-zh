@@ -22,6 +22,7 @@ import specify_cli
 
 from specify_cli import (
     _get_skills_dir,
+    _render_codex_prompt,
     install_ai_skills,
     AGENT_SKILLS_DIR_OVERRIDES,
     DEFAULT_SKILLS_DIR,
@@ -161,6 +162,26 @@ class TestGetSkillsDir:
         """Codex should use the AGENT_SKILLS_DIR_OVERRIDES value."""
         result = _get_skills_dir(project_dir, "codex")
         assert result == project_dir / ".agents" / "skills"
+
+    def test_codex_prompt_rendering_uses_hyphenated_names(self, temp_dir):
+        """Codex prompts should render to hyphenated filenames and refs."""
+        template = temp_dir / "constitution.md"
+        template.write_text(
+            "---\n"
+            "description: test\n"
+            "handoffs:\n"
+            "  - label: next\n"
+            "    agent: speckit.specify\n"
+            "---\n\n"
+            "Body\n",
+            encoding="utf-8",
+        )
+
+        filename, rendered = _render_codex_prompt(template)
+
+        assert filename == "speckit-constitution.md"
+        assert "argument-hint: command arguments" in rendered
+        assert "agent: speckit-specify" in rendered
 
     def test_cursor_agent_skills_dir(self, project_dir):
         """Cursor should use .cursor/skills/."""

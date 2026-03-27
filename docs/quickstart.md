@@ -31,58 +31,58 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PRO
 
 ### 第 2 步：定义项目章程
 
-在 AI Agent 的聊天界面中，使用 `/speckit.constitution` slash command 为项目建立核心规则与原则。你应当把项目的具体原则作为参数提供进去。
+在 AI Agent 的聊天界面中，使用 `/speckit-constitution` slash command 为项目建立核心规则与原则。你应当把项目的具体原则作为参数提供进去。
 
 > [!TIP]
-> 如果你使用的是 Codex，请直接输入 `/speckit.constitution ...`。
+> 如果你使用的是 Codex，请直接输入 `/speckit-constitution ...`。
 > 不需要使用 `/prompt.speckit.constitution` 或 `/prompts.speckit.constitution` 这类前缀。
 
 ```markdown
-/speckit.constitution This project follows a "Library-First" approach. All features must be implemented as standalone libraries first. We use TDD strictly. We prefer functional programming patterns.
+/speckit-constitution This project follows a "Library-First" approach. All features must be implemented as standalone libraries first. We use TDD strictly. We prefer functional programming patterns.
 ```
 
 ### 第 3 步：创建规范
 
-在聊天中使用 `/speckit.specify` slash command 描述你要构建什么。重点是说明 **做什么** 和 **为什么做**，而不是技术栈。
+在聊天中使用 `/speckit-specify` slash command 描述你要构建什么。重点是说明 **做什么** 和 **为什么做**，而不是技术栈。
 
 ```markdown
-/speckit.specify Build an application that can help me organize my photos in separate photo albums. Albums are grouped by date and can be re-organized by dragging and dropping on the main page. Albums are never in other nested albums. Within each album, photos are previewed in a tile-like interface.
+/speckit-specify Build an application that can help me organize my photos in separate photo albums. Albums are grouped by date and can be re-organized by dragging and dropping on the main page. Albums are never in other nested albums. Within each album, photos are previewed in a tile-like interface.
 ```
 
 ### 第 4 步：细化规范
 
-在聊天中使用 `/speckit.clarify` slash command 识别并解决规范中的模糊点。你也可以把希望重点澄清的方向作为参数传入。
+在聊天中使用 `/speckit-clarify` slash command 识别并解决规范中的模糊点。你也可以把希望重点澄清的方向作为参数传入。
 
 ```bash
-/speckit.clarify Focus on security and performance requirements.
+/speckit-clarify Focus on security and performance requirements.
 ```
 
 ### 第 5 步：生成技术实施计划
 
-在聊天中使用 `/speckit.plan` slash command 提供你的技术栈与架构选择。
+在聊天中使用 `/speckit-plan` slash command 提供你的技术栈与架构选择。
 
 ```markdown
-/speckit.plan The application uses Vite with minimal number of libraries. Use vanilla HTML, CSS, and JavaScript as much as possible. Images are not uploaded anywhere and metadata is stored in a local SQLite database.
+/speckit-plan The application uses Vite with minimal number of libraries. Use vanilla HTML, CSS, and JavaScript as much as possible. Images are not uploaded anywhere and metadata is stored in a local SQLite database.
 ```
 
 ### 第 6 步：拆分任务并实施
 
-在聊天中使用 `/speckit.tasks` slash command 生成可执行的任务清单。
+在聊天中使用 `/speckit-tasks` slash command 生成可执行的任务清单。
 
 ```markdown
-/speckit.tasks
+/speckit-tasks
 ```
 
-如果需要，也可以先用 `/speckit.analyze` 验证计划：
+如果需要，也可以先用 `/speckit-analyze` 验证计划：
 
 ```markdown
-/speckit.analyze
+/speckit-analyze
 ```
 
-然后使用 `/speckit.implement` slash command 执行计划。
+然后使用 `/speckit-implement` slash command 执行计划。
 
 ```markdown
-/speckit.implement
+/speckit-implement
 ```
 
 > [!TIP]
