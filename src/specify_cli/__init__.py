@@ -1664,11 +1664,6 @@ def ensure_codex_prompts_from_templates(project_path: Path, selected_ai: str, tr
                 destination.write_text(rendered, encoding="utf-8")
                 created += 1
 
-            legacy_destination = target_dir / f"speckit.{template_file.name}"
-            if not legacy_destination.exists():
-                legacy_destination.write_text(rendered, encoding="utf-8")
-                created += 1
-
     if tracker:
         tracker.add(step_name, "补齐 Codex prompts")
         detail_parts = []

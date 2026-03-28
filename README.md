@@ -162,52 +162,57 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 在项目目录中启动你的 AI 助手。初始化完成后，助手中就会提供 Spec Kit 命令。
 
 > [!TIP]
-> 对于 Codex，请直接使用 `/speckit:constitution`、`/speckit:specify` 这类命令。
-> 不需要也不应该输入 `/prompt.speckit.constitution`、`/prompts.speckit.constitution`、`/prompt.speckit.*` 或旧的点号写法。
+> 对于 Codex CLI，自定义命令使用 `/prompts:` 命名空间。
+> 正确调用方式为 `/prompts:speckit-constitution`、`/prompts:speckit-specify` 等。
+> 不要输入 `/speckit.constitution` 或 `/speckit:constitution`，Codex 不支持该格式。
 
-使用 **`/speckit:constitution`** 创建项目的治理原则与开发准则，它们会贯穿后续所有规范、计划与实现阶段。
+使用 **`/speckit.constitution`**（Codex 用户请输入 `/prompts:speckit-constitution`）创建项目的治理原则与开发准则，它们会贯穿后续所有规范、计划与实现阶段。
 
 ```bash
-/speckit:constitution 创建强调代码质量、测试标准、用户体验一致性与性能要求的项目原则
+# Claude / Gemini / 其他 agent
+/speckit.constitution 创建强调代码质量、测试标准、用户体验一致性与性能要求的项目原则
+
+# Codex CLI
+/prompts:speckit-constitution 创建强调代码质量、测试标准、用户体验一致性与性能要求的项目原则
 ```
 
 ### 3. 创建规格说明
 
-使用 **`/speckit:specify`** 描述你要构建什么。此阶段应重点说明**做什么**与**为什么做**，而不是技术栈。
+使用 **`/speckit.specify`**（Codex: `/prompts:speckit-specify`）描述你要构建什么。此阶段应重点说明**做什么**与**为什么做**，而不是技术栈。
 
 ```bash
-/speckit:specify 构建一个帮助我管理照片相册的应用。相册按日期分组，可在主页拖拽重排；相册之间不允许嵌套；每个相册中的照片以平铺预览方式展示。
+/speckit.specify 构建一个帮助我管理照片相册的应用。相册按日期分组，可在主页拖拽重排；相册之间不允许嵌套；每个相册中的照片以平铺预览方式展示。
 ```
 
 ### 4. 创建技术实施计划
 
-使用 **`/speckit:plan`** 补充技术栈与架构选择。
+使用 **`/speckit.plan`**（Codex: `/prompts:speckit-plan`）补充技术栈与架构选择。
 
 ```bash
-/speckit:plan 应用使用 Vite，并尽量减少外部依赖。优先使用原生 HTML、CSS 与 JavaScript。图片不上传到远端，元数据保存在本地 SQLite 数据库中。
+/speckit.plan 应用使用 Vite，并尽量减少外部依赖。优先使用原生 HTML、CSS 与 JavaScript。图片不上传到远端，元数据保存在本地 SQLite 数据库中。
 ```
 
 ### 5. 分解任务
 
-使用 **`/speckit:tasks`** 将实施计划转成可执行的任务清单。
+使用 **`/speckit.tasks`**（Codex: `/prompts:speckit-tasks`）将实施计划转成可执行的任务清单。
 
 ```bash
-/speckit:tasks
+/speckit.tasks
 ```
 
 ### 6. 执行实现
 
-使用 **`/speckit:implement`** 按计划执行任务并完成功能实现。
+使用 **`/speckit.implement`**（Codex: `/prompts:speckit-implement`）按计划执行任务并完成功能实现。
 
 ```bash
-/speckit:implement
+/speckit.implement
 ```
 
 如需查看完整分步说明，请阅读 [Spec-Driven Development 全流程指南](./spec-driven.md)。
 
 ### 7. 常用工作流速查
 
-首次接触时，推荐按 `constitution -> specify -> plan -> tasks -> implement` 的顺序推进；如果需求仍有模糊点，可以先运行 `/speckit:clarify` 再进入计划阶段。
+首次接触时，推荐按 `constitution -> specify -> plan -> tasks -> implement` 的顺序推进；如果需求仍有模糊点，可以先运行 `/speckit.clarify`（Codex: `/prompts:speckit-clarify`）再进入计划阶段。
 
 <a id="video-overview"></a>
 ## 📽️ 视频概览
@@ -374,12 +379,14 @@ specify-zh check
 > [!IMPORTANT]
 > 如果你使用了 `--ai-skills`，那么安装结果会变成 `skills` 形态，而不是 `/speckit.*` 斜杠命令形态。
 > 尤其是 Codex：此时你通常会看到 `.agents/skills/speckit-*`，而不是 `.codex/prompts/`。
+>
+> Codex CLI 的自定义命令运行格式为 `/prompts:speckit-constitution`（`/prompts:` + 文件名），而非 `/speckit.constitution`。
 
 #### 核心命令 (Core Commands)
 
 规范驱动开发流程的必备命令：
 
-推荐顺序：先用 `/speckit.constitution` 明确治理原则，再逐步进入 `/speckit.specify`、`/speckit.plan`、`/speckit.tasks` 与 `/speckit.implement`。如果你使用的是 Codex，请将这一组命令替换为 `/speckit:constitution`、`/speckit:specify`、`/speckit:plan`、`/speckit:tasks` 与 `/speckit:implement`。
+推荐顺序：先用 `/speckit.constitution` 明确治理原则，再逐步进入 `/speckit.specify`、`/speckit.plan`、`/speckit.tasks` 与 `/speckit.implement`。如果你使用的是 Codex CLI，请使用 `/prompts:speckit-constitution`、`/prompts:speckit-specify`、`/prompts:speckit-plan`、`/prompts:speckit-tasks` 与 `/prompts:speckit-implement`。
 
 | 命令                    | 描述                                                              |
 | ----------------------- | ------------------------------------------------------------------------ |
@@ -534,7 +541,11 @@ specify-zh init <project_name> --ai claude --ignore-agent-tools
 
 ![引导 Claude Code 环境](./media/bootstrap-claude-code.gif)
 
-如果看到 Codex 中出现了 `/speckit:constitution`, `/speckit:specify`, `/speckit:plan`, `/speckit:tasks` 及 `/speckit:implement` 等命令，即代表配置正确。
+如果看到 Codex CLI 中出现了 `/prompts:speckit-constitution`, `/prompts:speckit-specify`, `/prompts:speckit-plan`, `/prompts:speckit-tasks` 及 `/prompts:speckit-implement` 等命令，即代表配置正确。
+
+> [!IMPORTANT]
+> Codex CLI 的自定义命令格式为 **`/prompts:<文件名>`**，而非 `/speckit.xxx` 或 `/speckit:xxx`。
+> 例如 `~/.codex/prompts/speckit-constitution.md` 对应命令 `/prompts:speckit-constitution`。
 
 对于 Codex，优先检查全局 prompts 目录是否存在以下文件：
 
@@ -570,16 +581,20 @@ speckit-tasks/
 speckit-implement/
 ```
 
-这时不要再使用 `/speckit:constitution`。更合适的做法是直接在对话里点名 skill，例如：
+这时不要再使用 `/prompts:speckit-constitution`。更合适的做法是直接在对话里点名 skill，例如：
 
 ```text
 使用 speckit-constitution 这个 skill，创建强调代码质量、测试标准、用户体验一致性与性能要求的项目原则。
 ```
 
-开发的第一步，是使用 `/speckit:constitution` 命令确立该项目的章程 (Constitution)。这能确保在后续所有阶段技术决策和表现具备一致性。
+开发的第一步，是使用 `/prompts:speckit-constitution` 命令（其他 agent 使用 `/speckit.constitution`）确立该项目的章程 (Constitution)。这能确保在后续所有阶段技术决策和表现具备一致性。
 
 ```text
-/speckit:constitution 建立专注于代码质量、测试标准、用户体验一致性及性能要求的项目章程。包括有关这些原则如何指导技术决策和底层实现的准则。
+# Codex CLI
+/prompts:speckit-constitution 建立专注于代码质量、测试标准、用户体验一致性及性能要求的项目章程。
+
+# Claude / Gemini / 其他 agent
+/speckit.constitution 建立专注于代码质量、测试标准、用户体验一致性及性能要求的项目章程。
 ```
 
 此步骤将在 `.specify/memory/constitution.md` 中为你建立基础章程。AI 代理将在之后的规范定义、实施规划及具体施工阶段中反复参考此文件。
