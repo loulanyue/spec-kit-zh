@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.8.4] - 2026-04-03
+
+### Fixed
+
+- Fixed `specify-zh init` so GitHub `releases/latest` rate limiting no longer aborts initialization before fallback handling can run.
+- Added a packaged full template/script fallback bundle for installed wheels, allowing init to recover from GitHub API `403` responses without requiring a local source checkout.
+
+### Changed
+
+- Reordered fallback sources for template bootstrap to prefer packaged assets first, then GitLab mirror, then local source checkout.
+- Simplified GitHub download error handling to raise recoverable runtime errors, so the init flow can switch to fallback assets instead of immediately exiting with a red failure panel.
+
 ## [0.8.2] - 2026-03-27
 
 ### Fixed

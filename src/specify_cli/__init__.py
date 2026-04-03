@@ -66,6 +66,7 @@ except ModuleNotFoundError:
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
 BUNDLED_DOCS_DIR = Path(__file__).resolve().parent / "_bundled_docs"
+BUNDLED_CORE_DIR = Path(__file__).resolve().parent / "_bundled_core"
 BUNDLED_TEMPLATES_DIR = Path(__file__).resolve().parent / "_bundled_templates"
 CONVENTIONS_DIRNAME = "conventions"
 CODEX_GLOBAL_PROMPTS_DIR = Path.home() / ".codex" / "prompts"
@@ -894,6 +895,13 @@ def _repo_root_from_source() -> Path | None:
     return None
 
 
+def _bundled_asset_root_from_package() -> Path | None:
+    """Return packaged template/script assets for installed wheels, if present."""
+    if (BUNDLED_CORE_DIR / "templates").is_dir() and (BUNDLED_CORE_DIR / "scripts").is_dir():
+        return BUNDLED_CORE_DIR
+    return None
+
+
 def _parse_markdown_command_template(template_path: Path) -> tuple[dict, str]:
     """Parse markdown command template into frontmatter and body."""
     content = template_path.read_text(encoding="utf-8")
@@ -1046,38 +1054,47 @@ def bootstrap_template_from_fallback_source(
     tracker: StepTracker | None = None,
     debug: bool = False,
 ) -> Path:
-    """Bootstrap a project from GitLab mirror or local source when GitHub release fetch fails."""
+    """Bootstrap a project from bundled assets, GitLab mirror, or local source."""
     clone_dir = None
     source_root = None
     clone_error = None
+    source_label = None
 
     if tracker:
-        tracker.start("fetch", "GitHub 不可用，尝试 GitLab 镜像")
+        tracker.start("fetch", "GitHub 不可用，尝试内置模板/备用源")
 
-    try:
-        temp_clone_parent = Path(tempfile.mkdtemp(prefix="spec-kit-zh-fallback-"))
-        clone_dir = temp_clone_parent / "repo"
-        subprocess.run(
-            ["git", "clone", "--depth", "1", FALLBACK_GITLAB_REPO_URL, str(clone_dir)],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        source_root = clone_dir
+    source_root = _bundled_asset_root_from_package()
+    if source_root is not None:
+        source_label = "内置模板包"
         if tracker:
-            tracker.complete("fetch", "已切换到 GitLab 镜像源")
-    except Exception as exc:
-        clone_error = str(exc)
-        source_root = _repo_root_from_source()
-        if tracker:
+            tracker.complete("fetch", "已切换到内置模板包")
+    else:
+        try:
+            temp_clone_parent = Path(tempfile.mkdtemp(prefix="spec-kit-zh-fallback-"))
+            clone_dir = temp_clone_parent / "repo"
+            subprocess.run(
+                ["git", "clone", "--depth", "1", FALLBACK_GITLAB_REPO_URL, str(clone_dir)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            source_root = clone_dir
+            source_label = "GitLab 镜像"
+            if tracker:
+                tracker.complete("fetch", "已切换到 GitLab 镜像源")
+        except Exception as exc:
+            clone_error = str(exc)
+            source_root = _repo_root_from_source()
             if source_root is not None:
-                tracker.complete("fetch", "GitLab 不可用，改用本地源码模板")
-            else:
+                source_label = "本地源码"
+                if tracker:
+                    tracker.complete("fetch", "GitLab 不可用，改用本地源码模板")
+            elif tracker:
                 tracker.error("fetch", f"GitLab 镜像失败：{clone_error}")
 
     if source_root is None:
         raise RuntimeError(
-            "GitHub release 拉取失败，且无法从 GitLab 镜像或本地源码构建模板。\n"
+            "GitHub release 拉取失败，且无法从内置模板包、GitLab 镜像或本地源码构建模板。\n"
             f"可手动安装/更新：uv tool install specify-cli-zh --from {FALLBACK_GITLAB_INSTALL_URL}"
         )
 
@@ -1093,7 +1110,7 @@ def bootstrap_template_from_fallback_source(
         _copy_tree_into_project(staging_root, project_path, is_current_dir, verbose=verbose, tracker=tracker)
 
     if tracker:
-        tracker.complete("extract", f"已从 {'GitLab 镜像' if clone_dir else '本地源码'} 构建模板")
+        tracker.complete("extract", f"已从 {source_label or '备用源'} 构建模板")
         tracker.add("cleanup", "清理临时压缩包")
         tracker.skip("cleanup", "未生成 zip 文件")
 
@@ -1131,16 +1148,15 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
         except ValueError as je:
             raise RuntimeError(f"Failed to parse release JSON: {je}\nRaw (truncated 400): {response.text[:400]}")
     except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.ConnectError) as e:
-        console.print("[red]连接 GitHub API 超时或失败。[/red]")
-        console.print("[yellow]提示：如在国内网络环境下，请设置终端代理加速：[/yellow]")
-        console.print("  [cyan]export HTTPS_PROXY=http://127.0.0.1:7890[/cyan]")
-        console.print("  [cyan]export HTTP_PROXY=http://127.0.0.1:7890[/cyan]")
-        console.print(Panel(str(e), title="网络出错", border_style="red"))
-        raise typer.Exit(1)
+        raise RuntimeError(
+            "连接 GitHub API 超时或失败。\n"
+            "如在国内网络环境下，请设置终端代理，例如：\n"
+            "  export HTTPS_PROXY=http://127.0.0.1:7890\n"
+            "  export HTTP_PROXY=http://127.0.0.1:7890\n"
+            f"原始错误：{e}"
+        )
     except Exception as e:
-        console.print("[red]获取发布信息失败[/red]")
-        console.print(Panel(str(e), title="获取失败", border_style="red"))
-        raise typer.Exit(1)
+        raise RuntimeError(str(e))
 
     assets = release_data.get("assets", [])
     pattern = f"spec-kit-template-{ai_assistant}-{script_type}"
@@ -1152,10 +1168,11 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     asset = matching_assets[0] if matching_assets else None
 
     if asset is None:
-        console.print(f"[red]未找到匹配的发布资产[/red]：[bold]{ai_assistant}[/bold]（期望模式：[bold]{pattern}[/bold]）")
         asset_names = [a.get('name', '?') for a in assets]
-        console.print(Panel("\n".join(asset_names) or "（无资产）", title="可用资产", border_style="yellow"))
-        raise typer.Exit(1)
+        raise RuntimeError(
+            f"未找到匹配的发布资产：{ai_assistant}（期望模式：{pattern}）。\n"
+            f"可用资产：{', '.join(asset_names) if asset_names else '（无资产）'}"
+        )
 
     download_url = asset["browser_download_url"]
     filename = asset["name"]
@@ -1207,18 +1224,16 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
                         for chunk in response.iter_bytes(chunk_size=8192):
                             f.write(chunk)
     except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.ConnectError) as e:
-        console.print("[red]下载模板数据包网络连接超时或失败。[/red]")
-        console.print("[yellow]提示：如在国内网络环境下，请设置网络代理：[/yellow]")
-        console.print("  [cyan]export HTTPS_PROXY=http://127.0.0.1:7890[/cyan]")
-        console.print("  [cyan]请查阅 docs/china-network.md 获取国内加速方案全解。[/cyan]")
-        raise typer.Exit(1)
+        raise RuntimeError(
+            "下载模板数据包网络连接超时或失败。\n"
+            "如在国内网络环境下，请设置网络代理，或查阅 docs/china-network.md 获取加速方案。\n"
+            f"原始错误：{e}"
+        )
     except Exception as e:
-        console.print("[red]下载模板失败[/red]")
         detail = str(e)
         if zip_path.exists():
             zip_path.unlink()
-        console.print(Panel(detail, title="下载失败", border_style="red"))
-        raise typer.Exit(1)
+        raise RuntimeError(f"下载模板失败：{detail}")
     if verbose:
         console.print(f"已下载：{filename}")
     metadata = {

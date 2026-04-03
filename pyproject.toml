@@ -1,6 +1,6 @@
 [project]
 name = "specify-cli-zh"
-version = "0.8.2"
+version = "0.8.4"
 description = "Specify CLI，GitHub Spec Kit 的命令行工具，用于为 Spec-Driven Development (SDD) 初始化项目。"
 requires-python = ">=3.11"
 dependencies = [
@@ -32,15 +32,8 @@ packages = ["src/specify_cli"]
 "docs/ecp-platform-convention.md" = "specify_cli/_bundled_docs/ecp-platform-convention.md"
 "docs/antd-searchbar-layout-convention.md" = "specify_cli/_bundled_docs/antd-searchbar-layout-convention.md"
 "docs/antd-pagination-convention.md" = "specify_cli/_bundled_docs/antd-pagination-convention.md"
-"templates/commands/specify.md" = "specify_cli/_bundled_templates/commands/specify.md"
-"templates/commands/plan.md" = "specify_cli/_bundled_templates/commands/plan.md"
-"templates/commands/tasks.md" = "specify_cli/_bundled_templates/commands/tasks.md"
-"templates/commands/implement.md" = "specify_cli/_bundled_templates/commands/implement.md"
-"templates/commands/analyze.md" = "specify_cli/_bundled_templates/commands/analyze.md"
-"templates/commands/clarify.md" = "specify_cli/_bundled_templates/commands/clarify.md"
-"templates/commands/constitution.md" = "specify_cli/_bundled_templates/commands/constitution.md"
-"templates/commands/checklist.md" = "specify_cli/_bundled_templates/commands/checklist.md"
-"templates/commands/taskstoissues.md" = "specify_cli/_bundled_templates/commands/taskstoissues.md"
+"templates" = "specify_cli/_bundled_core/templates"
+"scripts" = "specify_cli/_bundled_core/scripts"
 
 [project.optional-dependencies]
 test = [
