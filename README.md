@@ -815,7 +815,18 @@ rm gcm-linux_amd64.2.6.1.deb
 
 此系统深深致敬、并承接于开源前驱 [John Lam](https://github.com/jflam) 和背后社区团体内那些关于 Agent 上限探索的才华结晶与辛勤耕耘的杰出工作。
 
+
 <a id="license"></a>
 ## 📄 许可证 (License)
 
 本项目开源授权基于 MIT 许可证。详阅随附的 [LICENSE](./LICENSE) 全本合约。
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=loulanyue%2Fspec-kit-zh&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=loulanyue/spec-kit-zh&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=loulanyue/spec-kit-zh&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=loulanyue/spec-kit-zh&type=date&legend=top-left" />
+ </picture>
+</a>
