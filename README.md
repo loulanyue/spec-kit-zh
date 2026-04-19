@@ -811,15 +811,6 @@ rm gcm-linux_amd64.2.6.1.deb
 
 如果需要技术支持、报告错误或是交流有关规范驱动开发的火花思路，请尽情到仓库里提 [GitHub Issue](https://github.com/loulanyue/spec-kit-zh/issues)。别客气，我们很期待听听大家的声音。
 
-<a id="star-history"></a>
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=loulanyue/spec-kit-zh&type=Date)](https://star-history.com/#loulanyue/spec-kit-zh&Date)
-
-<!-- star-history-updated: 2026-04-19 -->
-
----
-
 <a id="acknowledgements"></a>
 ## 🙏 致谢 (Acknowledgements)
 
@@ -831,7 +822,8 @@ rm gcm-linux_amd64.2.6.1.deb
 
 本项目开源授权基于 MIT 许可证。详阅随附的 [LICENSE](./LICENSE) 全本合约。
 
-## Star History
+<a id="star-history"></a>
+## ⭐ Star History
 
 <a href="https://www.star-history.com/?repos=loulanyue%2Fspec-kit-zh&type=date&legend=top-left">
  <picture>

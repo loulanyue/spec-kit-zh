@@ -27,8 +27,8 @@ jobs:
           if grep -q "<!-- star-history-updated:" README.md; then
             sed -i "s|<!-- star-history-updated: .*-->|<!-- star-history-updated: ${TODAY} -->|" README.md
           else
-            # 若注释行不存在，则在 star-history 图片行后追加
-            sed -i "/api\.star-history\.com\/svg/a \\\n<!-- star-history-updated: ${TODAY} -->" README.md
+            # 若注释行不存在，则在 ⭐ Star History 标题行后的第一个空行后追加
+            sed -i "/^## ⭐ Star History/a \\\n<!-- star-history-updated: ${TODAY} -->" README.md
           fi
 
       - name: Commit and push if changed
