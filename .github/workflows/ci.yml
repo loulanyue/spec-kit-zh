@@ -6,10 +6,15 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Lint & Format Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -20,16 +25,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install Lint Tools
-        run: uv pip install --system ruff
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev]"
       - name: Ruff Check
-        run: ruff check src/
+        run: ruff check src/ tests/
       - name: Ruff Format Check
-        run: ruff format --check src/
+        run: ruff format --check src/ tests/
 
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -39,13 +45,14 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: uv pip install --system -e . && uv pip install --system pytest pytest-mock
+        run: uv pip install --system -e ".[dev]" pytest-mock
       - name: Run Pytest
         run: pytest tests/ -v --tb=short
 
   smoke:
     name: Smoke Tests
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -62,6 +69,7 @@ jobs:
   brand-guard:
     name: Brand Identity Guard
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Check README against raw commands
