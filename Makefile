@@ -45,4 +45,4 @@ check: format lint test
 clean:
 	rm -rf .pytest_cache .ruff_cache build dist *.egg-info $(VENV)
 	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.pyc" -delete

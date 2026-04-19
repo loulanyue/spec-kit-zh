@@ -40,6 +40,12 @@ test = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
 ]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.6.0",
+    "build>=1.2.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
