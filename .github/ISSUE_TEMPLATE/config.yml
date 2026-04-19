@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support guide
+    url: https://github.com/loulanyue/spec-kit-zh/blob/main/SUPPORT.md
+    about: Check the support guide before opening a question or troubleshooting issue.
+  - name: Quick start
+    url: https://github.com/loulanyue/spec-kit-zh/blob/main/docs/quickstart.md
+    about: Review the quick start guide for installation and init flow examples.
