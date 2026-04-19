@@ -35,6 +35,7 @@
 - [🔍 故障排除](#troubleshooting)
 - [💬 支持](#support)
 - [🙏 致谢](#acknowledgements)
+- [⭐ Star History](#star-history)
 - [📄 许可证](#license)
 
 <a id="what-is-sdd"></a>
@@ -809,6 +810,15 @@ rm gcm-linux_amd64.2.6.1.deb
 ## 💬 支持 (Support)
 
 如果需要技术支持、报告错误或是交流有关规范驱动开发的火花思路，请尽情到仓库里提 [GitHub Issue](https://github.com/loulanyue/spec-kit-zh/issues)。别客气，我们很期待听听大家的声音。
+
+<a id="star-history"></a>
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=loulanyue/spec-kit-zh&type=Date)](https://star-history.com/#loulanyue/spec-kit-zh&Date)
+
+<!-- star-history-updated: 2026-04-19 -->
+
+---
 
 <a id="acknowledgements"></a>
 ## 🙏 致谢 (Acknowledgements)

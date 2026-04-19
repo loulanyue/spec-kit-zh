@@ -28,7 +28,7 @@ packages = ["src/specify_cli"]
 [tool.hatch.build.targets.wheel.force-include]
 "docs/conventions.yml" = "specify_cli/_bundled_docs/conventions.yml"
 "docs/axios-response-convention.md" = "specify_cli/_bundled_docs/axios-response-convention.md"
-"docs/db-and-mapper-convention.md" = "specify_cli/_bundled_docs/db-and-mapper-convention.md"
+#"docs/db-and-mapper-convention.md" = "specify_cli/_bundled_docs/db-and-mapper-convention.md"
 "docs/ecp-platform-convention.md" = "specify_cli/_bundled_docs/ecp-platform-convention.md"
 "docs/antd-searchbar-layout-convention.md" = "specify_cli/_bundled_docs/antd-searchbar-layout-convention.md"
 "docs/antd-pagination-convention.md" = "specify_cli/_bundled_docs/antd-pagination-convention.md"

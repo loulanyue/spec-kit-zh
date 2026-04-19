@@ -1,0 +1,42 @@
+name: Update Star History
+
+on:
+  schedule:
+    # 每月 1 日 UTC 00:00 自动运行
+    - cron: "0 0 1 * *"
+  workflow_dispatch: # 支持手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  update-star-history:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Star History timestamp in README
+        run: |
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          # 替换 README 中 star-history section 的日期注释行
+          # 格式: <!-- star-history-updated: YYYY-MM-DD -->
+          if grep -q "<!-- star-history-updated:" README.md; then
+            sed -i "s|<!-- star-history-updated: .*-->|<!-- star-history-updated: ${TODAY} -->|" README.md
+          else
+            # 若注释行不存在，则在 star-history 图片行后追加
+            sed -i "/api\.star-history\.com\/svg/a \\\n<!-- star-history-updated: ${TODAY} -->" README.md
+          fi
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet README.md || (
+            git add README.md &&
+            git commit -m "chore: update star history timestamp [$(date -u +\"%Y-%m-%d\")]" &&
+            git push
+          )
