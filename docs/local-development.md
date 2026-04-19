@@ -8,7 +8,7 @@
 
 ```bash
 git clone https://github.com/loulanyue/spec-kit-zh.git
-cd spec-kit
+cd spec-kit-zh
 # 在功能分支上开发
 git checkout -b your-feature-branch
 ```
@@ -68,21 +68,21 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git@your-feature-branch 
 如果你位于其他目录，请使用绝对路径替代 `.`：
 
 ```bash
-uvx --from /mnt/c/GitHub/spec-kit specify-zh --help
-uvx --from /mnt/c/GitHub/spec-kit specify-zh init demo-anywhere --ai copilot --ignore-agent-tools --script sh
+uvx --from /mnt/c/GitHub/spec-kit-zh specify-zh --help
+uvx --from /mnt/c/GitHub/spec-kit-zh specify-zh init demo-anywhere --ai copilot --ignore-agent-tools --script sh
 ```
 
 也可以设置环境变量，方便重复使用：
 
 ```bash
-export SPEC_KIT_SRC=/mnt/c/GitHub/spec-kit
+export SPEC_KIT_SRC=/mnt/c/GitHub/spec-kit-zh
 uvx --from "$SPEC_KIT_SRC" specify-zh init demo-env --ai copilot --ignore-agent-tools --script ps
 ```
 
 （可选）定义一个 shell 函数：
 
 ```bash
-specify-dev() { uvx --from /mnt/c/GitHub/spec-kit specify-zh "$@"; }
+specify-dev() { uvx --from /mnt/c/GitHub/spec-kit-zh specify-zh "$@"; }
 # Then
 specify-dev --help
 ```
@@ -146,7 +146,7 @@ specify-zh init demo --skip-tls --ai gemini --ignore-agent-tools --script ps
 | 直接运行 CLI | `python -m src.specify_cli --help` |
 | Editable install | `uv pip install -e .` 然后 `specify-zh ...` |
 | 本地 uvx 运行（仓库根目录） | `uvx --from . specify-zh ...` |
-| 本地 uvx 运行（绝对路径） | `uvx --from /mnt/c/GitHub/spec-kit specify-zh ...` |
+| 本地 uvx 运行（绝对路径） | `uvx --from /mnt/c/GitHub/spec-kit-zh specify-zh ...` |
 | Git 分支 uvx | `uvx --from git+URL@branch specify-zh ...` |
 | 构建 wheel | `uv build` |
 
