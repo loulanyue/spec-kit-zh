@@ -56,9 +56,9 @@
     "cleanupCacheHistory": false,
     "disableGitFeatures": false,
     "globalMetadata": {
-      "_appTitle": "Spec Kit 文档",
-      "_appName": "Spec Kit",
-      "_appFooter": "Spec Kit - 规范驱动开发工具包",
+      "_appTitle": "Spec Kit ZH 文档",
+      "_appName": "Spec Kit ZH",
+      "_appFooter": "Spec Kit ZH - 规范驱动开发工具包",
       "_enableSearch": true,
       "_disableContribution": false,
       "_gitContribute": {

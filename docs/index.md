@@ -1,4 +1,4 @@
-# Spec Kit
+# Spec Kit ZH
 
 *更快地构建高质量软件。*
 
