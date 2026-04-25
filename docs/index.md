@@ -60,8 +60,8 @@
 
 ## 参与贡献
 
-关于如何参与本项目，请参考 [贡献指南](https://github.com/loulanyue/spec-kit-zh/blob/main/CONTRIBUTING.md)。
+关于如何参与本项目，请参考 [贡献指南](../CONTRIBUTING.md)。
 
 ## 支持
 
-如需支持，请查看 [支持指南](https://github.com/loulanyue/spec-kit-zh/blob/main/SUPPORT.md) 或直接在 GitHub 提交 Issue。
+如需支持，请查看 [支持指南](../SUPPORT.md) 或直接在 GitHub 提交 Issue。
