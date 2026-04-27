@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 数据库建表与 MyBatis Mapper 规约
 
 > 日期：2026-03-05

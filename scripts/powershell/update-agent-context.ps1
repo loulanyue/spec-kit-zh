@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 <#!
 .SYNOPSIS
 使用 plan.md 中的信息更新 agent 上下文文件（PowerShell 版本）

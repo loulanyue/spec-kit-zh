@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # RFC：Spec Kit 扩展系统
 
 **状态**：草案

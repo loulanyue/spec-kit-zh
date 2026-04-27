@@ -5,6 +5,9 @@ scripts:
   ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
+
 ## 用户输入
 
 ```text

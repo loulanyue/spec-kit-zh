@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 """Tests for the `specify doctor` diagnostics helpers."""
 
 from pathlib import Path

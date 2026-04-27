@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Ant Design Vue 列表分页配置规约
 
 > 日期：2026-03-05

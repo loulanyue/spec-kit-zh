@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 set -euo pipefail
 
 if ! git diff --quiet || ! git diff --cached --quiet; then

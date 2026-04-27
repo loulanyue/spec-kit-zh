@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Specification-Driven Development (SDD)
 
 ## The Power Inversion

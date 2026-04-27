@@ -3,6 +3,9 @@
 description: "功能实施任务列表模板"
 ---
 
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
+
 # 任务列表：[功能名称]
 
 **输入**：来自 `/specs/[###-feature-name]/` 的设计文档

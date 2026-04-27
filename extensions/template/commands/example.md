@@ -5,6 +5,9 @@ tools:
   - 'example-mcp-server/example_tool'
 ---
 
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
+
 # Example Command
 
 <!-- CUSTOMIZE: Replace this entire file with your command documentation -->

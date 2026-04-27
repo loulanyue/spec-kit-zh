@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 前后端接口响应结构规约
 
 > 日期：2026-03-05

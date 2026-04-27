@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 """Consistency checks for agent configuration across runtime and packaging scripts."""
 
 import re

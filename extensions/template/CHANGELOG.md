@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 更新日志
 
 该扩展的重要变更都应记录在本文件中。

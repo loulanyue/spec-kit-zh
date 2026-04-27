@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # [PROJECT_NAME] 项目宪章
 <!-- 示例：Spec 宪章、TaskFlow 宪章等 -->
 

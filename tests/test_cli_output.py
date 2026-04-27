@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 """CLI 输出快照测试 (P3-16)
 
 测试各子命令输出：品牌守护、中文化断言。

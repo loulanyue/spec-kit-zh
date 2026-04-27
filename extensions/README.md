@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Spec Kit 扩展系统
 
 [Spec Kit](https://github.com/loulanyue/spec-kit-zh) 的扩展系统，用于在不膨胀核心框架的前提下增加新能力。

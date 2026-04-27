@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # [检查清单类型] 检查清单：[功能名称]
 
 **目的**：[简要说明该检查清单覆盖的内容]

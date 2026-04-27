@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 # Setup implementation plan for a feature
 
 [CmdletBinding()]

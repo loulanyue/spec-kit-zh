@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 术语表
 
 本文件用于统一 `spec-kit-zh` 中的中文术语，避免同一概念出现多种译法。

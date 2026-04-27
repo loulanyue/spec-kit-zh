@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Spec Kit 工程逻辑详解（中文版）
 
 ## 1. 工程定位

@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 国内网络环境加速与排障指引
 
 `specify-cli-zh` 工具包的正常运行强依赖于 GitHub 与各类包管理器的官方源。由于国内网络环境极其不稳定，在初始化工程模板及拉取大模型客户端时，常会遇到 `ConnectTimeout` 或 HTTP 响应报错。请仔细阅读本快速行动指南。
