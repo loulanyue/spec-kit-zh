@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 本地开发指南
 
 本指南介绍如何在本地迭代 `specify-zh` CLI，而无需先发布版本或合并到 `main`。

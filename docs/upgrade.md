@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 升级指南
 
 > 如果你已经安装了 Spec Kit，并希望升级到最新版本以获取新功能、Bug 修复或更新后的 slash commands，本指南会同时覆盖 CLI 工具升级和项目文件升级。

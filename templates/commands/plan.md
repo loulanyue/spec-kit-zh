@@ -16,6 +16,9 @@ agent_scripts:
   ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 ---
 
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
+
 ## 用户输入
 
 ```text

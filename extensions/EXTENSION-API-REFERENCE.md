@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 扩展 API 参考
 
 这是 Spec Kit 扩展系统 API 与 manifest schema 的技术参考文档。

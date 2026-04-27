@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 实施计划：[功能名称]
 
 **分支**：`[###-feature-name]` | **日期**：[DATE] | **规格说明**：[link]

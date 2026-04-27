@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 """Smoke tests for specify-cli-zh CLI.
 
 Tests key entry points to prevent packaging/branding regressions.

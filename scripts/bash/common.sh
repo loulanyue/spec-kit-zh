@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 # Common functions and variables for all scripts
 
 # Get repository root, with fallback for non-git repositories

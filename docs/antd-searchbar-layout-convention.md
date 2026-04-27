@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Ant Design Vue 搜索栏布局规约
 
 > 日期：2026-03-05

@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # ECP 平台接口对接经验
 
 > 日期：2026-03-18

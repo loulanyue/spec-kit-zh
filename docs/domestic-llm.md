@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 国内大模型与 AI 编码工具接入指南
 
 本文档介绍如何将 **specify-cli-zh** 与国内主流大模型及 AI 编码工具结合，实现规范驱动开发（Spec-Driven Development）工作流。

@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Testing Extension Hooks
 
 This directory contains a mock project to verify that LLM agents correctly identify and execute hook commands defined in `.specify/extensions.yml`.

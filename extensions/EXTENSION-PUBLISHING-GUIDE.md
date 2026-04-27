@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 扩展发布指南
 
 本指南说明如何将你的扩展发布到 Spec Kit 扩展目录中，使其能够被 `specify extension search` 发现。

@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 快速开始指南
 
 本指南将帮助你使用 Spec Kit 快速上手规范驱动开发。

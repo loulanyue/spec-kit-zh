@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 扩展用户指南
 
 本指南介绍如何使用 Spec Kit 扩展增强你的工作流。

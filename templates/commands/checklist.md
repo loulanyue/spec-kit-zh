@@ -5,6 +5,9 @@ scripts:
   ps: scripts/powershell/check-prerequisites.ps1 -Json
 ---
 
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
+
 ## 检查清单定位："面向需求文本的单元测试"
 
 **关键概念**：检查清单本质上是**针对需求写作质量的单元测试**，用于验证特定领域中的需求是否清晰、完整且可执行。

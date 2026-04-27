@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 
 # Consolidated prerequisite checking script (PowerShell)
 #

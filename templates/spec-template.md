@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 功能规范：[功能名称]
 
 **功能分支**：`[###-feature-name]`  

@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 文档说明
 
 此目录包含 Spec Kit 的文档源码，使用 [DocFX](https://dotnet.github.io/docfx/) 构建。

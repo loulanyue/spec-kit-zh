@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 示例：扩展 README
 
 这是一个扩展 README 的参考示例，用于帮助你完成自定义。

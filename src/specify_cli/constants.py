@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 DIST_NAME = "specify-cli-zh"
 CMD_NAME = "specify-zh"
 BRAND_DISPLAY = "specify-cli-zh"

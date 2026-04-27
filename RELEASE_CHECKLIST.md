@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 ## 发布前检查清单
 
 每次向公众发布新版本的 `specify-cli-zh` 之前，请严格对照以下清单逐项验证：

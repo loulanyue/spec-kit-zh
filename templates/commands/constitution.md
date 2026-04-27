@@ -6,6 +6,9 @@ handoffs:
     prompt: 基于更新后的章程创建功能规范。我想构建...
 ---
 
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
+
 ## 用户输入
 
 ```text

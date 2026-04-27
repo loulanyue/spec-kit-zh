@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Security Policy
 
 Thanks for helping make GitHub safe for everyone.

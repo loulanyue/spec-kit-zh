@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 """
 Spec Kit 扩展管理器
 

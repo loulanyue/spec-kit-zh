@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 迁移指南
 
 如果您之前使用了英文版的 `spec-kit` 或是早期版本的 `spec-kit-cn`，请参考此指南迁移到最新的 `specify-cli-zh` 工具包。

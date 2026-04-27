@@ -13,6 +13,9 @@ scripts:
   ps: scripts/powershell/create-new-feature.ps1 "{ARGS}"
 ---
 
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
+
 ## 用户输入
 
 ```text

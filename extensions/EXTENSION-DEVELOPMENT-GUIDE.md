@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 扩展开发指南
 
 本指南介绍如何创建 Spec Kit 扩展。

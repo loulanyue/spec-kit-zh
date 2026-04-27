@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 扩展模板
 
 这是一个用于创建 Spec Kit 扩展的起始模板。

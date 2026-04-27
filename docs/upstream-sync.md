@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 上游版本同步指南
 
 本文档描述 `spec-kit-zh` 与上游 `spec-kit` 之间的版本跟踪与同步策略。

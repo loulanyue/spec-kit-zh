@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # Spring Boot `@Value` 注解取值为空问题排查指南
 
 在 Spring Boot 开发过程中，如果发现 `@Value` 注解无法正确读取配置文件中的属性值，并且总是返回空字符串（或 null），可以参考以下经验进行排查。

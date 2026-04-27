@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 """
 Tests for Cursor .mdc frontmatter generation (issue #669).
 

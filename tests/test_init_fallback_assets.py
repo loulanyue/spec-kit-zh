@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 import ssl
 import sys
 import types

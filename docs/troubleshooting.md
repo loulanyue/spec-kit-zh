@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # 常见问题与排错 (Troubleshooting)
 
 在安装和使用 `specify-cli-zh` 的过程中，如果您遇到以下问题，请参考相应的解决方案。

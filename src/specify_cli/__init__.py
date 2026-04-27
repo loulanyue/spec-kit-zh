@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [

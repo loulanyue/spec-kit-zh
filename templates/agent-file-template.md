@@ -1,3 +1,5 @@
+<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+
 # [PROJECT NAME] 开发指南
 
 根据所有功能计划自动生成。最后更新：[DATE]

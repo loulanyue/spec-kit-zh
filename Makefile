@@ -1,3 +1,4 @@
+# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
@@ -45,4 +46,4 @@ check: format lint test
 clean:
 	rm -rf .pytest_cache .ruff_cache build dist *.egg-info $(VENV)
 	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.pyc" -delete
