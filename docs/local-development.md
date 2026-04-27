@@ -8,7 +8,7 @@
 
 ```bash
 git clone https://github.com/loulanyue/spec-kit-zh.git
-cd spec-kit
+cd spec-kit-zh
 # 在功能分支上开发
 git checkout -b your-feature-branch
 ```
@@ -68,8 +68,8 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git@your-feature-branch 
 如果你位于其他目录，请使用绝对路径替代 `.`：
 
 ```bash
-uvx --from /mnt/c/GitHub/spec-kit specify-zh --help
-uvx --from /mnt/c/GitHub/spec-kit specify-zh init demo-anywhere --ai copilot --ignore-agent-tools --script sh
+uvx --from /mnt/c/GitHub/spec-kit-zh specify-zh --help
+uvx --from /mnt/c/GitHub/spec-kit-zh specify-zh init demo-anywhere --ai copilot --ignore-agent-tools --script sh
 ```
 
 也可以设置环境变量，方便重复使用：
