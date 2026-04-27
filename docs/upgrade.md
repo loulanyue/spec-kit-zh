@@ -478,4 +478,4 @@ After upgrading:
 - **Test new slash commands:** For Codex, run `/speckit:constitution`; for other agents, run `/speckit.constitution`
 - **Review release notes:** Check [GitHub Releases](https://github.com/loulanyue/spec-kit-zh/releases) for new features and breaking changes
 - **Update workflows:** If new commands were added, update your team's development workflows
-- **Check documentation:** Visit [the repository docs](https://github.com/loulanyue/spec-kit-zh/tree/main/docs) for updated guides
+- **Check documentation:** Visit [the docs index](./index.md) for updated guides
