@@ -23,13 +23,13 @@ $ARGUMENTS
 
 ## 目标
 
-在实施前，对三个核心制品 `spec.md`、`plan.md` 与 `tasks.md` 进行一致性检查，识别其中的不一致、重复、歧义与定义不足之处。本命令只能在 `/speckit.tasks` 已成功生成完整 `tasks.md` 后执行。
+在实施前，对三个核心制品 `spec.md`、`plan.md` 与 `tasks.md` 进行一致性检查，识别其中的不一致、重复、歧义与定义不足之处。本命令只能在 tasks 命令已成功生成完整 `tasks.md` 后执行；大多数 agent 使用 `/speckit.tasks`，Codex CLI 使用 `/prompts:speckit-tasks`。
 
 ## 操作约束
 
 **严格只读**：不得修改任何文件。仅输出结构化分析报告。可以提供可选的修复建议计划，但后续若需要编辑文件，必须先获得用户明确批准。
 
-**宪章优先级**：项目宪章（`/memory/constitution.md`）在本分析范围内具有**不可协商**的优先级。凡与宪章冲突的问题，一律视为 CRITICAL，必须通过调整 spec、plan 或 tasks 来解决，而不能弱化、重解释或忽略宪章原则。若原则本身需要变更，必须通过独立且明确的宪章更新流程完成，而不能在 `/speckit.analyze` 中处理。
+**宪章优先级**：项目宪章（`/memory/constitution.md`）在本分析范围内具有**不可协商**的优先级。凡与宪章冲突的问题，一律视为 CRITICAL，必须通过调整 spec、plan 或 tasks 来解决，而不能弱化、重解释或忽略宪章原则。若原则本身需要变更，必须通过独立且明确的宪章更新流程完成，而不能在 analyze 命令中处理。
 
 ## Execution Steps
 
@@ -165,9 +165,9 @@ Output a Markdown report (no file writes) with the following structure:
 
 At end of report, output a concise Next Actions block:
 
-- If CRITICAL issues exist: Recommend resolving before `/speckit.implement`
+- If CRITICAL issues exist: Recommend resolving before the implement command (`/speckit.implement` or Codex `/prompts:speckit-implement`)
 - If only LOW/MEDIUM: User may proceed, but provide improvement suggestions
-- Provide explicit command suggestions: e.g., "Run /speckit.specify with refinement", "Run /speckit.plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'"
+- Provide explicit command suggestions: e.g., "Run `/speckit.specify` (Codex `/prompts:speckit-specify`) with refinement", "Run `/speckit.plan` (Codex `/prompts:speckit-plan`) to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'"
 
 ### 8. Offer Remediation
 

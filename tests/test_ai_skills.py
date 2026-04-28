@@ -23,6 +23,7 @@ import specify_cli
 
 from specify_cli import (
     _get_skills_dir,
+    codex_slash_command,
     _render_codex_prompt,
     install_ai_skills,
     AGENT_SKILLS_DIR_OVERRIDES,
@@ -174,7 +175,7 @@ class TestGetSkillsDir:
             "  - label: next\n"
             "    agent: speckit.specify\n"
             "---\n\n"
-            "Body\n",
+            "Body. Next run /speckit.plan.\n",
             encoding="utf-8",
         )
 
@@ -183,6 +184,8 @@ class TestGetSkillsDir:
         assert filename == "speckit-constitution.md"
         assert "argument-hint: command arguments" in rendered
         assert "agent: speckit-specify" in rendered
+        assert "/prompts:speckit-plan" in rendered
+        assert codex_slash_command("constitution") == "/prompts:speckit-constitution"
 
     def test_cursor_agent_skills_dir(self, project_dir):
         """Cursor should use .cursor/skills/."""
@@ -686,7 +689,8 @@ class TestCliValidation:
         result = runner.invoke(app, ["init", "test-proj", "--ai-skills"])
 
         assert result.exit_code == 1
-        assert "--ai-skills requires --ai" in result.output
+        assert "--ai-skills" in result.output
+        assert "必须搭配 --ai" in result.output
 
     def test_ai_skills_without_ai_shows_usage(self):
         """Error message should include usage hint."""
@@ -781,8 +785,8 @@ class TestParameterOrderingIssue:
         result = runner.invoke(app, ["init", "--ai", "--here"])
 
         assert result.exit_code == 1
-        assert "Hint:" in result.output or "hint" in result.output.lower()
-        assert "forget to provide a value" in result.output.lower()
+        assert "提示：" in result.output or "Hint:" in result.output or "hint" in result.output.lower()
+        assert "忘了给 --ai 提供取值" in result.output or "forget to provide a value" in result.output.lower()
 
     def test_error_message_lists_available_agents(self):
         """Error message should list available agents."""

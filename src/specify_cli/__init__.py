@@ -52,6 +52,13 @@ from rich.align import Align
 from rich.table import Table
 from rich.tree import Tree
 from typer.core import TyperGroup
+from specify_cli.codex_prompts import (
+    DEFAULT_CODEX_PROMPTS_DIR as CODEX_GLOBAL_PROMPTS_DIR,
+    codex_slash_command,
+    normalize_speckit_name as _normalize_speckit_name,
+    render_codex_prompt as _render_codex_prompt,
+    sync_codex_prompts_from_templates,
+)
 
 # For cross-platform keyboard input
 import readchar
@@ -70,8 +77,6 @@ BUNDLED_DOCS_DIR = Path(__file__).resolve().parent / "_bundled_docs"
 BUNDLED_CORE_DIR = Path(__file__).resolve().parent / "_bundled_core"
 BUNDLED_TEMPLATES_DIR = Path(__file__).resolve().parent / "_bundled_templates"
 CONVENTIONS_DIRNAME = "conventions"
-CODEX_GLOBAL_PROMPTS_DIR = Path.home() / ".codex" / "prompts"
-CODEX_ARGUMENT_HINT = "command arguments"
 FALLBACK_GITLAB_REPO_URL = "http://idp-gitlab.lj.cn/operation-ai-code/spec-kit-zh.git"
 FALLBACK_GITLAB_INSTALL_URL = "git+http://idp-gitlab.lj.cn/operation-ai-code/spec-kit-zh.git"
 TOML_AGENTS = {"gemini", "qwen", "tabnine"}
@@ -916,39 +921,6 @@ def _parse_markdown_command_template(template_path: Path) -> tuple[dict, str]:
     return {}, content
 
 
-def _normalize_speckit_name(name: str) -> str:
-    """Normalize a speckit-prefixed command or skill name to its bare command name."""
-    if name.startswith("speckit."):
-        return name[len("speckit."):]
-    if name.startswith("speckit-"):
-        return name[len("speckit-"):]
-    return name
-
-
-def _replace_speckit_frontmatter_refs(value):
-    """Convert dot-style speckit references to hyphen-style references for Codex prompts."""
-    if isinstance(value, str):
-        return value.replace("speckit.", "speckit-")
-    if isinstance(value, list):
-        return [_replace_speckit_frontmatter_refs(item) for item in value]
-    if isinstance(value, dict):
-        return {key: _replace_speckit_frontmatter_refs(item) for key, item in value.items()}
-    return value
-
-
-def _render_codex_prompt(template_path: Path) -> tuple[str, str]:
-    """Render a command template into a Codex-friendly slash-command prompt file."""
-    command_name = template_path.stem
-    frontmatter, body = _parse_markdown_command_template(template_path)
-    rendered_frontmatter = _replace_speckit_frontmatter_refs(dict(frontmatter))
-    rendered_frontmatter.setdefault("argument-hint", CODEX_ARGUMENT_HINT)
-    frontmatter_text = yaml.safe_dump(rendered_frontmatter, sort_keys=False, allow_unicode=True).strip()
-    body = body.replace("/speckit.", "/speckit:")
-    body = body.replace("/speckit-", "/speckit:")
-    content = f"---\n{frontmatter_text}\n---\n\n{body.rstrip()}\n"
-    return f"speckit-{command_name}.md", content
-
-
 def _render_agent_command(template_path: Path, ai_assistant: str) -> tuple[str, str]:
     """Render a generic command template into the selected agent's command format."""
     command_name = template_path.stem
@@ -1662,37 +1634,28 @@ def ensure_codex_prompts_from_templates(project_path: Path, selected_ai: str, tr
             console.print("[yellow]警告：Codex prompt 模板目录为空，跳过补齐[/yellow]")
         return
 
-    target_dirs = [
-        project_path / ".codex" / "prompts",
-        CODEX_GLOBAL_PROMPTS_DIR,
-    ]
-
-    created = 0
-    preserved = 0
-    for target_dir in target_dirs:
-        target_dir.mkdir(parents=True, exist_ok=True)
-        for template_file in command_templates:
-            primary_name, rendered = _render_codex_prompt(template_file)
-            destination = target_dir / primary_name
-            if destination.exists():
-                preserved += 1
-            else:
-                destination.write_text(rendered, encoding="utf-8")
-                created += 1
+    result = sync_codex_prompts_from_templates(
+        command_templates,
+        project_path,
+        global_prompts_dir=CODEX_GLOBAL_PROMPTS_DIR,
+        overwrite=True,
+    )
 
     if tracker:
         tracker.add(step_name, "补齐 Codex prompts")
         detail_parts = []
-        if created:
-            detail_parts.append(f"新增 {created} 个")
-        if preserved:
-            detail_parts.append(f"保留 {preserved} 个")
+        if result.created:
+            detail_parts.append(f"新增 {result.created} 个")
+        if result.updated:
+            detail_parts.append(f"更新 {result.updated} 个")
+        if result.preserved:
+            detail_parts.append(f"保留 {result.preserved} 个")
         detail_parts.append(f"目标：{CODEX_GLOBAL_PROMPTS_DIR}")
         tracker.complete(step_name, "，".join(detail_parts))
     else:
         console.print(
             f"[cyan]已为 Codex 同步 prompts：[/cyan] "
-            f"{project_path / '.codex' / 'prompts'} 和 {CODEX_GLOBAL_PROMPTS_DIR}"
+            f"{result.project_prompts_dir} 和 {result.global_prompts_dir}"
         )
 
 # Agent-specific skill directory overrides for agents whose skills directory
@@ -2359,11 +2322,11 @@ def init(
     else:
         steps_lines.append(f"{step_num}. 开始使用 slash commands 与你的 AI 助手协作：")
         if selected_ai == "codex":
-            steps_lines.append("   2.1 [cyan]/speckit:constitution[/] - 建立项目原则")
-            steps_lines.append("   2.2 [cyan]/speckit:specify[/] - 创建基础规范")
-            steps_lines.append("   2.3 [cyan]/speckit:plan[/] - 生成实施计划")
-            steps_lines.append("   2.4 [cyan]/speckit:tasks[/] - 生成可执行任务")
-            steps_lines.append("   2.5 [cyan]/speckit:implement[/] - 执行实施")
+            steps_lines.append("   2.1 [cyan]/prompts:speckit-constitution[/] - 建立项目原则")
+            steps_lines.append("   2.2 [cyan]/prompts:speckit-specify[/] - 创建基础规范")
+            steps_lines.append("   2.3 [cyan]/prompts:speckit-plan[/] - 生成实施计划")
+            steps_lines.append("   2.4 [cyan]/prompts:speckit-tasks[/] - 生成可执行任务")
+            steps_lines.append("   2.5 [cyan]/prompts:speckit-implement[/] - 执行实施")
         else:
             steps_lines.append("   2.1 [cyan]/speckit.constitution[/] - 建立项目原则")
             steps_lines.append("   2.2 [cyan]/speckit.specify[/] - 创建基础规范")
@@ -2388,9 +2351,9 @@ def init(
             enhancement_lines = [
                 "这些是可选命令，可用于提升规范质量与信心 [bright_black](improve quality & confidence)[/bright_black]",
                 "",
-                "○ [cyan]/speckit:clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/speckit:plan[/] 前执行）",
-                "○ [cyan]/speckit:analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/speckit:tasks[/] 之后、[cyan]/speckit:implement[/] 之前执行）",
-                "○ [cyan]/speckit:checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/speckit:plan[/] 之后执行）"
+                "○ [cyan]/prompts:speckit-clarify[/] [bright_black](可选)[/bright_black] - 在规划前用结构化提问消除模糊点（若使用，请在 [cyan]/prompts:speckit-plan[/] 前执行）",
+                "○ [cyan]/prompts:speckit-analyze[/] [bright_black](可选)[/bright_black] - 生成跨制品一致性与对齐分析（在 [cyan]/prompts:speckit-tasks[/] 之后、[cyan]/prompts:speckit-implement[/] 之前执行）",
+                "○ [cyan]/prompts:speckit-checklist[/] [bright_black](可选)[/bright_black] - 生成质量检查清单，验证需求完整性、清晰度与一致性（在 [cyan]/prompts:speckit-plan[/] 之后执行）"
             ]
         else:
             enhancement_lines = [
@@ -2480,6 +2443,96 @@ def check():
             console.print(f"[dim]提示：推荐优先安装 CLI 工具（如 {', '.join(recommend[:3])}）以获得最佳体验[/dim]")
         elif not any(agent_results.values()):
             console.print("[dim]提示：安装 AI 助手可获得最佳体验[/dim]")
+
+
+@app.command("codex-sync")
+def codex_sync(
+    project_path: Optional[Path] = typer.Option(None, "--project", "-p", help="要同步项目本地 prompts 的路径，默认当前目录"),
+    global_prompts_dir: Optional[Path] = typer.Option(None, "--global-dir", help="Codex 全局 prompts 目录，默认 ~/.codex/prompts"),
+    overwrite: bool = typer.Option(True, "--overwrite/--no-overwrite", help="是否更新已存在的 spec-kit Codex prompts"),
+):
+    """同步 Codex slash commands，并显示可直接执行的命令。"""
+    target_project = (project_path or Path.cwd()).resolve()
+    if not target_project.exists():
+        console.print(f"[red]错误：项目路径不存在：[/red] {target_project}")
+        raise typer.Exit(1)
+
+    templates_dir = _get_command_templates_dir()
+    if templates_dir is None:
+        console.print("[red]错误：未找到内置命令模板，无法同步 Codex prompts[/red]")
+        raise typer.Exit(1)
+
+    command_templates = sorted(templates_dir.glob("*.md"))
+    if not command_templates:
+        console.print("[red]错误：命令模板目录为空，无法同步 Codex prompts[/red]")
+        raise typer.Exit(1)
+
+    result = sync_codex_prompts_from_templates(
+        command_templates,
+        target_project,
+        global_prompts_dir=global_prompts_dir or CODEX_GLOBAL_PROMPTS_DIR,
+        overwrite=overwrite,
+    )
+
+    summary = Table(show_header=False, box=None, padding=(0, 2))
+    summary.add_column("项", style="cyan", justify="right")
+    summary.add_column("值", style="white")
+    summary.add_row("项目 prompts", str(result.project_prompts_dir))
+    summary.add_row("全局 prompts", str(result.global_prompts_dir))
+    summary.add_row("新增", str(result.created))
+    summary.add_row("更新", str(result.updated))
+    summary.add_row("保留", str(result.preserved))
+
+    console.print(
+        Panel(
+            summary,
+            title="[bold cyan]Codex prompts 已同步[/bold cyan]",
+            border_style="cyan",
+            padding=(1, 2),
+        )
+    )
+
+    preferred_order = [
+        "constitution",
+        "specify",
+        "clarify",
+        "plan",
+        "tasks",
+        "analyze",
+        "checklist",
+        "implement",
+        "taskstoissues",
+    ]
+    order = {name: index for index, name in enumerate(preferred_order)}
+    commands = sorted(result.command_names, key=lambda name: (order.get(name, 999), name))
+
+    command_table = Table(show_header=True, header_style="bold cyan")
+    command_table.add_column("命令", style="green")
+    command_table.add_column("说明")
+    descriptions = {
+        "constitution": "建立或校准项目原则",
+        "specify": "明确需求与验收标准",
+        "clarify": "澄清需求中的模糊点",
+        "plan": "生成技术实施计划",
+        "tasks": "生成可执行任务清单",
+        "analyze": "做跨制品一致性分析",
+        "checklist": "生成质量检查清单",
+        "implement": "执行任务并实现功能",
+        "taskstoissues": "将任务转换为 GitHub Issues",
+    }
+    for command in commands:
+        command_table.add_row(codex_slash_command(command), descriptions.get(command, "Spec Kit 工作流命令"))
+
+    console.print()
+    console.print(
+        Panel(
+            command_table,
+            title="[bold green]Codex 中可直接执行[/bold green]",
+            border_style="green",
+            padding=(1, 2),
+        )
+    )
+    console.print("[dim]如果 Codex 已经打开，请重启当前 Codex 会话后再使用这些命令。[/dim]")
 
 
 @app.command()
@@ -2574,7 +2627,7 @@ def doctor():
 
     if diagnostics["is_spec_project"]:
         follow_up = [
-            "1. 若使用 Codex，请运行 `/speckit:constitution` 建立或校准项目原则",
+            "1. 若使用 Codex，请运行 `/prompts:speckit-constitution` 建立或校准项目原则",
             "2. 若使用其他 agent，请运行 `/speckit.constitution` 明确同一步骤",
             "3. 接着继续对应风格的 specify / plan 工作流",
         ]

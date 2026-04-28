@@ -33,58 +33,58 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PRO
 
 ### 第 2 步：定义项目章程
 
-在 AI Agent 的聊天界面中，使用 `/speckit:constitution` slash command 为项目建立核心规则与原则。你应当把项目的具体原则作为参数提供进去。
+在 AI Agent 的聊天界面中，使用 `/speckit.constitution` slash command 为项目建立核心规则与原则。Codex 用户请使用 `/prompts:speckit-constitution`。
 
 > [!TIP]
-> 如果你使用的是 Codex，请直接输入 `/speckit:constitution ...`。
+> 如果你使用的是 Codex，请直接输入 `/prompts:speckit-constitution ...`。
 > 不需要使用 `/prompt.speckit.constitution` 或 `/prompts.speckit.constitution` 这类前缀。
 
 ```markdown
-/speckit:constitution This project follows a "Library-First" approach. All features must be implemented as standalone libraries first. We use TDD strictly. We prefer functional programming patterns.
+/prompts:speckit-constitution This project follows a "Library-First" approach. All features must be implemented as standalone libraries first. We use TDD strictly. We prefer functional programming patterns.
 ```
 
 ### 第 3 步：创建规范
 
-在聊天中使用 `/speckit:specify` slash command 描述你要构建什么。重点是说明 **做什么** 和 **为什么做**，而不是技术栈。
+在聊天中使用 `/speckit.specify` slash command 描述你要构建什么。Codex 用户请使用 `/prompts:speckit-specify`。
 
 ```markdown
-/speckit:specify Build an application that can help me organize my photos in separate photo albums. Albums are grouped by date and can be re-organized by dragging and dropping on the main page. Albums are never in other nested albums. Within each album, photos are previewed in a tile-like interface.
+/prompts:speckit-specify Build an application that can help me organize my photos in separate photo albums. Albums are grouped by date and can be re-organized by dragging and dropping on the main page. Albums are never in other nested albums. Within each album, photos are previewed in a tile-like interface.
 ```
 
 ### 第 4 步：细化规范
 
-在聊天中使用 `/speckit:clarify` slash command 识别并解决规范中的模糊点。你也可以把希望重点澄清的方向作为参数传入。
+在聊天中使用 `/speckit.clarify` slash command 识别并解决规范中的模糊点。Codex 用户请使用 `/prompts:speckit-clarify`。
 
 ```bash
-/speckit:clarify Focus on security and performance requirements.
+/prompts:speckit-clarify Focus on security and performance requirements.
 ```
 
 ### 第 5 步：生成技术实施计划
 
-在聊天中使用 `/speckit:plan` slash command 提供你的技术栈与架构选择。
+在聊天中使用 `/speckit.plan` slash command 提供你的技术栈与架构选择。Codex 用户请使用 `/prompts:speckit-plan`。
 
 ```markdown
-/speckit:plan The application uses Vite with minimal number of libraries. Use vanilla HTML, CSS, and JavaScript as much as possible. Images are not uploaded anywhere and metadata is stored in a local SQLite database.
+/prompts:speckit-plan The application uses Vite with minimal number of libraries. Use vanilla HTML, CSS, and JavaScript as much as possible. Images are not uploaded anywhere and metadata is stored in a local SQLite database.
 ```
 
 ### 第 6 步：拆分任务并实施
 
-在聊天中使用 `/speckit:tasks` slash command 生成可执行的任务清单。
+在聊天中使用 `/speckit.tasks` slash command 生成可执行的任务清单。Codex 用户请使用 `/prompts:speckit-tasks`。
 
 ```markdown
-/speckit:tasks
+/prompts:speckit-tasks
 ```
 
-如果需要，也可以先用 `/speckit:analyze` 验证计划：
+如果需要，也可以先用 `/speckit.analyze` 验证计划。Codex 用户请使用 `/prompts:speckit-analyze`：
 
 ```markdown
-/speckit:analyze
+/prompts:speckit-analyze
 ```
 
-然后使用 `/speckit:implement` slash command 执行计划。
+然后使用 `/speckit.implement` slash command 执行计划。Codex 用户请使用 `/prompts:speckit-implement`。
 
 ```markdown
-/speckit:implement
+/prompts:speckit-implement
 ```
 
 > [!TIP]
@@ -96,13 +96,15 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PRO
 
 ### 第 1 步：定义章程
 
-初始化项目章程，建立基本规则：
+初始化项目章程，建立基本规则。通用写法是 `/speckit.constitution`，Codex CLI 对应 `/prompts:speckit-constitution`：
 
 ```markdown
 /speckit.constitution Taskify is a "Security-First" application. All user inputs must be validated. We use a microservices architecture. Code must be fully documented.
 ```
 
 ### 第 2 步：使用 `/speckit.specify` 定义需求
+
+如果你使用 Codex CLI，请将下列命令前缀替换为 `/prompts:speckit-specify`。
 
 ```text
 Develop Taskify, a team productivity platform. It should allow users to create projects, add team members,
@@ -116,7 +118,7 @@ first testing thing to ensure that our basic features are set up.
 
 ### 第 3 步：细化规范
 
-使用 `/speckit.clarify` 交互式解决规范中的模糊点。你也可以补充必须纳入的细节。
+使用 `/speckit.clarify` 交互式解决规范中的模糊点；如果你使用 Codex CLI，请改用 `/prompts:speckit-clarify`。你也可以补充必须纳入的细节。
 
 ```bash
 /speckit.clarify I want to clarify the task card details. For each task in the UI for a task card, you should be able to change the current status of the task between the different columns in the Kanban work board. You should be able to leave an unlimited number of comments for a particular card. You should be able to, from that task card, assign one of the valid users.
@@ -130,13 +132,15 @@ first testing thing to ensure that our basic features are set up.
 
 ### 第 4 步：验证规范
 
-使用 `/speckit.checklist` 验证规范检查清单：
+使用 `/speckit.checklist` 验证规范检查清单；如果你使用 Codex CLI，请改用 `/prompts:speckit-checklist`：
 
 ```bash
 /speckit.checklist
 ```
 
 ### 第 5 步：使用 `/speckit.plan` 生成技术计划
+
+如果你使用 Codex CLI，请将命令替换为 `/prompts:speckit-plan`。
 
 请尽量明确技术栈和技术要求：
 
@@ -146,7 +150,7 @@ first testing thing to ensure that our basic features are set up.
 
 ### 第 6 步：定义任务
 
-使用 `/speckit.tasks` 生成可执行的任务清单：
+使用 `/speckit.tasks` 生成可执行的任务清单；如果你使用 Codex CLI，请改用 `/prompts:speckit-tasks`：
 
 ```bash
 /speckit.tasks
@@ -154,13 +158,13 @@ first testing thing to ensure that our basic features are set up.
 
 ### 第 7 步：验证并实施
 
-先让 AI Agent 用 `/speckit.analyze` 审查实施计划：
+先让 AI Agent 用 `/speckit.analyze` 审查实施计划；如果你使用 Codex CLI，请改用 `/prompts:speckit-analyze`：
 
 ```bash
 /speckit.analyze
 ```
 
-最后执行实现：
+最后执行实现；如果你使用 Codex CLI，请改用 `/prompts:speckit-implement`：
 
 ```bash
 /speckit.implement

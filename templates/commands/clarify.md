@@ -29,7 +29,7 @@ $ARGUMENTS
 
 目标：识别并减少当前功能规范中的歧义与缺失决策点，并将澄清结果直接写回规范文件。
 
-说明：该澄清流程应当在执行 `/speckit.plan` 之前完成。如果用户明确表示跳过澄清（例如仅做探索性验证），则可以继续，但必须提醒其后续返工风险会提高。
+说明：该澄清流程应当在执行计划命令之前完成。大多数 agent 使用 `/speckit.plan`，Codex CLI 使用 `/prompts:speckit-plan`。如果用户明确表示跳过澄清（例如仅做探索性验证），则可以继续，但必须提醒其后续返工风险会提高。
 
 执行步骤：
 
@@ -37,7 +37,7 @@ $ARGUMENTS
    - `FEATURE_DIR`
    - `FEATURE_SPEC`
    - (Optionally capture `IMPL_PLAN`, `TASKS` for future chained flows.)
-   - If JSON parsing fails, abort and instruct user to re-run `/speckit.specify` or verify feature branch environment.
+   - If JSON parsing fails, abort and instruct user to re-run the spec command (`/speckit.specify` or Codex `/prompts:speckit-specify`) or verify feature branch environment.
    - For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
 2. Load the current spec file. Perform a structured ambiguity & coverage scan using this taxonomy. For each category, mark status: Clear / Partial / Missing. Produce an internal coverage map used for prioritization (do not output raw map unless no questions will be asked).
@@ -176,13 +176,13 @@ $ARGUMENTS
    - Path to updated spec.
    - Sections touched (list names).
    - Coverage summary table listing each taxonomy category with Status: Resolved (was Partial/Missing and addressed), Deferred (exceeds question quota or better suited for planning), Clear (already sufficient), Outstanding (still Partial/Missing but low impact).
-   - If any Outstanding or Deferred remain, recommend whether to proceed to `/speckit.plan` or run `/speckit.clarify` again later post-plan.
+   - If any Outstanding or Deferred remain, recommend whether to proceed to the plan command (`/speckit.plan` or Codex `/prompts:speckit-plan`) or run the clarify command again later post-plan.
    - Suggested next command.
 
 Behavior rules:
 
 - If no meaningful ambiguities found (or all potential questions would be low-impact), respond: "No critical ambiguities detected worth formal clarification." and suggest proceeding.
-- If spec file missing, instruct user to run `/speckit.specify` first (do not create a new spec here).
+- If spec file missing, instruct user to run the spec command first (`/speckit.specify` or Codex `/prompts:speckit-specify`) and do not create a new spec here.
 - Never exceed 5 total asked questions (clarification retries for a single question do not count as new questions).
 - Avoid speculative tech stack questions unless the absence blocks functional clarity.
 - Respect user early termination signals ("stop", "done", "proceed").
