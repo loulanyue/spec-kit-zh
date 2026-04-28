@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a reproducible problem in specify-cli-zh or its templates
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect instead?
+      placeholder: Describe the bug clearly and concisely
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide commands, inputs, or a minimal reproduction project
+      placeholder: |
+        1. Run ...
+        2. Execute ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, installed command, and agent choice if relevant
+      placeholder: macOS 14, Python 3.11, specify-zh 0.8.4, --ai codex
