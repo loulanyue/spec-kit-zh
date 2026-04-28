@@ -177,7 +177,7 @@ $ARGUMENTS
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
-Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit.tasks` first to regenerate the task list.
+Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running the tasks command first to regenerate the task list: most agents use `/speckit.tasks`, while Codex CLI uses `/prompts:speckit-tasks`.
 
 10. **检查扩展 hooks**：在完成验证后，检查项目根目录是否存在 `.specify/extensions.yml`。
     - If it exists, read it and look for entries under the `hooks.after_implement` key

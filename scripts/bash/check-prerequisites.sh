@@ -102,20 +102,20 @@ fi
 # Validate required directories and files
 if [[ ! -d "$FEATURE_DIR" ]]; then
     echo "错误：未找到功能目录：$FEATURE_DIR" >&2
-    echo "请先运行 /speckit.specify 创建功能目录结构。" >&2
+    echo "请先运行规范命令创建功能目录结构：大多数 agent 使用 /speckit.specify，Codex CLI 使用 /prompts:speckit-specify。" >&2
     exit 1
 fi
 
 if [[ ! -f "$IMPL_PLAN" ]]; then
     echo "错误：在 $FEATURE_DIR 中未找到 plan.md" >&2
-    echo "请先运行 /speckit.plan 创建设计实施计划。" >&2
+    echo "请先运行计划命令创建设计实施计划：大多数 agent 使用 /speckit.plan，Codex CLI 使用 /prompts:speckit-plan。" >&2
     exit 1
 fi
 
 # Check for tasks.md if required
 if $REQUIRE_TASKS && [[ ! -f "$TASKS" ]]; then
     echo "错误：在 $FEATURE_DIR 中未找到 tasks.md" >&2
-    echo "请先运行 /speckit.tasks 创建任务清单。" >&2
+    echo "请先运行任务命令创建任务清单：大多数 agent 使用 /speckit.tasks，Codex CLI 使用 /prompts:speckit-tasks。" >&2
     exit 1
 fi
 

@@ -88,6 +88,8 @@ specify-zh check     # 期望：显示工具链检测结果
 - `/speckit.plan` - 生成实施计划
 - `/speckit.tasks` - 分解为可执行任务
 
+如果你使用的是 Codex CLI，请在 `.codex/prompts/` 中确认生成了对应文件，并使用 `/prompts:speckit-specify`、`/prompts:speckit-plan`、`/prompts:speckit-tasks` 这类格式运行命令。
+
 `.specify/scripts` 目录中会同时包含 `.sh` 和 `.ps1` 脚本。
 
 ## 故障排除

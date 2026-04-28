@@ -3,7 +3,7 @@
 **分支**：`[###-feature-name]` | **日期**：[DATE] | **规格说明**：[link]
 **输入**：来自 `/specs/[###-feature-name]/spec.md` 的功能规格说明
 
-**说明**：该模板由 `/speckit.plan` 命令填充。执行流程见 `.specify/templates/plan-template.md`。
+**说明**：该模板由计划命令填充；大多数 agent 使用 `/speckit.plan`，Codex CLI 使用 `/prompts:speckit-plan`。执行流程见 `.specify/templates/plan-template.md`。
 
 ## 摘要
 
@@ -38,12 +38,12 @@
 
 ```text
 specs/[###-feature]/
-├── plan.md              # 本文件（/speckit.plan 命令输出）
-├── research.md          # 第 0 阶段输出（/speckit.plan 命令）
-├── data-model.md        # 第 1 阶段输出（/speckit.plan 命令）
-├── quickstart.md        # 第 1 阶段输出（/speckit.plan 命令）
-├── contracts/           # 第 1 阶段输出（/speckit.plan 命令）
-└── tasks.md             # 第 2 阶段输出（/speckit.tasks 命令，不由 /speckit.plan 创建）
+├── plan.md              # 本文件（plan 命令输出）
+├── research.md          # 第 0 阶段输出（plan 命令）
+├── data-model.md        # 第 1 阶段输出（plan 命令）
+├── quickstart.md        # 第 1 阶段输出（plan 命令）
+├── contracts/           # 第 1 阶段输出（plan 命令）
+└── tasks.md             # 第 2 阶段输出（tasks 命令，不由 plan 命令创建）
 ```
 
 ### 源代码（仓库根目录）

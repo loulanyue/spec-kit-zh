@@ -103,7 +103,7 @@ CLI 是工程编排器，负责：
 
 也就是说，`spec-kit` 的主线不是“语言框架适配”，而是“开发流程标准化 + 多 agent 分发”。
 
-它默认认为一个功能开发应该经历如下阶段：
+它默认认为一个功能开发应该经历如下阶段（Codex CLI 中对应写法为 `/prompts:speckit-*`）：
 
 1. 建立项目原则：`/speckit.constitution`
 2. 写需求规格：`/speckit.specify`
@@ -130,7 +130,7 @@ CLI 的职责主要在“初始化工程”和“准备 agent 环境”，而不
 - `init` 负责把 `spec-kit` 模板和 agent 命令落到目标项目里
 - `check` 负责检查 Git、agent CLI 等基础工具是否可用
 
-真正的业务流程推进，大多是在初始化后，由 AI agent 通过 `/speckit.xxx` 命令模板继续执行。
+真正的业务流程推进，大多是在初始化后，由 AI agent 通过命令模板继续执行。大多数 agent 使用 `/speckit.xxx`，而 Codex CLI 使用 `/prompts:speckit-xxx`。
 
 ### 4.2 `AGENT_CONFIG` 是多 agent 支持的单一事实源
 
@@ -176,7 +176,7 @@ CLI 的职责主要在“初始化工程”和“准备 agent 环境”，而不
 - 可选初始化 Git
 - 可选安装 AI skills
 
-初始化结束后，目标项目就具备了继续运行 `/speckit.specify`、`/speckit.plan` 等命令的条件。
+初始化结束后，目标项目就具备了继续运行 `/speckit.specify`、`/speckit.plan` 等命令的条件；如果使用 Codex CLI，则对应为 `/prompts:speckit-specify`、`/prompts:speckit-plan` 等。
 
 ### 5.2 初始化后项目为什么是“模板 + agent 命令”的组合
 
@@ -540,19 +540,19 @@ specs/
 
 1. 执行 `specify-zh init my-project --ai claude`
 2. CLI 把 `.specify/` 模板和 `.claude/commands/` 命令落到项目中
-3. 用户在 agent 里运行 `/speckit.constitution`
-4. 用户运行 `/speckit.specify "我要做一个照片管理应用"`
+3. 用户在 agent 里运行 `/speckit.constitution`（Codex CLI 中对应 `/prompts:speckit-constitution`）
+4. 用户运行 `/speckit.specify "我要做一个照片管理应用"`（Codex CLI 中对应 `/prompts:speckit-specify "我要做一个照片管理应用"`）
 5. `create-new-feature.sh` 创建 `001-photo-management` 分支和 `specs/001-photo-management/spec.md`
 6. agent 按 `specify.md` 模板写出规格文档和 requirements checklist
-7. 用户运行 `/speckit.clarify`
+7. 用户运行 `/speckit.clarify`（Codex CLI 中对应 `/prompts:speckit-clarify`）
 8. agent 对 spec 做去歧义补全
-9. 用户运行 `/speckit.plan`
+9. 用户运行 `/speckit.plan`（Codex CLI 中对应 `/prompts:speckit-plan`）
 10. `setup-plan.sh` 建立 `plan.md`，agent 生成 research、data model、contracts、quickstart，并调用 `update-agent-context.sh`
-11. 用户运行 `/speckit.tasks`
+11. 用户运行 `/speckit.tasks`（Codex CLI 中对应 `/prompts:speckit-tasks`）
 12. agent 生成按用户故事组织的 `tasks.md`
-13. 用户运行 `/speckit.analyze`
+13. 用户运行 `/speckit.analyze`（Codex CLI 中对应 `/prompts:speckit-analyze`）
 14. agent 检查 spec、plan、tasks 是否一致
-15. 用户运行 `/speckit.implement`
+15. 用户运行 `/speckit.implement`（Codex CLI 中对应 `/prompts:speckit-implement`）
 16. agent 按任务阶段逐步实现功能
 
 这就是 `spec-kit` 的完整工程闭环。

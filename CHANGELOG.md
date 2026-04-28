@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.9.0] - 2026-04-24
+
+### Added
+
+- Added `specify-zh codex-sync`, a dedicated repair command that re-syncs Codex prompt files into both project-local `.codex/prompts/` and global `~/.codex/prompts/`, then prints the exact `/prompts:speckit-*` commands to use.
+
+### Changed
+
+- Extracted Codex prompt rendering and synchronization into a dedicated `specify_cli.codex_prompts` module, reducing the size and responsibility of the main CLI entrypoint.
+- Codex prompt sync now updates stale generated prompt files, so command text and handoff hints stay aligned after CLI upgrades.
+
 ## [0.8.4] - 2026-04-03
 
 ### Fixed
