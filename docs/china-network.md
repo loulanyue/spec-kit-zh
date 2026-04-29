@@ -49,7 +49,14 @@ uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-
 
 若因为某些企业内网隔离策略，完全无法通过公网连接到 GitHub 进行远端仓库拉取，你可以预先下载好对应的模板资源压缩包并在本地使用。
 
-你可以在任何正常的公网环境中，打开浏览器获取模板的二进制包。请前往 [spec-kit-zh 发行版页面](https://github.com/loulanyue/spec-kit-zh/releases)，并根据自己期望组合的 AI 大模型名称寻找下载对口的 Zip 文件，例如你想用 Claude，就下载 `spec-kit-template-claude-sh.zip`。
+你可以在任何正常的公网环境中，打开浏览器获取模板的二进制包。请前往 [spec-kit-zh 发行版页面](https://github.com/loulanyue/spec-kit-zh/releases)，并根据自己期望组合的 AI 大模型名称寻找下载对口的 Zip 文件，例如你想用 Claude，就下载类似 `spec-kit-template-claude-sh-<version>.zip` 的文件。
+
+常见的离线模板包命名模式包括：
+
+- `spec-kit-template-claude-sh-<version>.zip`
+- `spec-kit-template-codex-sh-<version>.zip`
+- `spec-kit-template-kiro-cli-sh-<version>.zip`
+- `spec-kit-template-tabnine-sh-<version>.zip`
 
 将该 `.zip` 压缩包复制进入你的隔离办公机内并进行本地解压拿到 `.specify` 即等价操作。或者通过设置本地指定目录进行构建：
 
