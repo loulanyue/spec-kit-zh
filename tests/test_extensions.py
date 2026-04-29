@@ -147,7 +147,7 @@ class TestExtensionManifest:
         with open(manifest_path, 'w') as f:
             yaml.dump({"schema_version": "1.0"}, f)  # Missing 'extension'
 
-        with pytest.raises(ValidationError, match="Missing required field"):
+        with pytest.raises(ValidationError, match="缺少必填字段"):
             ExtensionManifest(manifest_path)
 
     def test_invalid_extension_id(self, temp_dir, valid_manifest_data):
@@ -160,7 +160,7 @@ class TestExtensionManifest:
         with open(manifest_path, 'w') as f:
             yaml.dump(valid_manifest_data, f)
 
-        with pytest.raises(ValidationError, match="Invalid extension ID"):
+        with pytest.raises(ValidationError, match="无效的扩展 ID"):
             ExtensionManifest(manifest_path)
 
     def test_invalid_version(self, temp_dir, valid_manifest_data):
@@ -173,7 +173,7 @@ class TestExtensionManifest:
         with open(manifest_path, 'w') as f:
             yaml.dump(valid_manifest_data, f)
 
-        with pytest.raises(ValidationError, match="Invalid version"):
+        with pytest.raises(ValidationError, match="无效的版本号"):
             ExtensionManifest(manifest_path)
 
     def test_invalid_command_name(self, temp_dir, valid_manifest_data):
@@ -186,7 +186,7 @@ class TestExtensionManifest:
         with open(manifest_path, 'w') as f:
             yaml.dump(valid_manifest_data, f)
 
-        with pytest.raises(ValidationError, match="Invalid command name"):
+        with pytest.raises(ValidationError, match="无效的命令名"):
             ExtensionManifest(manifest_path)
 
     def test_no_commands(self, temp_dir, valid_manifest_data):
@@ -199,7 +199,7 @@ class TestExtensionManifest:
         with open(manifest_path, 'w') as f:
             yaml.dump(valid_manifest_data, f)
 
-        with pytest.raises(ValidationError, match="must provide at least one command"):
+        with pytest.raises(ValidationError, match="扩展至少必须提供一个命令"):
             ExtensionManifest(manifest_path)
 
     def test_manifest_hash(self, extension_dir):
@@ -299,7 +299,7 @@ class TestExtensionManager:
         manifest = ExtensionManifest(extension_dir / "extension.yml")
 
         # Requires >=0.1.0, but we have 0.0.1
-        with pytest.raises(CompatibilityError, match="Extension requires spec-kit"):
+        with pytest.raises(CompatibilityError, match="扩展要求 spec-kit 版本"):
             manager.check_compatibility(manifest, "0.0.1")
 
     def test_install_from_directory(self, extension_dir, project_dir):
@@ -329,7 +329,7 @@ class TestExtensionManager:
         manager.install_from_directory(extension_dir, "0.1.0", register_commands=False)
 
         # Try to install again
-        with pytest.raises(ExtensionError, match="already installed"):
+        with pytest.raises(ExtensionError, match="已安装"):
             manager.install_from_directory(extension_dir, "0.1.0", register_commands=False)
 
     def test_remove_extension(self, extension_dir, project_dir):

@@ -25,7 +25,7 @@ def test_build_doctor_recommendations_for_uninitialized_project():
     assert any("安装 Git" in item for item in recommendations)
     assert any("安装 uv" in item or "uv" in item for item in recommendations)
     assert any("GH_TOKEN" in item or "GITHUB_TOKEN" in item for item in recommendations)
-    assert any("specify init --here --ai claude" in item for item in recommendations)
+    assert any("specify-zh init --here --ai claude" in item for item in recommendations)
     assert any("claude, gemini" in item for item in recommendations)
 
 
@@ -45,7 +45,7 @@ def test_build_doctor_recommendations_for_existing_spec_project_without_git():
     recommendations = _build_doctor_recommendations(diagnostics)
 
     assert any("git init" in item for item in recommendations)
-    assert not any("specify init --here --ai claude" in item for item in recommendations)
+    assert not any("specify-zh init --here --ai claude" in item for item in recommendations)
 
 
 def test_collect_doctor_diagnostics_reads_project_state(tmp_path: Path):

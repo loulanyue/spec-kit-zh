@@ -268,7 +268,7 @@ get_commands_for_language() {
 
 get_language_conventions() {
     local lang="$1"
-    echo "$lang：遵循该语言的标准约定"
+    echo "${lang}：遵循该语言的标准约定"
 }
 
 create_new_agent_file() {
@@ -313,24 +313,24 @@ create_new_agent_file() {
     # Build technology stack and recent change strings conditionally
     local tech_stack
     if [[ -n "$escaped_lang" && -n "$escaped_framework" ]]; then
-        tech_stack="- $escaped_lang + $escaped_framework（$escaped_branch）"
+        tech_stack="- ${escaped_lang} + ${escaped_framework}（${escaped_branch}）"
     elif [[ -n "$escaped_lang" ]]; then
-        tech_stack="- $escaped_lang（$escaped_branch）"
+        tech_stack="- ${escaped_lang}（${escaped_branch}）"
     elif [[ -n "$escaped_framework" ]]; then
-        tech_stack="- $escaped_framework（$escaped_branch）"
+        tech_stack="- ${escaped_framework}（${escaped_branch}）"
     else
-        tech_stack="- （$escaped_branch）"
+        tech_stack="- （${escaped_branch}）"
     fi
 
     local recent_change
     if [[ -n "$escaped_lang" && -n "$escaped_framework" ]]; then
-        recent_change="- $escaped_branch：新增 $escaped_lang + $escaped_framework"
+        recent_change="- ${escaped_branch}：新增 ${escaped_lang} + ${escaped_framework}"
     elif [[ -n "$escaped_lang" ]]; then
-        recent_change="- $escaped_branch：新增 $escaped_lang"
+        recent_change="- ${escaped_branch}：新增 ${escaped_lang}"
     elif [[ -n "$escaped_framework" ]]; then
-        recent_change="- $escaped_branch：新增 $escaped_framework"
+        recent_change="- ${escaped_branch}：新增 ${escaped_framework}"
     else
-        recent_change="- $escaped_branch：新增"
+        recent_change="- ${escaped_branch}：新增"
     fi
 
     local substitutions=(
@@ -393,18 +393,18 @@ update_existing_agent_file() {
     
     # Prepare new technology entries
     if [[ -n "$tech_stack" ]] && ! grep -q "$tech_stack" "$target_file"; then
-        new_tech_entries+=("- $tech_stack（$CURRENT_BRANCH）")
+        new_tech_entries+=("- ${tech_stack}（${CURRENT_BRANCH}）")
     fi
     
     if [[ -n "$NEW_DB" ]] && [[ "$NEW_DB" != "N/A" ]] && [[ "$NEW_DB" != "NEEDS CLARIFICATION" ]] && ! grep -q "$NEW_DB" "$target_file"; then
-        new_tech_entries+=("- $NEW_DB（$CURRENT_BRANCH）")
+        new_tech_entries+=("- ${NEW_DB}（${CURRENT_BRANCH}）")
     fi
     
     # Prepare new change entry
     if [[ -n "$tech_stack" ]]; then
-        new_change_entry="- $CURRENT_BRANCH：新增 $tech_stack"
+        new_change_entry="- ${CURRENT_BRANCH}：新增 ${tech_stack}"
     elif [[ -n "$NEW_DB" ]] && [[ "$NEW_DB" != "N/A" ]] && [[ "$NEW_DB" != "NEEDS CLARIFICATION" ]]; then
-        new_change_entry="- $CURRENT_BRANCH：新增 $NEW_DB"
+        new_change_entry="- ${CURRENT_BRANCH}：新增 ${NEW_DB}"
     fi
     
     # Check if sections exist in the file
