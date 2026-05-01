@@ -841,6 +841,8 @@ rm gcm-linux_amd64.2.6.1.deb
 <a id="star-history"></a>
 ## ⭐ Star History
 
+<!-- star-history-updated: 2026-05-01 -->
+
 <a href="https://www.star-history.com/?repos=loulanyue%2Fspec-kit-zh&type=date&legend=top-left">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=loulanyue/spec-kit-zh&type=date&theme=dark&legend=top-left" />
