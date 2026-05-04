@@ -5,7 +5,7 @@
 ## 前置要求
 
 - **Linux/macOS**（也支持 Windows；PowerShell 脚本现已无需 WSL）
-- AI 编码助手：[Claude Code](https://www.anthropic.com/claude-code)、[GitHub Copilot](https://code.visualstudio.com/)、[Codebuddy CLI](https://www.codebuddy.ai/cli) 或 [Gemini CLI](https://github.com/google-gemini/gemini-cli)
+- AI 编码助手：建议准备你实际要接入的工具，例如 [Claude Code](https://www.anthropic.com/claude-code)、[GitHub Copilot](https://code.visualstudio.com/)、[Codex CLI](https://github.com/openai/codex)、[Gemini CLI](https://github.com/google-gemini/gemini-cli)、[Qwen Code](https://github.com/QwenLM/qwen-code) 或 [CodeBuddy CLI](https://www.codebuddy.ai/cli)
 - 用于包管理的 [uv](https://docs.astral.sh/uv/)
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
@@ -35,10 +35,11 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init --he
 你可以在初始化时主动指定要使用的 AI Agent：
 
 ```bash
-uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --ai claude
-uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --ai gemini
-uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --ai copilot
-uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --ai codebuddy
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --ai claude
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --ai codex
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --ai gemini
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --ai qwen
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --ai codebuddy
 ```
 
 ### 指定脚本类型（Shell 或 PowerShell）
@@ -54,8 +55,8 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <pro
 如需强制指定脚本类型：
 
 ```bash
-uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --script sh
-uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --script ps
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --script sh
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --script ps
 ```
 
 ### 跳过 Agent 工具检查
@@ -63,7 +64,7 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <pro
 如果你希望直接获取模板，而不检查本机是否已安装对应工具：
 
 ```bash
-uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <project_name> --ai claude --ignore-agent-tools
+uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --ai claude --ignore-agent-tools
 ```
 
 ## 验证安装
@@ -90,7 +91,13 @@ specify-zh check     # 期望：显示工具链检测结果
 - `/speckit.plan` - 生成实施计划
 - `/speckit.tasks` - 分解为可执行任务
 
-如果你使用的是 Codex CLI，请在 `.codex/prompts/` 中确认生成了对应文件，并使用 `/prompts:speckit-specify`、`/prompts:speckit-plan`、`/prompts:speckit-tasks` 这类格式运行命令。
+如果你使用的是 Codex CLI，请优先确认全局 `~/.codex/prompts/` 已同步生成对应 prompts，并使用 `/prompts:speckit-specify`、`/prompts:speckit-plan`、`/prompts:speckit-tasks` 这类格式运行命令。项目内的 `.codex/prompts/` 兼容副本也可以一并检查。
+
+如果你刚更新过模板，或者 Codex 仍提示命令不存在，可以在项目目录执行：
+
+```bash
+specify-zh codex-sync --project .
+```
 
 `.specify/scripts` 目录中会同时包含 `.sh` 和 `.ps1` 脚本。
 
