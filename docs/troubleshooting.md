@@ -57,3 +57,26 @@ export HTTPS_PROXY=http://127.0.0.1:7890
 export HTTP_PROXY=http://127.0.0.1:7890
 ```
 或直接使用本地离线模板方案：将模板手动下载到本地解压后执行 `specify-zh init --template-dir <本地路径>`。
+
+### 7. Codex CLI 提示 `Unrecognized command`
+
+如果 Codex CLI 中输入 `/speckit.constitution`、`/speckit:constitution` 或 `/prompts:speckit-constitution` 后仍提示命令不识别，通常是 prompts 未同步到 Codex 的全局目录，或当前 Codex 会话还没有重新加载 prompts。
+
+**解决方案**：在项目根目录重新同步 Codex prompts：
+
+```bash
+specify-zh codex-sync --project .
+```
+
+同步完成后，重启当前 Codex 会话，再使用以下命令格式：
+
+```text
+/prompts:speckit-constitution 创建强调代码质量、测试标准、用户体验一致性与性能要求的项目原则
+```
+
+如需确认文件是否存在，可以检查：
+
+```bash
+ls -la ~/.codex/prompts/
+ls -la .codex/prompts/
+```
