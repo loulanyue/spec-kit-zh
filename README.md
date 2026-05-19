@@ -251,7 +251,6 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli)                            | ✅      |                                                                                                                                           |
 | [GitHub Copilot](https://code.visualstudio.com/)                                     | ✅      |                                                                                                                                           |
 | [IBM Bob](https://www.ibm.com/products/bob)                                          | ✅      | 基于 IDE 的 agent，支持 slash commands                                                                                                     |
-| [Jules](https://jules.google.com/)                                                   | ✅      |                                                                                                                                           |
 | [Kilo Code](https://github.com/Kilo-Org/kilocode)                                    | ✅      |                                                                                                                                           |
 | [opencode](https://opencode.ai/)                                                     | ✅      |                                                                                                                                           |
 | [Qwen Code](https://github.com/QwenLM/qwen-code)                                     | ✅      |                                                                                                                                           |
@@ -287,7 +286,7 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 | 参数/选项        | 类型     | 说明 |
 | ---------------- | -------- | ---- |
 | `<project-name>` | 参数     | 新项目目录名（使用 `--here` 时可省略，也可以用 `.` 表示当前目录） |
-| `--ai` | 选项 | 要接入的 AI 助手：`claude`、`gemini`、`copilot`、`cursor-agent`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（别名 `kiro`）、`agy`、`bob`、`qodercli`、`vibe` 或 `generic` |
+| `--ai` | 选项 | 要接入的 AI 助手：`claude`、`gemini`、`copilot`、`cursor-agent`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（别名 `kiro`）、`agy`、`bob`、`qodercli`、`tabnine`、`vibe` 或 `generic` |
 | `--ai-commands-dir` | 选项 | 代理命令文件目录（与 `--ai generic` 配合使用，例如 `.myagent/commands/`） |
 | `--script` | 选项 | 使用脚本类型：`sh`（bash/zsh）或 `ps`（PowerShell） |
 | `--ignore-agent-tools` | 标志 | 跳过对 Claude Code 等 AI 工具的检查 |
