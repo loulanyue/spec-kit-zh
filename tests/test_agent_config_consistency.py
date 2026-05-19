@@ -9,6 +9,31 @@ from specify_cli.extensions import CommandRegistrar
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+README_TEXT = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+README_AGENT_LABELS = {
+    "qodercli": "Qoder CLI",
+    "kiro-cli": "Kiro CLI",
+    "amp": "Amp",
+    "auggie": "Auggie CLI",
+    "claude": "Claude Code",
+    "codebuddy": "CodeBuddy CLI",
+    "codex": "Codex CLI",
+    "cursor-agent": "Cursor",
+    "gemini": "Gemini CLI",
+    "copilot": "GitHub Copilot",
+    "bob": "IBM Bob",
+    "kilocode": "Kilo Code",
+    "opencode": "opencode",
+    "qwen": "Qwen Code",
+    "roo": "Roo Code",
+    "shai": "SHAI (OVHcloud)",
+    "tabnine": "Tabnine CLI",
+    "vibe": "Mistral Vibe",
+    "windsurf": "Windsurf",
+    "agy": "Antigravity (agy)",
+    "generic": "Generic",
+}
 
 
 class TestAgentConfigConsistency:
@@ -165,3 +190,41 @@ class TestAgentConfigConsistency:
     def test_ai_help_includes_tabnine(self):
         """CLI help text for --ai should include tabnine."""
         assert "tabnine" in AI_ASSISTANT_HELP
+
+    def test_readme_supported_agents_table_matches_runtime_config(self):
+        """README supported-agent table should stay aligned with AGENT_CONFIG."""
+        section_match = re.search(
+            r"## 🤖 支持的 AI 代理\n\n(.*?)\n> \[!TIP\]",
+            README_TEXT,
+            re.S,
+        )
+        assert section_match is not None
+
+        table_rows = re.findall(r"^\| (.+?)\| ✅", section_match.group(1), re.M)
+        first_column_values = [row.strip() for row in table_rows]
+
+        documented_labels = set()
+        for value in first_column_values:
+            if value.startswith("["):
+                label_match = re.match(r"\[([^\]]+)\]\(", value)
+                assert label_match is not None
+                documented_labels.add(label_match.group(1))
+            else:
+                documented_labels.add(value)
+
+        expected_labels = {README_AGENT_LABELS[key] for key in AGENT_CONFIG}
+        assert documented_labels == expected_labels
+
+    def test_readme_init_ai_option_list_matches_runtime_config(self):
+        """README command reference for --ai should list every runtime agent plus aliases."""
+        line_match = re.search(r"^\| `--ai` \| .*?$", README_TEXT, re.M)
+        assert line_match is not None
+        line = line_match.group(0)
+
+        detail_match = re.search(r"AI 助手：(.*?)(?: \|$)", line)
+        assert detail_match is not None
+        documented_agents = set(re.findall(r"`([a-z0-9-]+)`", detail_match.group(1)))
+        expected_agents = set(AGENT_CONFIG)
+        expected_agents.update(AI_ASSISTANT_ALIASES)
+
+        assert documented_agents == expected_agents
