@@ -1,0 +1,25 @@
+name: Question
+description: Ask about usage, migration, or troubleshooting for spec-kit-zh
+title: "[Question]: "
+labels:
+  - question
+body:
+  - type: textarea
+    id: ask
+    attributes:
+      label: Your question
+      description: What are you trying to understand or achieve?
+      placeholder: Describe the scenario and what is unclear
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you have tried
+      description: Mention relevant docs, commands, or experiments you've already checked
+      placeholder: I checked README, docs/quickstart.md, and tried ...
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: Paste command output, screenshots, or environment details if helpful
