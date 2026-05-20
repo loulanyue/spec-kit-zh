@@ -34,4 +34,10 @@
 
 ## 部署
 
-当变更推送到 `main` 分支时，文档会自动构建并部署到 GitHub Pages。工作流定义在 `.github/workflows/docs.yml` 中。
+文档工作流定义在 `.github/workflows/docs.yml` 中：
+
+- 对 pull request：构建 DocFX 站点，验证文档变更不会破坏生成流程。
+- 对 `main` 分支：构建 DocFX 站点，并将 `docs/_site` 发布到 GitHub Pages。
+- 对手动触发：可通过 GitHub Actions 的 `workflow_dispatch` 重新构建并部署当前 `main` 分支文档。
+
+如需发布到 GitHub Pages，请在仓库设置中将 Pages 的部署来源设置为 **GitHub Actions**。
