@@ -68,20 +68,20 @@ jobs:
               labels: ['文档', '死链'],
               body: `## 文档死链检测报告
 
-定时死链检测发现文档中存在失效链接，请及时修复。
+            定时死链检测发现文档中存在失效链接，请及时修复。
 
-**检测时间**: ${today}
-**触发方式**: 定时检测（每周二）
+            **检测时间**: ${today}
+            **触发方式**: 定时检测（每周二）
 
-请查看 [Actions 运行日志](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) 获取详细的死链列表。
+            请查看 [Actions 运行日志](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) 获取详细的死链列表。
 
-### 修复建议
+            ### 修复建议
 
-- 检查链接目标页面是否已迁移或删除
-- 更新 GitHub 仓库链接到最新路径
-- 对于外部链接，考虑使用 Web Archive 备份链接
-- 运行本地检查：\`make link-check\`
+            - 检查链接目标页面是否已迁移或删除
+            - 更新 GitHub 仓库链接到最新路径
+            - 对于外部链接，考虑使用 Web Archive 备份链接
+            - 运行本地检查：\`make link-check\`
 
-cc @loulanyue
-`
+            cc @loulanyue
+            `.replace(/^ {12}/gm, '')
             });
