@@ -231,21 +231,21 @@ $ARGUMENTS
 
 成功标准必须：
 
-1. **Measurable**: Include specific metrics (time, percentage, count, rate)
-2. **Technology-agnostic**: No mention of frameworks, languages, databases, or tools
-3. **User-focused**: Describe outcomes from user/business perspective, not system internals
-4. **Verifiable**: Can be tested/validated without knowing implementation details
+1. **可衡量 (Measurable)**：包含具体指标（时间、百分比、数量、率）
+2. **与技术无关 (Technology-agnostic)**：不提及框架、语言、数据库或工具
+3. **以用户为中心 (User-focused)**：从用户/业务角度描述结果，而非系统内部实现
+4. **可验证 (Verifiable)**：无需了解实现细节即可进行测试/验证
 
-**Good examples**:
+**优秀示例**：
 
-- "Users can complete checkout in under 3 minutes"
-- "System supports 10,000 concurrent users"
-- "95% of searches return results in under 1 second"
-- "Task completion rate improves by 40%"
+- “用户可在 3 分钟内完成结账”
+- “系统可支持 10,000 名并发用户”
+- “95% 的搜索可在 1 秒内返回结果”
+- “任务完成率提升 40%”
 
-**Bad examples** (implementation-focused):
+**反面示例**（聚焦于实现）：
 
-- "API response time is under 200ms" (too technical, use "Users see results instantly")
-- "Database can handle 1000 TPS" (implementation detail, use user-facing metric)
-- "React components render efficiently" (framework-specific)
-- "Redis cache hit rate above 80%" (technology-specific)
+- “API 响应时间低于 200ms”（太偏技术，应使用“用户可立即看到结果”）
+- “数据库能处理 1000 TPS”（实现细节，应使用面向用户的指标）
+- “React 组件高效渲染”（特定于框架）
+- “Redis 缓存命中率在 80% 以上”（特定于技术）
