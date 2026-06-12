@@ -42,3 +42,29 @@ def test_sync_codex_prompts_updates_existing_generated_files(tmp_path):
     assert stale.read_text(encoding="utf-8") != "stale"
     assert (global_dir / "speckit-plan.md").exists()
     assert result.slash_commands == (codex_slash_command("plan"),)
+
+
+def test_parse_markdown_command_template_malformed_frontmatter(tmp_path):
+    template = tmp_path / "malformed.md"
+    template.write_text(
+        "---\n" "- not a dictionary\n" "---\n\n" "Some body text\n",
+        encoding="utf-8",
+    )
+
+    filename, rendered = render_codex_prompt(template)
+    assert filename == "speckit-malformed.md"
+    assert "Some body text" in rendered
+
+
+def test_sync_codex_prompts_with_missing_template(tmp_path):
+    missing_path = tmp_path / "nonexistent.md"
+    project = tmp_path / "project"
+    project.mkdir()
+    global_dir = tmp_path / "global-prompts"
+
+    result = sync_codex_prompts_from_templates(
+        [missing_path], project, global_prompts_dir=global_dir
+    )
+    assert result.created == 0
+    assert result.updated == 0
+    assert result.preserved == 0
