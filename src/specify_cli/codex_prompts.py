@@ -36,6 +36,8 @@ class CodexPromptSyncResult:
 
 def parse_markdown_command_template(template_path: Path) -> tuple[dict, str]:
     """Parse a markdown command template into frontmatter and body."""
+    if not template_path.exists():
+        raise FileNotFoundError(f"Template file not found: {template_path}")
     content = template_path.read_text(encoding="utf-8")
     if content.startswith("---"):
         parts = content.split("---", 2)
@@ -122,20 +124,36 @@ def sync_codex_prompts_from_templates(
     command_names: list[str] = []
 
     for target_dir in target_dirs:
-        target_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            target_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as e:
+            raise OSError(f"Failed to create target directory {target_dir}: {e}")
+
         for template_file in templates:
+            if not template_file.exists():
+                continue
             command_names.append(template_file.stem)
             filename, rendered = render_codex_prompt(template_file)
             destination = target_dir / filename
-            if destination.exists():
-                if overwrite and destination.read_text(encoding="utf-8") != rendered:
-                    destination.write_text(rendered, encoding="utf-8")
-                    updated += 1
+            try:
+                if destination.exists():
+                    if (
+                        overwrite
+                        and destination.read_text(encoding="utf-8") != rendered
+                    ):
+                        destination.write_text(rendered, encoding="utf-8")
+                        updated += 1
+                    else:
+                        preserved += 1
                 else:
-                    preserved += 1
-            else:
-                destination.write_text(rendered, encoding="utf-8")
-                created += 1
+                    destination.write_text(rendered, encoding="utf-8")
+                    created += 1
+            except IOError as e:
+                import sys
+
+                sys.stderr.write(
+                    f"Warning: Failed to write Codex prompt to {destination}: {e}\n"
+                )
 
     unique_command_names = tuple(dict.fromkeys(command_names))
     return CodexPromptSyncResult(
