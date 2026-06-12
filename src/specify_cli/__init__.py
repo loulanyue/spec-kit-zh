@@ -2135,7 +2135,7 @@ def init(
     json_output: bool = typer.Option(
         False, "--json", help="以 JSON 格式输出初始化结果，不显示交互式进度"
     ),
-):
+) -> None:
     """
     使用最新模板初始化一个新的 Specify 项目。
 
@@ -2716,7 +2716,7 @@ def init(
 
 
 @app.command()
-def check():
+def check() -> None:
     """检查所需工具是否已安装。"""
     show_banner()
     console.print("[bold]正在检查 specify-zh 运行环境...[/bold]\n")
@@ -2907,7 +2907,7 @@ def codex_sync(
 
 
 @app.command()
-def doctor():
+def doctor() -> None:
     """诊断当前环境与项目状态，并给出修复建议。"""
     show_banner()
     console.print("[bold]正在执行环境诊断...[/bold]\n")
@@ -3039,7 +3039,7 @@ def doctor():
 
 
 @app.command()
-def version():
+def version() -> None:
     """显示版本与系统信息。"""
     show_banner()
 
