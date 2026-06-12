@@ -118,3 +118,20 @@ def test_extension_help_no_old_brand():
     result = runner.invoke(app, ["extension", "--help"])
     sanitized = _strip_brand(result.output)
     assert OLD_BRAND not in sanitized
+
+
+# ── init command validations ───────────────────────────────────────────────────
+
+
+def test_init_conflicting_here_and_name():
+    """测试指定项目名又指定 --here，应该报错退出。"""
+    result = runner.invoke(app, ["init", "some-project", "--here"])
+    assert result.exit_code == 1
+    assert "不能同时指定项目名和 --here" in result.output
+
+
+def test_init_skills_without_ai():
+    """测试 --ai-skills 必须搭配 --ai，否则报错退出。"""
+    result = runner.invoke(app, ["init", "some-project", "--ai-skills"])
+    assert result.exit_code == 1
+    assert "--ai-skills 必须搭配 --ai 使用" in result.output
