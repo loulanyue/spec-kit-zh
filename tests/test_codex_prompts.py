@@ -33,7 +33,9 @@ def test_sync_codex_prompts_updates_existing_generated_files(tmp_path):
     stale.parent.mkdir(parents=True)
     stale.write_text("stale", encoding="utf-8")
 
-    result = sync_codex_prompts_from_templates([template], project, global_prompts_dir=global_dir)
+    result = sync_codex_prompts_from_templates(
+        [template], project, global_prompts_dir=global_dir
+    )
 
     assert result.updated == 1
     assert result.created == 1

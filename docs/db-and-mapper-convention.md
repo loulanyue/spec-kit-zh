@@ -78,7 +78,7 @@ public interface JdSyncLogMapper { ... }
 
 ## 四、KingBase（KingbaseES）表名大小写敏感问题
 
-**现象**：MyBatis XML 中引用含大写字母的表名，KingBase 报错 `关系 "xxx" 不存在`，但表实际存在。
+**现象**：MyBatis XML 中引用含大写字母的表名，KingBase 报错 ` 关系 "xxx" 不存在 `，但表实际存在。
 
 **根本原因**：KingBase 基于 PostgreSQL，**不加引号的标识符统一折叠为小写**。若表名含大写字母（如 ECP 历史业务表 `ECP_DMC_wupinqingdanweihu20240329112452`），不加引号会被折叠为全小写，导致找不到对应表。
 

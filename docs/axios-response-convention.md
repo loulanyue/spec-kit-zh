@@ -22,7 +22,7 @@ service.interceptors.response.use(res => {
 })
 ```
 
-**结论**：前端 `.then(res => ...)` 中的 `res` 实际上是 `HTTP响应体.data`，而不是整个响应体。
+**结论**：前端 `.then(res => ...)` 中的 `res` 实际上是 `HTTP 响应体.data`，而不是整个响应体。
 
 ---
 

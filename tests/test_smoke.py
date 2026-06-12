@@ -8,7 +8,6 @@ Or via: make smoke
 
 import subprocess
 import re
-import sys
 import tomllib
 from pathlib import Path
 
@@ -33,25 +32,31 @@ class TestSmokeCLI:
     def test_help_exits_zero(self):
         """specify-zh --help should exit with code 0."""
         result = _run(["--help"])
-        assert result.returncode == 0, f"Expected 0, got {result.returncode}\n{result.stderr}"
+        assert (
+            result.returncode == 0
+        ), f"Expected 0, got {result.returncode}\n{result.stderr}"
 
     def test_version_exits_zero(self):
         """specify-zh version should exit with code 0."""
         result = _run(["version"])
-        assert result.returncode == 0, f"Expected 0, got {result.returncode}\n{result.stderr}"
+        assert (
+            result.returncode == 0
+        ), f"Expected 0, got {result.returncode}\n{result.stderr}"
 
     def test_version_contains_version_number(self):
         """specify-zh version should output a semver-like version number."""
         result = _run(["version"])
         output = result.stdout + result.stderr
-        assert re.search(r"\d+\.\d+\.\d+", output), (
-            f"No version number found in output:\n{output}"
-        )
+        assert re.search(
+            r"\d+\.\d+\.\d+", output
+        ), f"No version number found in output:\n{output}"
 
     def test_init_help_exits_zero(self):
         """specify-zh init --help should exit with code 0."""
         result = _run(["init", "--help"])
-        assert result.returncode == 0, f"Expected 0, got {result.returncode}\n{result.stderr}"
+        assert (
+            result.returncode == 0
+        ), f"Expected 0, got {result.returncode}\n{result.stderr}"
 
     def test_init_help_contains_ai_option(self):
         """specify-zh init --help should mention --ai option."""
@@ -62,7 +67,9 @@ class TestSmokeCLI:
     def test_check_exits_zero(self):
         """specify-zh check should exit with code 0."""
         result = _run(["check"])
-        assert result.returncode == 0, f"Expected 0, got {result.returncode}\n{result.stderr}"
+        assert (
+            result.returncode == 0
+        ), f"Expected 0, got {result.returncode}\n{result.stderr}"
 
     def test_no_old_brand_in_help(self):
         """specify-zh --help should not contain old brand name 'Specify CLI' (without -zh)."""
@@ -71,9 +78,9 @@ class TestSmokeCLI:
         # "specify-cli-zh" is OK, standalone "Specify CLI" (without -zh) should not appear
         # Strip occurrences of "specify-cli-zh" before checking
         sanitized = output.replace("specify-cli-zh", "").replace("specify-zh", "")
-        assert "Specify CLI" not in sanitized, (
-            f"Old brand 'Specify CLI' found in help output:\n{output}"
-        )
+        assert (
+            "Specify CLI" not in sanitized
+        ), f"Old brand 'Specify CLI' found in help output:\n{output}"
 
 
 class TestPyprojectScripts:

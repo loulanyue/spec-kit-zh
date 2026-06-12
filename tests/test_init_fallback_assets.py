@@ -24,19 +24,26 @@ def _make_fake_asset_root(root: Path) -> Path:
     (root / "templates" / "spec-template.md").write_text("# spec\n", encoding="utf-8")
     (root / "templates" / "plan-template.md").write_text("# plan\n", encoding="utf-8")
     (root / "templates" / "tasks-template.md").write_text("# tasks\n", encoding="utf-8")
-    (root / "templates" / "constitution-template.md").write_text("# constitution\n", encoding="utf-8")
-    (root / "templates" / "checklist-template.md").write_text("# checklist\n", encoding="utf-8")
-    (root / "templates" / "agent-file-template.md").write_text("# agent\n", encoding="utf-8")
+    (root / "templates" / "constitution-template.md").write_text(
+        "# constitution\n", encoding="utf-8"
+    )
+    (root / "templates" / "checklist-template.md").write_text(
+        "# checklist\n", encoding="utf-8"
+    )
+    (root / "templates" / "agent-file-template.md").write_text(
+        "# agent\n", encoding="utf-8"
+    )
     (root / "templates" / "vscode-settings.json").write_text("{}", encoding="utf-8")
     (root / "templates" / "commands" / "specify.md").write_text(
-        "---\n"
-        "description: test\n"
-        "---\n\n"
-        "run $ARGUMENTS\n",
+        "---\n" "description: test\n" "---\n\n" "run $ARGUMENTS\n",
         encoding="utf-8",
     )
-    (root / "scripts" / "bash" / "common.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
-    (root / "scripts" / "powershell" / "common.ps1").write_text("# powershell\n", encoding="utf-8")
+    (root / "scripts" / "bash" / "common.sh").write_text(
+        "#!/usr/bin/env bash\n", encoding="utf-8"
+    )
+    (root / "scripts" / "powershell" / "common.ps1").write_text(
+        "# powershell\n", encoding="utf-8"
+    )
     return root
 
 
@@ -44,10 +51,14 @@ def test_bootstrap_template_prefers_packaged_assets(tmp_path, monkeypatch):
     asset_root = _make_fake_asset_root(tmp_path / "bundled")
     project_path = tmp_path / "project"
 
-    monkeypatch.setattr(specify_cli, "_bundled_asset_root_from_package", lambda: asset_root)
+    monkeypatch.setattr(
+        specify_cli, "_bundled_asset_root_from_package", lambda: asset_root
+    )
 
     def _unexpected_clone(*args, **kwargs):
-        raise AssertionError("git clone should not run when bundled assets are available")
+        raise AssertionError(
+            "git clone should not run when bundled assets are available"
+        )
 
     monkeypatch.setattr(specify_cli.subprocess, "run", _unexpected_clone)
 

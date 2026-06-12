@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.9.1] - 2026-06-12
+
+### Fixed
+
+- Fixed linting issues (E701, F401, F841) in Python source files and test files.
+- Added executable file path output to the `version` command table for improved visibility and troubleshooting.
+
+### Changed
+
+- Reformatted all Python files using Ruff to ensure consistent code styling across the repository.
+
 ## [0.9.0] - 2026-04-24
 
 ### Added

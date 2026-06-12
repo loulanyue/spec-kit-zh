@@ -56,8 +56,20 @@ class TestAgentConfigConsistency:
 
     def test_release_agent_lists_include_kiro_cli_and_exclude_q(self):
         """Bash and PowerShell release scripts should agree on agent key set for Kiro."""
-        sh_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.sh").read_text(encoding="utf-8")
-        ps_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.ps1").read_text(encoding="utf-8")
+        sh_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.sh"
+        ).read_text(encoding="utf-8")
+        ps_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.ps1"
+        ).read_text(encoding="utf-8")
 
         sh_match = re.search(r"ALL_AGENTS=\(([^)]*)\)", sh_text)
         assert sh_match is not None
@@ -78,7 +90,13 @@ class TestAgentConfigConsistency:
 
     def test_release_ps_switch_has_shai_and_agy_generation(self):
         """PowerShell release builder must generate files for shai and agy agents."""
-        ps_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.ps1").read_text(encoding="utf-8")
+        ps_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.ps1"
+        ).read_text(encoding="utf-8")
 
         assert re.search(r"'shai'\s*\{.*?\.shai/commands", ps_text, re.S) is not None
         assert re.search(r"'agy'\s*\{.*?\.agent/workflows", ps_text, re.S) is not None
@@ -92,17 +110,36 @@ class TestAgentConfigConsistency:
 
     def test_devcontainer_kiro_installer_uses_pinned_checksum(self):
         """Devcontainer installer should always verify Kiro installer via pinned SHA256."""
-        post_create_text = (REPO_ROOT / ".devcontainer" / "post-create.sh").read_text(encoding="utf-8")
+        post_create_text = (REPO_ROOT / ".devcontainer" / "post-create.sh").read_text(
+            encoding="utf-8"
+        )
 
-        assert 'KIRO_INSTALLER_SHA256="7487a65cf310b7fb59b357c4b5e6e3f3259d383f4394ecedb39acf70f307cffb"' in post_create_text
+        assert (
+            'KIRO_INSTALLER_SHA256="7487a65cf310b7fb59b357c4b5e6e3f3259d383f4394ecedb39acf70f307cffb"'
+            in post_create_text
+        )
         assert "sha256sum -c -" in post_create_text
         assert "KIRO_SKIP_KIRO_INSTALLER_VERIFY" not in post_create_text
 
     def test_release_output_targets_kiro_prompt_dir(self):
         """Packaging and release scripts should no longer emit amazonq artifacts."""
-        sh_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.sh").read_text(encoding="utf-8")
-        ps_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.ps1").read_text(encoding="utf-8")
-        gh_release_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-github-release.sh").read_text(encoding="utf-8")
+        sh_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.sh"
+        ).read_text(encoding="utf-8")
+        ps_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.ps1"
+        ).read_text(encoding="utf-8")
+        gh_release_text = (
+            REPO_ROOT / ".github" / "workflows" / "scripts" / "create-github-release.sh"
+        ).read_text(encoding="utf-8")
 
         assert ".kiro/prompts" in sh_text
         assert ".kiro/prompts" in ps_text
@@ -116,8 +153,12 @@ class TestAgentConfigConsistency:
 
     def test_agent_context_scripts_use_kiro_cli(self):
         """Agent context scripts should advertise kiro-cli and not legacy q agent key."""
-        bash_text = (REPO_ROOT / "scripts" / "bash" / "update-agent-context.sh").read_text(encoding="utf-8")
-        pwsh_text = (REPO_ROOT / "scripts" / "powershell" / "update-agent-context.ps1").read_text(encoding="utf-8")
+        bash_text = (
+            REPO_ROOT / "scripts" / "bash" / "update-agent-context.sh"
+        ).read_text(encoding="utf-8")
+        pwsh_text = (
+            REPO_ROOT / "scripts" / "powershell" / "update-agent-context.ps1"
+        ).read_text(encoding="utf-8")
 
         assert "kiro-cli" in bash_text
         assert "kiro-cli" in pwsh_text
@@ -147,8 +188,20 @@ class TestAgentConfigConsistency:
 
     def test_release_agent_lists_include_tabnine(self):
         """Bash and PowerShell release scripts should include tabnine in agent lists."""
-        sh_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.sh").read_text(encoding="utf-8")
-        ps_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.ps1").read_text(encoding="utf-8")
+        sh_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.sh"
+        ).read_text(encoding="utf-8")
+        ps_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.ps1"
+        ).read_text(encoding="utf-8")
 
         sh_match = re.search(r"ALL_AGENTS=\(([^)]*)\)", sh_text)
         assert sh_match is not None
@@ -163,24 +216,45 @@ class TestAgentConfigConsistency:
 
     def test_release_scripts_generate_tabnine_toml_commands(self):
         """Release scripts should generate TOML commands for tabnine in .tabnine/agent/commands."""
-        sh_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.sh").read_text(encoding="utf-8")
-        ps_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-release-packages.ps1").read_text(encoding="utf-8")
+        sh_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.sh"
+        ).read_text(encoding="utf-8")
+        ps_text = (
+            REPO_ROOT
+            / ".github"
+            / "workflows"
+            / "scripts"
+            / "create-release-packages.ps1"
+        ).read_text(encoding="utf-8")
 
         assert ".tabnine/agent/commands" in sh_text
         assert ".tabnine/agent/commands" in ps_text
-        assert re.search(r"'tabnine'\s*\{.*?\.tabnine/agent/commands", ps_text, re.S) is not None
+        assert (
+            re.search(r"'tabnine'\s*\{.*?\.tabnine/agent/commands", ps_text, re.S)
+            is not None
+        )
 
     def test_github_release_includes_tabnine_packages(self):
         """GitHub release script should include tabnine template packages."""
-        gh_release_text = (REPO_ROOT / ".github" / "workflows" / "scripts" / "create-github-release.sh").read_text(encoding="utf-8")
+        gh_release_text = (
+            REPO_ROOT / ".github" / "workflows" / "scripts" / "create-github-release.sh"
+        ).read_text(encoding="utf-8")
 
         assert "spec-kit-template-tabnine-sh-" in gh_release_text
         assert "spec-kit-template-tabnine-ps-" in gh_release_text
 
     def test_agent_context_scripts_include_tabnine(self):
         """Agent context scripts should support tabnine agent type."""
-        bash_text = (REPO_ROOT / "scripts" / "bash" / "update-agent-context.sh").read_text(encoding="utf-8")
-        pwsh_text = (REPO_ROOT / "scripts" / "powershell" / "update-agent-context.ps1").read_text(encoding="utf-8")
+        bash_text = (
+            REPO_ROOT / "scripts" / "bash" / "update-agent-context.sh"
+        ).read_text(encoding="utf-8")
+        pwsh_text = (
+            REPO_ROOT / "scripts" / "powershell" / "update-agent-context.ps1"
+        ).read_text(encoding="utf-8")
 
         assert "tabnine" in bash_text
         assert "TABNINE_FILE" in bash_text

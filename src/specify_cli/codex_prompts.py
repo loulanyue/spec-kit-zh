@@ -79,7 +79,9 @@ def _replace_speckit_frontmatter_refs(value):
     if isinstance(value, list):
         return [_replace_speckit_frontmatter_refs(item) for item in value]
     if isinstance(value, dict):
-        return {key: _replace_speckit_frontmatter_refs(item) for key, item in value.items()}
+        return {
+            key: _replace_speckit_frontmatter_refs(item) for key, item in value.items()
+        }
     return value
 
 
@@ -94,8 +96,12 @@ def render_codex_prompt(template_path: Path) -> tuple[str, str]:
     frontmatter, body = parse_markdown_command_template(template_path)
     rendered_frontmatter = _replace_speckit_frontmatter_refs(dict(frontmatter))
     rendered_frontmatter.setdefault("argument-hint", CODEX_ARGUMENT_HINT)
-    frontmatter_text = yaml.safe_dump(rendered_frontmatter, sort_keys=False, allow_unicode=True).strip()
-    content = f"---\n{frontmatter_text}\n---\n\n{_replace_speckit_body_refs(body).rstrip()}\n"
+    frontmatter_text = yaml.safe_dump(
+        rendered_frontmatter, sort_keys=False, allow_unicode=True
+    ).strip()
+    content = (
+        f"---\n{frontmatter_text}\n---\n\n{_replace_speckit_body_refs(body).rstrip()}\n"
+    )
     return codex_prompt_filename(command_name), content
 
 

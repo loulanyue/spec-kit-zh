@@ -84,6 +84,6 @@ handleTableChange(pag) {
 |------|------|------|
 | 没有每页条数切换 | `showSizeChanger` 未配置 | 加 `showSizeChanger: true` + `pageSizeOptions` |
 | 无法快速跳页 | `showQuickJumper` 未配置 | 加 `showQuickJumper: true` |
-| 底部只显示"共 N 条" | `showTotal` 无范围信息 | 使用 `(total, range) => \`第 ${range[0]}-${range[1]} 条 / 共 ${total} 条\`` |
+| 底部只显示"共 N 条" | `showTotal` 无范围信息 | 使用 `(total, range) => \` 第 ${range[0]}-${range[1]} 条 / 共 ${total} 条\`` |
 | 切换筛选条件后数据不刷新 | 筛选 select 未绑 `@change` | 每个筛选项加 `@change="doSearch"` |
 | 切换每页条数后数量不对 | `handleTableChange` 未同步 `pageSize` | 补 `this.pagination.pageSize = pag.pageSize` |

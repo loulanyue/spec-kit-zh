@@ -107,7 +107,7 @@ updatePlan(field, checked) {
 |------|------|------|
 | `token` | String | 必填，access_token |
 | `skuNums` | String | 必填，格式：`[{"skuId":569172,"num":1}]`，最多 100 条 |
-| `area` | String | 必填，格式：`省_市_县_镇`，如 `13_1000_4277_0` |
+| `area` | String | 必填，格式：` 省_市_县_镇 `，如 `13_1000_4277_0` |
 
 **配置项**（`application-*.properties`）：
 

@@ -45,7 +45,9 @@ def test_build_doctor_recommendations_for_existing_spec_project_without_git():
     recommendations = _build_doctor_recommendations(diagnostics)
 
     assert any("git init" in item for item in recommendations)
-    assert not any("specify-zh init --here --ai claude" in item for item in recommendations)
+    assert not any(
+        "specify-zh init --here --ai claude" in item for item in recommendations
+    )
 
 
 def test_collect_doctor_diagnostics_reads_project_state(tmp_path: Path):
@@ -55,9 +57,11 @@ def test_collect_doctor_diagnostics_reads_project_state(tmp_path: Path):
 
     with patch("specify_cli.check_tool") as mock_check_tool, patch(
         "specify_cli.is_git_repo", return_value=True
-    ), patch("specify_cli._check_github_connectivity", return_value=(True, "GitHub API 可访问")), patch(
-        "specify_cli._github_token", return_value="token"
-    ):
+    ), patch(
+        "specify_cli._check_github_connectivity",
+        return_value=(True, "GitHub API 可访问"),
+    ), patch("specify_cli._github_token", return_value="token"):
+
         def fake_check(tool, tracker=None):
             return tool in {"git", "uv", "claude"}
 
