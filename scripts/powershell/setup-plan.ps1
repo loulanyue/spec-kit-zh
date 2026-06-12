@@ -36,9 +36,13 @@ New-Item -ItemType Directory -Path $paths.FEATURE_DIR -Force | Out-Null
 $template = Join-Path $paths.REPO_ROOT '.specify/templates/plan-template.md'
 if (Test-Path $template) { 
     Copy-Item $template $paths.IMPL_PLAN -Force
-    Write-Output "已复制计划模板到 $($paths.IMPL_PLAN)"
+    if (-not $Json) {
+        Write-Output "已复制计划模板到 $($paths.IMPL_PLAN)"
+    }
 } else {
-    Write-Warning "未在 $template 找到计划模板"
+    if (-not $Json) {
+        Write-Warning "未在 $template 找到计划模板"
+    }
     # Create a basic plan file if template doesn't exist
     New-Item -ItemType File -Path $paths.IMPL_PLAN -Force | Out-Null
 }

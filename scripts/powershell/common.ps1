@@ -2,6 +2,8 @@
 # spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 # Common PowerShell functions analogous to common.sh
 
+$ErrorActionPreference = 'Stop'
+
 function Get-RepoRoot {
     try {
         $result = git rev-parse --show-toplevel 2>$null
