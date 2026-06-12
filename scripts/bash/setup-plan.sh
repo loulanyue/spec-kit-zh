@@ -41,9 +41,13 @@ mkdir -p "$FEATURE_DIR"
 TEMPLATE="$REPO_ROOT/.specify/templates/plan-template.md"
 if [[ -f "$TEMPLATE" ]]; then
     cp "$TEMPLATE" "$IMPL_PLAN"
-    echo "已复制计划模板到 $IMPL_PLAN"
+    if ! $JSON_MODE; then
+        echo "已复制计划模板到 $IMPL_PLAN"
+    fi
 else
-    echo "警告：未在 $TEMPLATE 找到计划模板"
+    if ! $JSON_MODE; then
+        echo "警告：未在 $TEMPLATE 找到计划模板" >&2
+    fi
     # Create a basic plan file if template doesn't exist
     touch "$IMPL_PLAN"
 fi
