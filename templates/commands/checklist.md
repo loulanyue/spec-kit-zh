@@ -44,9 +44,9 @@ $ARGUMENTS
 
 ## 执行步骤
 
-1. **Setup**: Run `{SCRIPT}` from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS list.
-   - All file paths must be absolute.
-   - For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. **设置**：从仓库根目录运行 `{SCRIPT}` 并解析 JSON 输出，获取 FEATURE_DIR 和 AVAILABLE_DOCS 列表。
+   - 所有文件路径必须是绝对路径。
+   - 对于参数中的单引号（例如 "I'm Groot"），使用转义语法：例如 `'I'\''m Groot'`（或尽量使用双引号）。
 
 2. **Clarify intent (dynamic)**: Derive up to THREE initial contextual clarifying questions (no pre-baked catalog). They MUST:
    - Be generated from the user's phrasing + extracted signals from spec/plan/tasks

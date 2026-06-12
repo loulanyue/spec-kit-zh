@@ -24,14 +24,14 @@ $ARGUMENTS
 ## 执行前检查
 
 **检查扩展 hooks（实施前）**：
-- Check if `.specify/extensions.yml` exists in the project root.
-- If it exists, read it and look for entries under the `hooks.before_implement` key
-- If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
-- Filter to only hooks where `enabled: true`
-- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
-  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
-  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
-- For each executable hook, output the following based on its `optional` flag:
+- 检查项目根目录下是否存在 `.specify/extensions.yml`。
+- 如果存在，读取该文件并查找 `hooks.before_implement` 键下的条目。
+- 如果 YAML 无法解析或无效，默默跳过 hook 检查并照常继续。
+- 仅过滤出 `enabled: true` 的 hooks。
+- 对于每个保留的 hook，**不要**尝试解释或评估 hook 中的 `condition` 表达式：
+  - 如果 hook 没有 `condition` 字段，或者该字段为空 /Null，则将该 hook 视为可执行。
+  - 如果 hook 定义了非空的 `condition`，跳过该 hook，将条件评估交给 HookExecutor 实现。
+- 对于每个可执行的 hook，根据其 `optional` 标志输出以下内容：
   - **Optional hook** (`optional: true`):
     ```
     ## Extension Hooks
@@ -183,13 +183,13 @@ $ARGUMENTS
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running the tasks command first to regenerate the task list: most agents use `/speckit.tasks`, while Codex CLI uses `/prompts:speckit-tasks`.
 
 10. **检查扩展 hooks**：在完成验证后，检查项目根目录是否存在 `.specify/extensions.yml`。
-    - If it exists, read it and look for entries under the `hooks.after_implement` key
-    - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
-    - Filter to only hooks where `enabled: true`
-    - For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
-      - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
-      - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
-    - For each executable hook, output the following based on its `optional` flag:
+    - 如果存在，读取该文件并查找 `hooks.after_implement` 键下的条目。
+    - 如果 YAML 无法解析或无效，默默跳过 hook 检查并照常继续。
+    - 仅过滤出 `enabled: true` 的 hooks。
+    - 对于每个保留的 hook，**不要**尝试解释或评估 hook 中的 `condition` 表达式：
+      - 如果 hook 没有 `condition` 字段，或者该字段为空 /Null，则将该 hook 视为可执行。
+      - 如果 hook 定义了非空的 `condition`，跳过该 hook，将条件评估交给 HookExecutor 实现。
+    - 对于每个可执行的 hook，根据其 `optional` 标志输出以下内容：
       - **Optional hook** (`optional: true`):
         ```
         ## Extension Hooks
