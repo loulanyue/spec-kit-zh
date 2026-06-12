@@ -2093,6 +2093,78 @@ def _print_json_error(msg: str):
     sys.stdout.write(json.dumps({"status": "error", "message": msg}) + "\n")
 
 
+def _validate_init_args(
+    project_name: Optional[str],
+    ai_assistant: Optional[str],
+    ai_commands_dir: Optional[str],
+    here: bool,
+    ai_skills: bool,
+    json_output: bool,
+) -> Tuple[Optional[str], Optional[str], bool]:
+    """Validate arguments for the init command and return resolved (project_name, ai_assistant, here)."""
+    # Detect when option values are likely misinterpreted flags (parameter ordering issue)
+    if ai_assistant and ai_assistant.startswith("--"):
+        console.print(f"[red]Error:[/red] Invalid value for --ai: '{ai_assistant}'")
+        console.print("[yellow]提示：[/yellow] 你可能忘了给 --ai 提供取值。")
+        console.print("[yellow]示例：[/yellow] specify-zh init --ai claude --here")
+        console.print(
+            f"[yellow]可用 agents：[/yellow] {', '.join(AGENT_CONFIG.keys())}"
+        )
+        if json_output:
+            _print_json_error(f"Invalid value for --ai: '{ai_assistant}'")
+        raise typer.Exit(1)
+
+    if ai_commands_dir and ai_commands_dir.startswith("--"):
+        console.print(
+            f"[red]Error:[/red] Invalid value for --ai-commands-dir: '{ai_commands_dir}'"
+        )
+        console.print(
+            "[yellow]提示：[/yellow] 你可能忘了给 --ai-commands-dir 提供取值。"
+        )
+        console.print(
+            "[yellow]示例：[/yellow] specify-zh init --ai generic --ai-commands-dir .myagent/commands/"
+        )
+        raise typer.Exit(1)
+
+    if ai_assistant:
+        ai_assistant = AI_ASSISTANT_ALIASES.get(ai_assistant, ai_assistant)
+
+    if project_name == ".":
+        here = True
+        project_name = None  # Clear project_name to use existing validation logic
+
+    if here and project_name:
+        console.print("[red]错误：[/red] 不能同时指定项目名和 --here")
+        if json_output:
+            _print_json_error("不能同时指定项目名和 --here")
+        raise typer.Exit(1)
+
+    if not here and not project_name:
+        if sys.stdin.isatty() and not json_output:
+            project_name = typer.prompt(
+                "请输入新项目目录名称（或输入 '.' 在当前目录初始化）"
+            )
+            if project_name == ".":
+                here = True
+                project_name = None
+        else:
+            console.print(
+                "[red]错误：[/red] 必须提供项目名，或使用 '.' 表示当前目录，或使用 --here"
+            )
+            if json_output:
+                _print_json_error("必须提供项目名")
+            raise typer.Exit(1)
+
+    if ai_skills and not ai_assistant:
+        console.print("[red]错误：[/red] --ai-skills 必须搭配 --ai 使用")
+        console.print(
+            "[yellow]Usage:[/yellow] specify-zh init <project> --ai <agent> --ai-skills"
+        )
+        raise typer.Exit(1)
+
+    return project_name, ai_assistant, here
+
+
 @app.command()
 def init(
     project_name: Optional[str] = typer.Argument(
@@ -2174,64 +2246,14 @@ def init(
     show_banner()
 
     # Detect when option values are likely misinterpreted flags (parameter ordering issue)
-    if ai_assistant and ai_assistant.startswith("--"):
-        console.print(f"[red]Error:[/red] Invalid value for --ai: '{ai_assistant}'")
-        console.print("[yellow]提示：[/yellow] 你可能忘了给 --ai 提供取值。")
-        console.print("[yellow]示例：[/yellow] specify-zh init --ai claude --here")
-        console.print(
-            f"[yellow]可用 agents：[/yellow] {', '.join(AGENT_CONFIG.keys())}"
-        )
-        if json_output:
-            _print_json_error(f"Invalid value for --ai: '{ai_assistant}'")
-        raise typer.Exit(1)
-
-    if ai_commands_dir and ai_commands_dir.startswith("--"):
-        console.print(
-            f"[red]Error:[/red] Invalid value for --ai-commands-dir: '{ai_commands_dir}'"
-        )
-        console.print(
-            "[yellow]提示：[/yellow] 你可能忘了给 --ai-commands-dir 提供取值。"
-        )
-        console.print(
-            "[yellow]示例：[/yellow] specify-zh init --ai generic --ai-commands-dir .myagent/commands/"
-        )
-        raise typer.Exit(1)
-
-    if ai_assistant:
-        ai_assistant = AI_ASSISTANT_ALIASES.get(ai_assistant, ai_assistant)
-
-    if project_name == ".":
-        here = True
-        project_name = None  # Clear project_name to use existing validation logic
-
-    if here and project_name:
-        console.print("[red]错误：[/red] 不能同时指定项目名和 --here")
-        if json_output:
-            _print_json_error("不能同时指定项目名和 --here")
-        raise typer.Exit(1)
-
-    if not here and not project_name:
-        if sys.stdin.isatty() and not json_output:
-            project_name = typer.prompt(
-                "请输入新项目目录名称（或输入 '.' 在当前目录初始化）"
-            )
-            if project_name == ".":
-                here = True
-                project_name = None
-        else:
-            console.print(
-                "[red]错误：[/red] 必须提供项目名，或使用 '.' 表示当前目录，或使用 --here"
-            )
-            if json_output:
-                _print_json_error("必须提供项目名")
-            raise typer.Exit(1)
-
-    if ai_skills and not ai_assistant:
-        console.print("[red]错误：[/red] --ai-skills 必须搭配 --ai 使用")
-        console.print(
-            "[yellow]Usage:[/yellow] specify-zh init <project> --ai <agent> --ai-skills"
-        )
-        raise typer.Exit(1)
+    project_name, ai_assistant, here = _validate_init_args(
+        project_name=project_name,
+        ai_assistant=ai_assistant,
+        ai_commands_dir=ai_commands_dir,
+        here=here,
+        ai_skills=ai_skills,
+        json_output=json_output,
+    )
 
     if here:
         project_name = Path.cwd().name
