@@ -56,11 +56,12 @@ git diff HEAD upstream/main -- templates/ src/
 对比上游变更，按以下优先级分类：
 
 | 变更类型 | 处理方式 |
-|----------|---------|
+|----------|---------| 
 | 功能性增强（新命令、新模板、逻辑修复） | **cherry-pick**，并追加中文翻译 |
 | Bug 修复 | **cherry-pick**，保留原有修复 |
 | 纯英文文案变更（提示语、注释） | **忽略**，保留中文本地化版本 |
 | 架构重构 | **评估**，若影响较大，专开 PR 讨论 |
+| 新增测试用例 | **评估**，若与中文化逻辑无关则直接采纳 |
 
 ### 第 3 步：应用功能性变更
 
@@ -79,6 +80,7 @@ git checkout upstream/main -- templates/commands/new-command.md
 1. 翻译新增的英文 UI 文案和注释
 2. 对照 [TERMINOLOGY.md](../TERMINOLOGY.md) 统一术语
 3. 确保模板文件符合 P4-22 标准（正文为中文，代码/命令保留英文）
+4. 检查新增的 Codex 提示词是否需要同步更新，必要时重新运行 `specify-zh codex-sync`
 
 ### 第 5 步：更新版本与日志
 
@@ -96,6 +98,9 @@ echo "v1.5.0" > .upstream-sync-version
 ### 第 6 步：验证与发布
 
 ```bash
+# 运行 lint 检查
+make lint
+
 # 运行 smoke test
 make smoke
 
@@ -122,6 +127,7 @@ git push origin sync/upstream-v1.5.0
 - 不回退已完成的中文化工作
 - 上游增加新章节 → 翻译后追加
 - 上游删除章节 → 评估本仓库是否也应删除（若已有中文用户依赖，可保留并标注）
+- 上游重命名命令或参数 → 在 [CHANGELOG.md](../CHANGELOG.md) 中记录迁移说明，并同步更新 `docs/migration.md`
 
 ---
 
@@ -133,3 +139,4 @@ git push origin sync/upstream-v1.5.0
 | `.github/workflows/upstream-sync.yml` | 自动检测 workflow |
 | `CHANGELOG.md` | 记录每次同步引入的变更 |
 | `TERMINOLOGY.md` | 中文术语对照表，同步时参考 |
+| `docs/migration.md` | 面向用户的版本迁移指南 |

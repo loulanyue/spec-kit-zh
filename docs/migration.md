@@ -23,12 +23,51 @@
 3. **术语统一**
    新版对规范驱动开发（SDD）的各术语进行了权威界定。请参考项目仓库中的 [TERMINOLOGY.md](../TERMINOLOGY.md)。
 
+## 版本升级（v0.8.x → v0.9.x）
+
+v0.9.x 引入了以下不兼容变更，请在升级后检查：
+
+| 变更点 | v0.8.x 行为 | v0.9.x 行为 | 处理建议 |
+|--------|-------------|-------------|----------|
+| Codex 提示词命名空间 | `/speckit:command` | `/prompts:speckit-command` | 重新运行 `specify-zh codex-sync` 更新提示词文件 |
+| Codex 同步命令 | 无独立命令 | `specify-zh codex-sync` | 初次升级后运行一次 `codex-sync` |
+| 回退资源优先级 | 本地 → GitLab → GitHub | 打包资源 → GitLab → 本地 | 无需操作，行为自动生效 |
+
+升级步骤：
+
+```bash
+# 卸载旧版本
+uv tool uninstall specify-cli-zh
+
+# 安装最新版
+uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git
+
+# 在已有项目中重新同步 Codex 提示词
+cd your-project
+specify-zh codex-sync
+```
+
 ## 文件覆盖指南
 
 以下文件我们**不建议**在此次迁移中删除（请原样保留）：
+
 - 根目录下的所有业务代码
 - `.specify/` 目录结构（这是识别项目的核心标志）
 - 现有的业务沉淀文件：`spec.md` (需求), `plan.md` (计划), `tasks.md` (任务)
 
 以下文件我们**强烈建议**覆盖为新版：
+
 - `.claude/commands/`, `.cursor/commands/`, 或您正在使用的其他对应的 Agent 系统 prompt 文件集。
+- `.codex/prompts/speckit-*.md`（Codex 用户）——运行 `specify-zh codex-sync` 自动更新。
+
+## 回滚方案
+
+如果升级后遇到不可预期的问题，您可以回滚到历史版本：
+
+```bash
+# 安装指定版本（例如 v0.8.4）
+uv tool install specify-cli-zh==0.8.4
+
+# 或者锁定到指定 Git 提交
+uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git@<commit-hash>
+```

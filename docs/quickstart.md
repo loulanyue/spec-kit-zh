@@ -31,6 +31,9 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PRO
 uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PROJECT_NAME> --script sh  # Force POSIX shell
 ```
 
+> [!TIP]
+> 如果你在国内网络环境下访问 GitHub 较慢，请参考 [china-network.md](./china-network.md) 了解代理配置方案。
+
 ### 第 2 步：定义项目章程
 
 在 AI Agent 的聊天界面中，使用 `/speckit.constitution` slash command 为项目建立核心规则与原则。Codex 用户请使用 `/prompts:speckit-constitution`。
@@ -58,6 +61,9 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PRO
 ```bash
 /prompts:speckit-clarify Focus on security and performance requirements.
 ```
+
+> [!NOTE]
+> `clarify` 命令每次会话最多提出 5 个高优先级问题，并将答案直接写回 `spec.md`。你可以多次运行 `clarify` 来完善不同方面的需求。
 
 ### 第 5 步：生成技术实施计划
 
@@ -89,6 +95,23 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init <PRO
 
 > [!TIP]
 > **分阶段实施**：对于复杂项目，建议按阶段实施，避免一次性压满 agent 上下文。先完成核心能力并验证可用，再逐步增加功能。
+
+---
+
+## 命令速查表
+
+| 命令（通用） | 命令（Codex CLI） | 说明 |
+|-------------|------------------|------|
+| `/speckit.constitution` | `/prompts:speckit-constitution` | 定义项目章程与约束 |
+| `/speckit.specify` | `/prompts:speckit-specify` | 创建功能规范 |
+| `/speckit.clarify` | `/prompts:speckit-clarify` | 澄清规范中的歧义 |
+| `/speckit.checklist` | `/prompts:speckit-checklist` | 验证规范质量 |
+| `/speckit.plan` | `/prompts:speckit-plan` | 生成技术实施计划 |
+| `/speckit.tasks` | `/prompts:speckit-tasks` | 生成可执行任务清单 |
+| `/speckit.analyze` | `/prompts:speckit-analyze` | 一致性分析（只读） |
+| `/speckit.implement` | `/prompts:speckit-implement` | 按阶段执行实施 |
+
+---
 
 ## 详细示例：构建 Taskify
 
@@ -173,6 +196,8 @@ first testing thing to ensure that our basic features are set up.
 > [!TIP]
 > **分阶段实施**：对于像 Taskify 这样的大项目，建议按阶段实施（例如第 1 阶段：项目/任务基础结构；第 2 阶段：Kanban 能力；第 3 阶段：评论与分配）。这样可以避免上下文过载，并支持每个阶段单独验证。
 
+---
+
 ## 关键原则
 
 - **明确表达** 你要构建什么，以及为什么构建
@@ -185,4 +210,5 @@ first testing thing to ensure that our basic features are set up.
 
 - 阅读 [完整方法论](../spec-driven.md) 获取更深入的说明
 - 查看仓库中的 [更多模板与示例](../templates)
+- 遇到问题？参考 [常见问题与排错](./troubleshooting.md)
 - 浏览 [GitHub 上的源码](https://github.com/loulanyue/spec-kit-zh)
