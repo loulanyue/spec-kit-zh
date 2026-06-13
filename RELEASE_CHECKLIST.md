@@ -4,15 +4,33 @@
 
 每次向公众发布新版本的 `specify-cli-zh` 之前，请严格对照以下清单逐项验证：
 
+### 版本与文档
+
 - [ ] `pyproject.toml` 中的版本号已更新为发布目标的版本号。
-- [ ] `CHANGELOG.md` 中已添加新版本的变更说明记录。
+- [ ] `CHANGELOG.md` 中已添加新版本的变更说明记录，且条目标题格式为 `## [x.y.z] - YYYY-MM-DD`。
 - [ ] 本地运行 `specify-zh --version`，确认输出的版本号与 `pyproject.toml` 完全一致。
 - [ ] 运行 `specify-zh --help`，确认全局帮助文本中**均无**陈旧的英文品牌名（如 `Specify CLI`）。
+
+### 测试与构建
+
 - [ ] 全量测试及 Smoke test 已 100% 通过（运行 `make smoke` 及 `pytest`）。
+- [ ] 运行 `make lint` 确认无任何 ruff 代码风格违规。
+- [ ] GitHub Actions CI（Lint, Test, Smoke, Brand-guard）全部绿灯通过。
+
+### 资产与安装
+
 - [ ] 运行 `.github/workflows/scripts/create-release-packages.sh` 或 `create-release-packages.ps1`，确认当前 agent 清单的模板包都能生成。
 - [ ] 核对发布资产前缀，确认包含 `kiro-cli`、`shai`、`agy`、`tabnine`，且不再出现旧的 `q` 包名。
 - [ ] `README.md` 项目顶部的 `Version` 或 `Release` 徽章状态正确。
 - [ ] `docs/installation.md` 等相关安装指南内描述的命令仍能工作，必要时更新对应的版本说明。
-- [ ] 清理和测试所有的文档链接，确认没有任何死链（404）。
+
+### 链接与文档质量
+
+- [ ] 清理和测试所有的文档链接，确认没有任何死链（404）。可运行 `make link-check` 进行本地检查。
+- [ ] `docs/troubleshooting.md` 涵盖了本次版本新引入的常见错误场景。
+- [ ] `TERMINOLOGY.md` 对新功能引入的术语已有定义。
+
+### 最终验证
+
 - [ ] 在全新的机器或隔离环境中运行 `uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git` 等安装测试并确认工作。
-- [ ] GitHub Actions CI（Lint, Test, Smoke, Brand-guard）全部绿灯通过。
+- [ ] 完成上述所有检查后，在 GitHub 上创建 Release Tag，格式为 `vx.y.z`。

@@ -46,6 +46,7 @@ specify-zh init --here
 **解决方案**：请依照提示中的链接进行安装，常见工具安装命令如下：
 - **Claude Code**: `npm install -g @anthropic-ai/claude-code`
 - **Gemini CLI**: `npm install -g @google/gemini-cli`
+
 如果您不需要检测，可追加 `--ignore-agent-tools` 强行跳过。
 
 ### 6. 初始化时网络超时 (Timeout) 或连接中断
@@ -57,3 +58,47 @@ export HTTPS_PROXY=http://127.0.0.1:7890
 export HTTP_PROXY=http://127.0.0.1:7890
 ```
 或直接使用本地离线模板方案：将模板手动下载到本地解压后执行 `specify-zh init --template-dir <本地路径>`。
+
+### 7. `specify-zh` 命令找不到（command not found）
+
+使用 `uv tool install` 安装后，系统找不到 `specify-zh` 命令。
+**解决方案**：确保 `uv` 的工具目录已添加到 `PATH`：
+```bash
+# 查看 uv 工具目录位置
+uv tool dir
+
+# 将其加入 PATH（以 ~/.bashrc 为例）
+export PATH="$(uv tool dir)/bin:$PATH"
+```
+也可以重新打开终端，让 shell 重新加载配置。
+
+### 8. Codex 提示词同步失败 (`codex-sync` 报错)
+
+执行 `specify-zh codex-sync` 时报权限或路径错误。
+**解决方案**：
+
+1. 确认 `~/.codex/prompts/` 目录存在且有写权限：
+   ```bash
+   mkdir -p ~/.codex/prompts
+   chmod 755 ~/.codex/prompts
+   ```
+2. 在项目根目录（包含 `spec.md` 或已 `init` 的目录）重新运行：
+   ```bash
+   specify-zh codex-sync
+   ```
+
+### 9. 运行测试时报 `pytest: command not found`
+
+**解决方案**：使用 `uv run` 前缀在项目虚拟环境中运行 pytest：
+```bash
+uv run pytest
+```
+或通过 Makefile 快捷方式：
+```bash
+make test
+```
+
+### 10. 版本号与 CHANGELOG 不一致导致 CI 失败
+
+Brand Guard 流水线检测到 `pyproject.toml` 中的版本号在 `CHANGELOG.md` 中找不到对应条目。
+**解决方案**：在发布前按照 [RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md) 逐项核对，确保 `CHANGELOG.md` 已添加对应版本的条目。

@@ -15,7 +15,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.9.2] - 2026-06-13
+
+### Added
+
+- Added Python 3.12 to the CI test matrix to proactively verify compatibility with the latest stable release.
+- Added `make typecheck` target to the `Makefile` for running `mypy` static type checks.
+- Added `make coverage` target to the `Makefile` for generating a line-coverage HTML report with `pytest-cov`.
+- Added a `permissions: contents: read` block to `ci.yml` to follow least-privilege security practices in GitHub Actions.
+- Added a version-consistency check step to the CI `brand-guard` job, ensuring `CHANGELOG.md` always has an entry matching the version declared in `pyproject.toml`.
+- Added four new troubleshooting entries: `command not found` after install, `codex-sync` permission errors, `pytest` not found without `uv run`, and CI brand-guard version mismatch.
+
+### Changed
+
+- Expanded `TERMINOLOGY.md` with a structured table format covering 20+ project-specific terms and additional writing guidelines.
+- Enriched `SUPPORT.md` with a link to the troubleshooting guide, a structured bug-report template, and feature request guidance.
+- Expanded `RELEASE_CHECKLIST.md` with grouped sections (Version & Docs, Tests & Build, Assets, Links & Docs, Final) and additional checklist items for lint, dead-link check, terminology coverage, and CHANGELOG format.
+- Improved `Makefile` help text alignment and added descriptions for all new targets.
+
 ## [0.9.1] - 2026-06-12
+
 
 ### Fixed
 

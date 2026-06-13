@@ -3,18 +3,20 @@ PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: help venv install format lint test smoke check link-check clean
+.PHONY: help venv install format lint typecheck test smoke coverage check link-check clean
 
 help:
-	@echo "make venv       - create virtualenv"
-	@echo "make install    - install project + dev deps"
-	@echo "make format     - format code"
-	@echo "make lint       - run lint checks"
-	@echo "make test       - run tests"
-	@echo "make smoke      - run smoke tests (CLI entry point validation)"
-	@echo "make check      - full validation"
-	@echo "make link-check - check for broken links in Markdown docs"
-	@echo "make clean      - remove caches/build artifacts"
+	@echo "make venv        - create virtualenv"
+	@echo "make install     - install project + dev deps"
+	@echo "make format      - format code with ruff"
+	@echo "make lint        - run ruff lint checks"
+	@echo "make typecheck   - run mypy type checks"
+	@echo "make test        - run unit tests"
+	@echo "make smoke       - run smoke tests (CLI entry point validation)"
+	@echo "make coverage    - run tests with coverage report"
+	@echo "make check       - full validation (format + lint + test)"
+	@echo "make link-check  - check for broken links in Markdown docs"
+	@echo "make clean       - remove caches/build artifacts"
 
 venv:
 	$(PYTHON) -m venv $(VENV)
@@ -30,11 +32,17 @@ format:
 lint:
 	$(BIN)/ruff check .
 
+typecheck:
+	$(BIN)/mypy src/specify_cli --ignore-missing-imports --no-error-summary
+
 test:
 	$(BIN)/pytest
 
 smoke:
 	$(BIN)/pytest tests/test_smoke.py -v
+
+coverage:
+	$(BIN)/pytest --cov=src/specify_cli --cov-report=term-missing --cov-report=html
 
 link-check:
 	npx --yes markdown-link-check README.md docs/*.md --config .markdownlint-cli2.jsonc 2>/dev/null || \
