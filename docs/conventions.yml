@@ -1,22 +1,65 @@
 # spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
+# conventions.yml — Active project convention catalogue for specify-cli-zh.
+#
+# Each entry declares a convention document that an AI coding agent may
+# load when generating code that touches the described concern.
+#
+# Fields:
+#   id                — Unique machine-readable identifier (kebab-case).
+#   title             — Human-readable summary shown in agent UIs.
+#   path              — Relative path from the project root to the convention doc.
+#   enabled_by_default — When true the agent loads this doc automatically;
+#                        when false the user must opt-in via $ARGUMENTS or
+#                        an explicit mention in the prompt.
+#   tags              — Optional categorisation for tooling that filters conventions.
+#   note              — Optional short guidance shown alongside the title.
+
 conventions:
   - id: axios-response
     title: 前后端接口响应结构规约
     path: axios-response-convention.md
     enabled_by_default: true
+    tags: [frontend, backend, api]
+    note: 所有 HTTP 接口响应必须遵循本规约定义的统一数据结构。
+
   - id: db-and-mapper
     title: 数据库建表与 MyBatis Mapper 规约
     path: db-and-mapper-convention.md
     enabled_by_default: true
+    tags: [database, backend, mybatis]
+    note: 涵盖命名规范、索引策略、Mapper XML 书写约定。
+
   - id: ecp-platform
     title: ECP 平台接口对接经验
     path: ecp-platform-convention.md
     enabled_by_default: true
+    tags: [platform, integration]
+    note: 记录与 ECP 平台对接时积累的非显见约定与注意事项。
+
   - id: antd-searchbar-layout
     title: Ant Design Vue 搜索栏布局规约
     path: antd-searchbar-layout-convention.md
     enabled_by_default: false
+    tags: [frontend, ui, antd]
+    note: 仅在涉及搜索栏/过滤面板 UI 时启用。
+
   - id: antd-pagination
     title: Ant Design Vue 列表分页配置规约
     path: antd-pagination-convention.md
     enabled_by_default: false
+    tags: [frontend, ui, antd]
+    note: 仅在实现分页列表组件时启用。
+
+  - id: error-handling
+    title: 统一异常处理与错误码规约
+    path: error-handling-convention.md
+    enabled_by_default: false
+    tags: [backend, frontend, error]
+    note: 定义业务异常码体系和前后端统一的错误响应处理策略（文档待创建）。
+
+  - id: git-workflow
+    title: Git 分支与提交消息规约
+    path: git-workflow-convention.md
+    enabled_by_default: false
+    tags: [git, workflow]
+    note: 约定分支命名、Conventional Commits 格式和 PR 规范（文档待创建）。

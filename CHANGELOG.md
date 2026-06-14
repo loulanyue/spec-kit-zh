@@ -15,6 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.9.3] - 2026-06-14
+
+### Added
+
+- Added `tags` and `note` fields to every convention entry in `docs/conventions.yml`, plus two new placeholder entries (`error-handling`, `git-workflow`) and a detailed field-documentation header to guide future contributors.
+- Added a **Testing Strategy** section to `CONTRIBUTING.md` with a test coverage table, `pytest` command examples, and guidelines for writing new tests.
+- Added a **Code Style** section to `CONTRIBUTING.md` documenting the Ruff lint and format workflow for contributors.
+- Added a table of contents and horizontal section dividers to `CONTRIBUTING.md` for easier navigation.
+- Significantly expanded `templates/commands/taskstoissues.md` with a full 6-step execution flow: prerequisite check, task parsing (field table), remote repo validation, topological dependency sort, structured Issue body template with Labels, and summary report; plus an idempotency note.
+
+### Changed
+
+- Bumped `pyproject.toml` version to `0.9.3`.
+- Updated the PR submission checklist in `CONTRIBUTING.md` to include lint (`ruff check`) and format (`ruff format --check`) steps, and expanded the "good practices" list with Conventional Commits reference and 80% coverage goal.
+- Updated the Resources section in `CONTRIBUTING.md` to link the local development, quickstart, and migration guides.
+
 ## [0.9.2] - 2026-06-13
 
 ### Added

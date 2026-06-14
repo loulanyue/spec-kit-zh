@@ -2,9 +2,24 @@
 
 # Contributing to Spec Kit ZH
 
-Hi there! We're thrilled that you'd like to contribute to Spec Kit. Contributions to this project are [released](https://help.github.com/articles/github-terms-of-service/#6-contributions-under-repository-license) to the public under the [project's open source license](LICENSE).
+Hi there! We're thrilled that you'd like to contribute to Spec Kit ZH.
+Contributions to this project are [released](https://help.github.com/articles/github-terms-of-service/#6-contributions-under-repository-license) to the public under the [project's open source license](LICENSE).
 
 Please note that this project is released with a [Contributor Code of Conduct](https://docs.github.com/en/site-policy/github-terms/github-community-code-of-conduct). By participating in this project you agree to abide by its terms.
+
+---
+
+## 目录
+
+- [前提条件](#prerequisites-for-running-and-testing-code)
+- [提交 Pull Request](#submitting-a-pull-request)
+- [开发工作流](#development-workflow)
+- [测试策略](#testing-strategy)
+- [代码风格](#code-style)
+- [AI 辅助贡献](#ai-contributions-in-spec-kit)
+- [资源](#resources)
+
+---
 
 ## Prerequisites for running and testing code
 
@@ -32,6 +47,8 @@ On [GitHub Codespaces](https://github.com/features/codespaces) it's even simpler
 
 </details>
 
+---
+
 ## Submitting a pull request
 
 > [!NOTE]
@@ -42,18 +59,22 @@ On [GitHub Codespaces](https://github.com/features/codespaces) it's even simpler
 1. Make sure the CLI works on your machine: `uv run specify-zh --help`
 1. Create a new branch: `git checkout -b my-branch-name`
 1. Make your change, add tests, and make sure everything still works
+1. Run the full test suite: `uv run pytest`
+1. Run the linter: `uv run ruff check . && uv run ruff format --check .`
 1. Test the CLI functionality with a sample project if relevant
 1. Push to your fork and submit a pull request
 1. Wait for your pull request to be reviewed and merged.
 
 Here are a few things you can do that will increase the likelihood of your pull request being accepted:
 
-- Follow the project's coding conventions.
-- Write tests for new functionality.
-- Update documentation (`README.md`, `spec-driven.md`) if your changes affect user-facing features.
+- Follow the project's coding conventions described in `docs/conventions.yml`.
+- Write tests for new functionality. Aim to keep coverage above 80%.
+- Update documentation (`README.md`, `docs/quickstart.md`, `docs/local-development.md`) if your changes affect user-facing features.
 - Keep your change as focused as possible. If there are multiple changes you would like to make that are not dependent upon each other, consider submitting them as separate pull requests.
-- Write a [good commit message](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
+- Write a [good commit message](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) following [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`.
 - Test your changes with the Spec-Driven Development workflow to ensure compatibility with `specify-zh`.
+
+---
 
 ## Development workflow
 
@@ -63,10 +84,11 @@ When working on spec-kit-zh:
 2. Verify templates are working correctly in `templates/` directory
 3. Test script functionality in the `scripts/` directory
 4. Ensure memory files (`memory/constitution.md`) are updated if major process changes are made
+5. Run `uv run specify-zh codex-sync` to ensure Codex prompt files stay up-to-date with any template changes
 
 ### Testing template and command changes locally
 
-Running `uv run specify-zh init` pulls released packages, which won’t include your local changes.  
+Running `uv run specify-zh init` pulls released packages, which won't include your local changes.  
 To test your templates, commands, and other changes locally, follow these steps:
 
 1. **Create release packages**
@@ -92,6 +114,71 @@ To test your templates, commands, and other changes locally, follow these steps:
 4. **Open and test the agent**
 
    Navigate to your test project folder, verify `specify-zh` generated files are present, and open the agent to validate your implementation.
+
+---
+
+## Testing strategy
+
+The project uses [pytest](https://pytest.org/) for all automated testing. Key areas covered:
+
+| Test module | Coverage focus |
+|---|---|
+| `tests/test_codex_prompts.py` | Prompt rendering, frontmatter parsing, sync behavior |
+| `tests/test_cli_output.py` | Brand consistency, subcommand listing, help text |
+| `tests/test_init_validation.py` | Init argument validation helpers |
+| `tests/test_smoke.py` | End-to-end smoke tests against the installed CLI |
+
+### Running tests
+
+```bash
+# All tests
+uv run pytest
+
+# With coverage report
+uv run pytest --cov=specify_cli --cov-report=html
+
+# A single test module
+uv run pytest tests/test_codex_prompts.py -v
+```
+
+> [!TIP]
+> Use `uv run pytest -x` to stop on the first failure for fast feedback during development.
+
+### Writing tests
+
+- Place tests in the `tests/` directory with the naming convention `test_<module_name>.py`.
+- Use `tmp_path` (a pytest built-in fixture) for any file-system operations to avoid polluting the working tree.
+- New public functions in `src/specify_cli/` **must** have at least one corresponding unit test.
+
+---
+
+## Code style
+
+The project uses [Ruff](https://docs.astral.sh/ruff/) for both linting and formatting.
+
+```bash
+# Check for lint errors
+uv run ruff check .
+
+# Auto-fix safe issues
+uv run ruff check --fix .
+
+# Format code
+uv run ruff format .
+
+# Check formatting without applying
+uv run ruff format --check .
+```
+
+All new Python code must pass `ruff check` and `ruff format --check` before submitting. The CI pipeline enforces this via the `lint` job in `.github/workflows/ci.yml`.
+
+Type annotations are encouraged for all new public functions. You can run the optional type checker with:
+
+```bash
+uv run mypy src/
+```
+
+---
 
 ## AI contributions in Spec Kit
 
@@ -150,9 +237,14 @@ Contributors who consistently submit low-effort AI-generated changes may be rest
 
 Please be respectful to maintainers and disclose AI assistance.
 
+---
+
 ## Resources
 
 - [Spec-Driven Development Methodology](./spec-driven.md)
+- [Local Development Guide](./docs/local-development.md)
+- [Quick Start Guide](./docs/quickstart.md)
+- [Migration Guide](./docs/migration.md)
 - [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
 - [Using Pull Requests](https://help.github.com/articles/about-pull-requests/)
 - [GitHub Help](https://help.github.com)
