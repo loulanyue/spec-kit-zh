@@ -33,6 +33,7 @@ def _strip_brand(text: str) -> str:
         ["doctor"],
         ["init", "--help"],
         ["extension", "--help"],
+        ["codex-sync", "--help"],
     ],
 )
 def test_no_old_brand_in_output(subcommand):
@@ -105,6 +106,15 @@ def test_version_output_no_old_brand():
     assert OLD_BRAND not in sanitized
 
 
+def test_version_output_contains_version_number():
+    """version 输出应包含形如 x.y.z 的语义化版本号。"""
+    import re
+    result = runner.invoke(app, ["version"])
+    assert re.search(r"\d+\.\d+\.\d+", result.output), (
+        f"version 输出缺少版本号:\n{result.output}"
+    )
+
+
 # ── extension 子命令 ───────────────────────────────────────────────────────────
 
 
@@ -135,3 +145,21 @@ def test_init_skills_without_ai():
     result = runner.invoke(app, ["init", "some-project", "--ai-skills"])
     assert result.exit_code == 1
     assert "--ai-skills 必须搭配 --ai 使用" in result.output
+
+
+# ── --help 全局 ────────────────────────────────────────────────────────────────
+
+
+def test_global_help_exits_zero():
+    """全局 --help 应该正常退出。"""
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+
+
+def test_global_help_lists_subcommands():
+    """全局 --help 应该至少列出 init、check、version、doctor 子命令。"""
+    result = runner.invoke(app, ["--help"])
+    for cmd in ("init", "check", "version", "doctor"):
+        assert cmd in result.output, (
+            f"全局 --help 输出缺少子命令 '{cmd}':\n{result.output}"
+        )
