@@ -1,10 +1,50 @@
 # spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
-"""
-Spec Kit 扩展管理器
+"""Extension manager for specify-cli-zh.
 
-负责安装、移除和管理 Spec Kit 扩展。
-扩展是模块化的软件包，可在不膨胀核心框架的前提下为 spec-kit
-增加命令和功能。
+This module provides the complete lifecycle management for Spec Kit extensions:
+installation, removal, validation, catalog management, and compatibility checks.
+
+Extensions are modular packages that add commands and capabilities to spec-kit-zh
+without bloating the core framework. Each extension ships an ``extension.yml``
+manifest that declares its identity, version, dependencies, and provided commands.
+
+Public API
+----------
+Key classes:
+
+- :class:`ExtensionManifest` — Loads and validates an ``extension.yml`` file.
+- :class:`CatalogEntry` — Represents a single catalog source (URL, name, priority).
+- :class:`ExtensionManager` — High-level manager; install/remove/list/search operations.
+
+Key exceptions:
+
+- :exc:`ExtensionError` — Base class for all extension-related errors.
+- :exc:`ValidationError` — Raised when a manifest fails schema or field validation.
+- :exc:`CompatibilityError` — Raised when an extension requires a different CLI version.
+
+Usage example
+-------------
+::
+
+    from pathlib import Path
+    from specify_cli.extensions import ExtensionManager
+
+    manager = ExtensionManager(project_root=Path("."))
+
+    # Install an extension from a catalog URL
+    manager.install("my-org/my-extension")
+
+    # List installed extensions
+    for ext in manager.list_installed():
+        print(ext.name, ext.version)
+
+    # Remove an extension
+    manager.remove("my-extension")
+
+Schema version
+--------------
+All ``extension.yml`` files must declare ``schema_version: "1.0"``.
+Future breaking changes to the manifest format will increment this version.
 """
 
 import json
