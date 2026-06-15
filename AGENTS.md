@@ -15,6 +15,11 @@ The toolkit supports multiple AI coding assistants, allowing teams to use their 
 ## General practices
 
 - Any changes to `__init__.py` for the Specify CLI require a version rev in `pyproject.toml` and addition of entries to `CHANGELOG.md`.
+- New command names, directory paths, and CLI tool names introduced by agent support must be registered in `TERMINOLOGY.md` before being used in documentation.
+- Every new agent integration must include at least one smoke test asserting that the generated command files contain the correct Chinese brand name (`specify-zh`) and no stale English-only brand references.
+- Template files generated for each agent must pass the brand-guard CI check: no occurrences of `specify-en`, `spec-kit` (without the `-zh` suffix), or legacy command names.
+- When adding a new agent, update the supported agents table below, the `AGENT_CONFIG` dictionary in `__init__.py`, and the `README.md` supported agents section in the same PR.
+- Argument passing conventions must be documented explicitly for each new agent (see the table below and per-agent notes).
 
 ## Adding New Agent Support
 
