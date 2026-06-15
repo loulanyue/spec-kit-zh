@@ -412,3 +412,45 @@ By embedding these principles into the specification and planning process, SDD e
 This isn't about replacing developers or automating creativity. It's about amplifying human capability by automating mechanical translation. It's about creating a tight feedback loop where specifications, research, and code evolve together, each iteration bringing deeper understanding and better alignment between intent and implementation.
 
 Software development needs better tools for maintaining alignment between intent and implementation. SDD provides the methodology for achieving this alignment through executable specifications that generate code rather than merely guiding it.
+
+---
+
+## 常见问题（FAQ）
+
+### Q1：我是独立开发者，SDD 会不会太重？
+
+不会。SDD 的核心是"在写代码前先理清想法"，而不是强制写满所有文档字段。对于个人项目，你可以只保留 `spec.md` 的核心功能需求部分，跳过正式的 `plan.md` 阶段，直接使用 `/speckit.tasks` 生成任务列表。随着项目复杂度增长，再逐步引入完整流程。
+
+### Q2：现有项目是否能引入 SDD？
+
+可以。使用 `specify-zh init --here --force --ai <your-agent>` 在现有项目目录中初始化，不会影响你的代码文件。建议从最紧迫的新功能开始，按 SDD 流程创建 `specs/001-your-feature/` 目录，逐步形成习惯。
+
+### Q3：`spec.md` 需要多详细才算够？
+
+经验法则：**当你能不加思考地直接开始编码时，spec 就足够详细了。** 关键要素包括：
+
+- 明确的验收标准（可测试、可验证）
+- 非功能需求有具体数字（如"响应时间 < 200ms"而非"要快"）
+- 边界情况已枚举（输入为空时、超时时、权限不足时）
+- 使用的技术栈和集成点已确定
+
+### Q4：AI 生成的规范质量不高怎么办？
+
+使用 `/speckit.clarify`（Codex 用 `/prompts:speckit-clarify`）在生成规范前先让 AI 向你提问。这一步能大幅提升规范质量。同时，使用 `/speckit.analyze` 对已生成的规范进行一致性检查，识别歧义和覆盖缺口。
+
+### Q5：团队使用 SDD 时如何分工？
+
+常见模式：
+
+- **产品/需求角色**：主导 `/speckit.specify` 和 `/speckit.clarify`，确保规范反映真实业务需求
+- **技术负责人**：审阅 `/speckit.plan` 输出，补充架构约束和技术选型
+- **开发者**：从 `/speckit.tasks` 生成的任务列表开始实现，使用 `/speckit.implement`
+- **所有人**：在 PR 前运行 `/speckit.checklist` 确保合规
+
+### Q6：SDD 最常见的失败模式是什么？
+
+1. **规范太模糊**：验收标准不可测试，导致 AI 生成的代码偏离预期 → 使用 `/speckit.clarify` 充分澄清
+2. **跳过分析步骤**：直接从 spec 跳到实现，忽略 plan 阶段的架构决策 → 坚持完整流程
+3. **规范不更新**：代码实现后规范过期，失去单一事实来源 → 将规范视为活文档，随代码同步更新
+4. **章程过于严苛**：每条原则都设为 MUST，导致 CRITICAL 问题泛滥 → 区分 MUST（不可违反）和 SHOULD（有充分理由可偏离）
+
