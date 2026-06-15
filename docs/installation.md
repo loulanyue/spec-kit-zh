@@ -30,6 +30,30 @@ uvx --from git+https://github.com/loulanyue/spec-kit-zh.git specify-zh init --he
 
 如果你通过 `uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git` 持久化安装，默认命令名是 `specify-zh`。
 
+### 持久化安装（推荐日常使用）
+
+使用 `uv tool install` 将 CLI 安装为全局工具，无需每次使用 `uvx`：
+
+```bash
+uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git
+```
+
+安装后确保工具目录在 PATH 中：
+
+```bash
+# 查看工具安装位置
+uv tool dir
+
+# 若未自动加入 PATH，手动添加（~/.zshrc 或 ~/.bashrc）
+export PATH="$(uv tool dir)/bin:$PATH"
+```
+
+升级到最新版本：
+
+```bash
+uv tool install specify-cli-zh --from git+https://github.com/loulanyue/spec-kit-zh.git --force
+```
+
 ### 指定 AI Agent
 
 你可以在初始化时主动指定要使用的 AI Agent：
