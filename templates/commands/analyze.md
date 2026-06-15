@@ -122,14 +122,22 @@ Focus on high-signal findings. Limit to 50 findings total; aggregate remainder i
 - Task ordering contradictions (e.g., integration tasks before foundational setup tasks without dependency note)
 - Conflicting requirements (e.g., one requires Next.js while other specifies Vue)
 
+#### G. NFR Testability
+
+- Non-functional requirements that lack a measurable threshold (e.g., "should be fast" with no latency target)
+- Performance, security, or availability NFRs with no corresponding test task or acceptance criterion
+- NFRs whose success can only be determined subjectively without instrumentation
+
 ### 5. Severity Assignment
 
 Use this heuristic to prioritize findings:
 
-- **CRITICAL**: Violates constitution MUST, missing core spec artifact, or requirement with zero coverage that blocks baseline functionality
-- **HIGH**: Duplicate or conflicting requirement, ambiguous security/performance attribute, untestable acceptance criterion
-- **MEDIUM**: Terminology drift, missing non-functional task coverage, underspecified edge case
-- **LOW**: Style/wording improvements, minor redundancy not affecting execution order
+| Severity | Criteria | Example |
+|---|---|---|
+| **CRITICAL** | Violates constitution MUST, missing core spec artifact, requirement with zero task coverage blocking baseline functionality | Authentication requirement has no implementation task |
+| **HIGH** | Duplicate or conflicting requirement, ambiguous security/performance NFR, untestable acceptance criterion | Two requirements both specify "user can reset password" with contradictory flows |
+| **MEDIUM** | Terminology drift, missing NFR task coverage, underspecified edge case | Spec says "profile page" but plan says "user dashboard" for the same feature |
+| **LOW** | Style/wording improvements, minor redundancy not affecting execution | Acceptance criterion phrased passively instead of actively |
 
 ### 6. Produce Compact Analysis Report
 
@@ -172,6 +180,16 @@ At end of report, output a concise Next Actions block:
 ### 8. Offer Remediation
 
 Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
+
+### 9. Optional: Trend Tracking
+
+If a previous analysis report exists at `.specify/<FEATURE_DIR>/analysis-report.md`, compare current metrics with previous metrics and report:
+
+- Δ Total Issues (new / resolved / persisted)
+- Δ Coverage % (improvement or regression)
+- Newly introduced CRITICAL issues since last run
+
+This comparison is informational only; do not block on it if no prior report exists.
 
 ## Operating Principles
 
