@@ -1,40 +1,80 @@
 <!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
 
-# Support
+# 支持（Support）
 
-## How to file issues and get help
+## 如何获取帮助
 
-This project uses GitHub issues to track bugs and feature requests. Please search the existing issues before filing new issues to avoid duplicates. For new issues, file your bug or feature request as a new issue.
+本项目使用 GitHub Issues 追踪 Bug 和功能请求。在提交新 Issue 之前，请先搜索现有 Issues 避免重复。
 
-For help or questions about using this project, please:
+### 快速自助参考
 
-- Open a [GitHub issue](https://github.com/loulanyue/spec-kit-zh/issues/new) for bug reports, feature requests, or questions about the Spec-Driven Development methodology
-- Check the [comprehensive guide](./spec-driven.md) for detailed documentation on the Spec-Driven Development process
-- Review the [README](./README.md) for getting started instructions and troubleshooting tips
-- See [docs/troubleshooting.md](./docs/troubleshooting.md) for common installation and runtime issues
+| 你的问题 | 推荐文档 |
+| --- | --- |
+| 首次安装和入门 | [docs/quickstart.md](./docs/quickstart.md) |
+| 安装报错、命令找不到 | [docs/troubleshooting.md](./docs/troubleshooting.md) |
+| 网络超时、国内访问 | [docs/china-network.md](./docs/china-network.md) |
+| 从旧版本升级 | [docs/upgrade.md](./docs/upgrade.md) |
+| 本地开发和调试 | [docs/local-development.md](./docs/local-development.md) |
+| 规范驱动开发方法论 | [spec-driven.md](./spec-driven.md) |
+| 术语解释 | [TERMINOLOGY.md](./TERMINOLOGY.md) |
+| 贡献代码 | [CONTRIBUTING.md](./CONTRIBUTING.md) |
+| 安全漏洞报告 | [SECURITY.md](./SECURITY.md) |
 
-## Filing a Good Bug Report
+---
 
-To help maintainers reproduce and fix issues quickly, please include:
+## 提交 Bug 报告
 
-1. **Environment**: OS, Python version (`python --version`), and tool version (`specify-zh --version`)
-2. **Steps to reproduce**: A minimal set of commands that trigger the problem
-3. **Expected behavior**: What you expected to happen
-4. **Actual behavior**: What actually happened, including any error messages or stack traces
-5. **Workaround**: Any workaround you found, if applicable
+提交 Bug 时，请通过 [GitHub Issue](https://github.com/loulanyue/spec-kit-zh/issues/new) 提交，并尽量包含：
 
-## Feature Requests
+1. **环境信息**：
+   ```bash
+   specify-zh --version   # CLI 版本
+   python --version        # Python 版本
+   uv --version            # uv 版本
+   uname -a                # 操作系统（macOS/Linux）
+   # 或 Windows:
+   systeminfo | findstr "OS"
+   ```
 
-Feature requests are welcome! When filing a feature request, please describe:
+2. **复现步骤**：能触发问题的最小命令序列
 
-- The problem or use case the feature would solve
-- A proposed solution or API if you have one in mind
-- Any alternatives you have considered
+3. **期望行为**：你认为应该发生什么
 
-## Project Status
+4. **实际行为**：实际发生了什么，包含完整的错误信息和堆栈跟踪
 
-**Spec Kit** is under active development and maintained by GitHub staff **AND THE COMMUNITY**. We will do our best to respond to support, feature requests, and community questions in a timely manner.
+5. **临时解决方案**：如果你找到了 workaround，请一并描述
 
-## GitHub Support Policy
+---
 
-Support for this project is limited to the resources listed above.
+## 提交功能请求
+
+欢迎功能建议！请通过 [GitHub Issue](https://github.com/loulanyue/spec-kit-zh/issues/new) 提交，并描述：
+
+- 该功能要解决的问题或使用场景
+- 你设想的解决方案或接口设计
+- 你考虑过的替代方案
+- 对现有用户的潜在影响（向后兼容性）
+
+> [!NOTE]
+> 重大功能（如新增命令、修改模板结构）建议先通过 Issue 讨论达成共识，再提交 Pull Request，以避免大量返工。
+
+---
+
+## 项目维护状态
+
+**Spec Kit ZH** 处于积极维护状态，由社区协作维护。我们将尽力及时回应支持请求、功能建议和社区问题。
+
+**响应时效参考**：
+
+| 类型 | 目标响应时间 |
+| --- | --- |
+| 安全漏洞 | 3 个工作日内确认 |
+| Bug 报告 | 5 个工作日内初步回复 |
+| 功能请求 | 尽力而为，无固定 SLA |
+| Pull Request | 7 个工作日内初步审查 |
+
+---
+
+## 贡献代码
+
+如果你想直接贡献修复或功能，欢迎提交 Pull Request！请先阅读 [CONTRIBUTING.md](./CONTRIBUTING.md) 了解代码规范、测试要求和 PR 流程。
