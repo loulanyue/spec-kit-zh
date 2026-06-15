@@ -15,6 +15,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.9.4] - 2026-06-15
+
+### Added
+
+- **`tests/test_docs_integrity.py`**: New 33-test suite validating existence and structure of 16 key documentation files; covers TERMINOLOGY.md sections, RELEASE_CHECKLIST.md items, SECURITY.md SLA, SUPPORT.md quick-reference table, spec-driven.md FAQ, troubleshooting.md categories, and domestic-llm.md new sections.
+- **`docs/troubleshooting.md`**: Expanded from 10 to 16 entries, reorganized into four named sections (安装类、网络类、初始化与使用类、Codex 专项、CI/测试类); new entries cover uv version, SSL certificate errors, stale templates, Codex command format mistakes, slash command post-init visibility, and ruff lint auto-fix.
+- **`TERMINOLOGY.md`**: Added two new sections — 流程术语 (11 terms: Clarify, Gate, Handoff, Rollback, Idempotent, Upstream/Downstream, etc.) and 代码与工程术语 (8 terms: Data Model, Contract, NFR, Brand Guard, Coverage, etc.); added new-term registration requirement note.
+- **`Makefile`**: Added `audit` target (pip-audit security scan), `docs` target (docfx site build), and `build` target; rewrote `help` with Chinese section headers and aligned columns; added emoji feedback to `coverage` and `check` targets.
+- **`RELEASE_CHECKLIST.md`**: Added TERMINOLOGY coverage check, migration.md update check, typecheck/coverage (≥80%)/audit quality gates, full isolated install verification block, and final publish steps with git tag commands.
+- **`SECURITY.md`**: Localized to Chinese; added supported versions table, GitHub Security Advisories reporting channel, 3-day acknowledgement / 7-day assessment SLA, disclosure timeline, dependency security section (pip-audit/Dependabot).
+- **`SUPPORT.md`**: Added 9-row quick-reference table by problem type, structured bug report template with environment info code block, feature request guidance with discussion-first tip, and project SLA table per request type.
+- **`docs/china-network.md`**: Added persistent proxy config note, two additional PyPI mirror options (aliyun, ustc), uv pyproject.toml permanent index config, Scene 4 (Git clone acceleration via SSH/mirror/proxy), Scene 5 (GitHub Token via gh auth login), and quick-diagnosis commands section.
+- **`AGENTS.md`**: Expanded General practices with 5 new rules covering TERMINOLOGY.md registration, smoke test requirement per new agent, brand-guard CI compliance, synchronized PR update requirement, and argument passing documentation.
+- **`templates/commands/analyze.md`**: Added Detection Pass G (NFR Testability), converted severity bullet list to a table with Criteria + Example columns, added optional Step 9 (Trend Tracking comparing to previous analysis report).
+- **`docs/domestic-llm.md`**: Added 5-column tool comparison table (接入方式/CLI支持/中文理解/推荐场景); added Kiro CLI section with installation, `--ai kiro-cli` init, 3-step SDD workflow, and configuration notes.
+- **`spec-driven.md`**: Appended FAQ section with 6 Q&A covering solo developer adoption, existing-project migration, spec depth heuristics, low-quality AI spec remediation, team role division, and 4 common SDD failure modes.
+- **`docs/installation.md`**: Added '持久化安装（推荐日常使用）' subsection with `uv tool install` command, PATH verification, manual export line for shell config, and upgrade command with `--force`.
+- **`src/specify_cli/extensions.py`**: Enriched module-level docstring with full Public API section (3 classes, 3 exceptions), usage example code block (install/list/remove lifecycle), and schema version documentation.
+
+### Changed
+
+- Bumped `pyproject.toml` version to `0.9.4`.
+
 ## [0.9.3] - 2026-06-14
 
 ### Added
