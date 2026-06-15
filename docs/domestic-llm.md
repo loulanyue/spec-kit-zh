@@ -12,7 +12,18 @@
 - [DeepSeek Coder](#deepseek-coder)
 - [百度 Comate](#百度-comate)
 - [MarsCode（豆包 MarsCode）](#marscode)
+- [Kiro CLI（国内适配说明）](#kiro-cli)
 - [其他工具适配说明](#其他工具适配说明)
+
+## 工具对比速查
+
+| 工具 | 接入方式 | CLI 支持 | 中文理解 | 推荐场景 |
+|---|---|---|---|---|
+| 通义灵码 | IDE 插件 | ❌ | ⭐⭐⭐⭐⭐ | 日常编码、需求分析 |
+| DeepSeek Coder | Web / API | ✅ OpenAI 兼容 | ⭐⭐⭐⭐⭐ | 代码生成、架构设计 |
+| 百度 Comate | IDE 插件 | ❌ | ⭐⭐⭐⭐⭐ | 补全、内联建议 |
+| MarsCode | 在线 IDE / 插件 | ❌ | ⭐⭐⭐⭐ | 原型开发、团队协作 |
+| Kiro CLI | CLI | ✅ `kiro-cli` | ⭐⭐⭐ | 命令行驱动流程 |
 
 ---
 
@@ -142,6 +153,47 @@ specify-zh init my-project --ai generic --ai-commands-dir .marscode/prompts/
 
 - MarsCode 提供了完整的在线 IDE 环境，适合快速原型开发
 - 对中文规范描述支持良好，适合国内团队协作
+
+---
+
+## Kiro CLI
+
+[Kiro CLI](https://github.com/kirolabs/kiro-cli) 是一款命令行优先的 AI 编程工具，`specify-cli-zh` 对 Kiro CLI 有原生支持（`--ai kiro-cli`）。
+
+### 安装 Kiro CLI
+
+```bash
+npm install -g kiro-cli
+kiro-cli --version
+```
+
+### 使用 specify-zh 初始化 Kiro CLI 项目
+
+```bash
+specify-zh init my-project --ai kiro-cli
+```
+
+这将在 `.kiro/prompts/` 下生成 Kiro CLI 兼容的提示词文件，文件名前缀为 `speckit-`。
+
+### 推荐 SDD 工作流
+
+1. 初始化后，使用 `kiro-cli` 查看已安装的提示词：
+   ```bash
+   kiro-cli prompts list
+   ```
+2. 运行 specify 提示词：
+   ```bash
+   kiro-cli run speckit-specify "构建用户认证模块"
+   ```
+3. 运行 plan 提示词：
+   ```bash
+   kiro-cli run speckit-plan
+   ```
+
+### 注意事项
+
+- Kiro CLI 的中文处理依赖底层模型，建议配置国内可访问的模型端点
+- 提示词文件更新后，运行 `specify-zh codex-sync`（格式等效）重新同步
 
 ---
 
