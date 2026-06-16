@@ -172,3 +172,46 @@ def test_domestic_llm_has_kiro_section() -> None:
     """domestic-llm.md 必须包含 Kiro CLI 章节（v0.9.4 新增）。"""
     content = (REPO_ROOT / "docs/domestic-llm.md").read_text(encoding="utf-8")
     assert "Kiro CLI" in content
+
+
+# ── quickstart.md 常见踩坑 ────────────────────────────────────────────────────
+
+
+def test_quickstart_has_pitfalls_section() -> None:
+    """quickstart.md 必须包含常见踩坑章节（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "docs/quickstart.md").read_text(encoding="utf-8")
+    assert "常见踩坑" in content
+
+
+def test_quickstart_pitfalls_covers_slash_commands() -> None:
+    """常见踩坑必须包含斜杠命令不显示的场景。"""
+    content = (REPO_ROOT / "docs/quickstart.md").read_text(encoding="utf-8")
+    assert "斜杠命令不显示" in content or "codex-sync" in content
+
+
+def test_quickstart_next_steps_links_domestic_llm() -> None:
+    """quickstart.md 下一步必须包含国内大模型指引链接（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "docs/quickstart.md").read_text(encoding="utf-8")
+    assert "domestic-llm" in content
+
+
+# ── local-development.md 调试章节 ────────────────────────────────────────────
+
+
+def test_local_development_has_debugging_section() -> None:
+    """local-development.md 必须包含调试技巧章节（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "docs/local-development.md").read_text(encoding="utf-8")
+    assert "调试技巧" in content
+
+
+def test_local_development_debugging_covers_breakpoint() -> None:
+    """调试技巧必须介绍 Python breakpoint() 用法。"""
+    content = (REPO_ROOT / "docs/local-development.md").read_text(encoding="utf-8")
+    assert "breakpoint()" in content
+
+
+def test_local_development_debugging_covers_pytest_flags() -> None:
+    """调试技巧必须包含 pytest 调试参数说明。"""
+    content = (REPO_ROOT / "docs/local-development.md").read_text(encoding="utf-8")
+    assert "--pdb" in content or "pytest 调试" in content
+

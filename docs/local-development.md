@@ -202,7 +202,83 @@ rm -rf .venv dist build *.egg-info
 make clean
 ```
 
-## 13. 常见问题
+## 13. 调试技巧
+
+### 使用 Python 内置断点
+
+在代码中插入 `breakpoint()` 即可在运行时进入 `pdb` 交互调试器：
+
+```python
+# 示例：在 __init__.py 中某处插入
+def init_project(...):
+    breakpoint()  # 执行到此处时暂停，进入交互调试
+    ...
+```
+
+运行 CLI 时会自动进入调试器：
+
+```bash
+python -m src.specify_cli init demo-debug --ai claude --ignore-agent-tools
+```
+
+调试完成后记得删除 `breakpoint()` 语句。
+
+### 使用 rich 打印调试信息
+
+`specify-cli-zh` 已依赖 `rich`，可直接在代码中使用 `rich.inspect()` 或 `rich.print()` 打印结构化调试信息：
+
+```python
+from rich import inspect, print as rprint
+
+# 打印对象的所有属性和方法
+inspect(some_object, methods=True)
+
+# 打印带语法高亮的字典
+rprint({"key": "value", "nested": {"a": 1}})
+```
+
+### 开启详细输出模式
+
+许多 CLI 命令支持 `--verbose` 标志（或设置环境变量），可输出更多调试信息：
+
+```bash
+SPECIFY_DEBUG=1 python -m src.specify_cli init demo --ai claude --ignore-agent-tools
+```
+
+### pytest 调试技巧
+
+```bash
+# 打印 stdout/stderr（默认被 pytest 捕获，-s 取消捕获）
+uv run pytest tests/test_cli_output.py -v -s
+
+# 在第一个失败处立即停止（避免等待所有测试完成）
+uv run pytest -x --tb=short
+
+# 只运行匹配名称的测试（支持子字符串匹配）
+uv run pytest -k "test_init" -v
+
+# 进入 pdb 调试器（在失败处自动断开）
+uv run pytest --pdb
+
+# 显示最慢的 10 个测试
+uv run pytest --durations=10
+```
+
+### 查看 CLI 生成的文件结构
+
+初始化后快速查看生成结构：
+
+```bash
+# 查看生成的目录树（需要安装 tree）
+tree demo-project/ -a -I ".git"
+
+# 或者使用 find（无需额外工具）
+find demo-project/ -not -path '*/.git/*' | sort
+```
+
+---
+
+## 14. 常见问题
 
 | 现象 | 处理方式 |
 |------|----------|
@@ -213,9 +289,13 @@ make clean
 | 企业网络下 TLS 报错 | 尝试 `--skip-tls`（不要用于生产环境） |
 | `pytest: command not found` | 使用 `uv run pytest` 或先激活 `.venv` |
 | `ruff: command not found` | 使用 `uv run ruff check src/` |
+| `breakpoint()` 在 pytest 中不生效 | 追加 `-s` 参数：`uv run pytest -s` |
 
-## 14. 下一步
+---
+
+## 15. 下一步
 
 - 更新文档，并使用你修改后的 CLI 重新走一遍 Quick Start
-- 满意后提交 PR
-- （可选）在变更合入 `main` 后打 Tag 发布
+- 满意后提交 PR，参见 [CONTRIBUTING.md](../CONTRIBUTING.md)
+- （可选）在变更合入 `main` 后打 Tag 发布，参见 [RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md)
+

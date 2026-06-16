@@ -198,17 +198,29 @@ first testing thing to ensure that our basic features are set up.
 
 ---
 
-## 关键原则
+## 常见踩坑
 
-- **明确表达** 你要构建什么，以及为什么构建
-- **规范阶段不要过早陷入技术栈**
-- **在实施前持续迭代和细化** 规范
-- **在编码前先验证** 计划质量
-- **让 AI Agent 处理** 更多实现细节
+初次使用 Spec Kit 时，以下是最容易犯的错误：
+
+| 踩坑 | 原因 | 解决方式 |
+|---|---|---|
+| 斜杠命令不显示 | Agent 未重启，或文件路径不对 | 完全重启 IDE；运行 `specify-zh codex-sync` |
+| AI 输出的规范质量很差 | 直接用 `/specify` 而跳过了 `/clarify` | 先运行 `/speckit.clarify` 充分澄清需求 |
+| `init` 报错"目录非空" | 在已有代码的目录运行了 `init` | 追加 `--here --force` 参数 |
+| 任务清单过于粗粒度 | `spec.md` 验收标准不够具体 | 回到 `/speckit.clarify` 补充可测试的验收条件 |
+| `implement` 输出偏离预期 | 跳过了 `analyze` 一致性检查步骤 | 在 `implement` 前先运行 `/speckit.analyze` |
+| 章程更新后旧规范仍然有效 | `constitution.md` 已改但规范未同步 | 重新运行 `/speckit.specify` 或手动更新受影响的规范 |
+
+> [!TIP]
+> 遇到疑难问题，可查阅 [常见问题与排错](./troubleshooting.md) 或在 [GitHub Issues](https://github.com/loulanyue/spec-kit-zh/issues) 提问。
+
+---
 
 ## 下一步
 
-- 阅读 [完整方法论](../spec-driven.md) 获取更深入的说明
+- 阅读 [完整方法论](../spec-driven.md) 获取更深入的说明，包括 FAQ 章节
 - 查看仓库中的 [更多模板与示例](../templates)
 - 遇到问题？参考 [常见问题与排错](./troubleshooting.md)
+- 国内网络访问慢？查看 [国内网络加速指引](./china-network.md)
+- 想接入国内大模型？查看 [国内大模型接入指南](./domestic-llm.md)
 - 浏览 [GitHub 上的源码](https://github.com/loulanyue/spec-kit-zh)
