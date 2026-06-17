@@ -30,63 +30,77 @@ $ARGUMENTS
 
 请遵循以下执行流程：
 
-1. Load the existing constitution at `.specify/memory/constitution.md`.
-   - Identify every placeholder token of the form `[ALL_CAPS_IDENTIFIER]`.
-   **IMPORTANT**: The user might require less or more principles than the ones used in the template. If a number is specified, respect that - follow the general template. You will update the doc accordingly.
+**第 1 步：加载现有章程**
 
-2. Collect/derive values for placeholders:
-   - If user input (conversation) supplies a value, use it.
-   - Otherwise infer from existing repo context (README, docs, prior constitution versions if embedded).
-   - For governance dates: `RATIFICATION_DATE` is the original adoption date (if unknown ask or mark TODO), `LAST_AMENDED_DATE` is today if changes are made, otherwise keep previous.
-   - `CONSTITUTION_VERSION` must increment according to semantic versioning rules:
-     - MAJOR: Backward incompatible governance/principle removals or redefinitions.
-     - MINOR: New principle/section added or materially expanded guidance.
-     - PATCH: Clarifications, wording, typo fixes, non-semantic refinements.
-   - If version bump type ambiguous, propose reasoning before finalizing.
+读取 `.specify/memory/constitution.md`，识别所有形如 `[ALL_CAPS_IDENTIFIER]` 的占位符 token。
 
-3. Draft the updated constitution content:
-   - Replace every placeholder with concrete text (no bracketed tokens left except intentionally retained template slots that the project has chosen not to define yet—explicitly justify any left).
-   - Preserve heading hierarchy and comments can be removed once replaced unless they still add clarifying guidance.
-   - Ensure each Principle section: succinct name line, paragraph (or bullet list) capturing non‑negotiable rules, explicit rationale if not obvious.
-   - Ensure Governance section lists amendment procedure, versioning policy, and compliance review expectations.
+> **重要**：用户可能需要比模板中更多或更少的原则。若用户明确指定了数量，请按其要求调整，不要强制遵循模板原则数量。
 
-4. Consistency propagation checklist (convert prior checklist into active validations):
-   - Read `.specify/templates/plan-template.md` and ensure any "Constitution Check" or rules align with updated principles.
-   - Read `.specify/templates/spec-template.md` for scope/requirements alignment—update if constitution adds/removes mandatory sections or constraints.
-   - Read `.specify/templates/tasks-template.md` and ensure task categorization reflects new or removed principle-driven task types (e.g., observability, versioning, testing discipline).
-   - Read each command file in `.specify/templates/commands/*.md` (including this one) to verify no outdated references (agent-specific names like CLAUDE only) remain when generic guidance is required.
-   - Read any runtime guidance docs (e.g., `README.md`, `docs/quickstart.md`, or agent-specific guidance files if present). Update references to principles changed.
+**第 2 步：收集或推导占位符的值**
 
-5. Produce a Sync Impact Report (prepend as an HTML comment at top of the constitution file after update):
-   - Version change: old → new
-   - List of modified principles (old title → new title if renamed)
-   - 新增章节
-   - 删除章节
-   - 需要同步更新的模板（✅ 已更新 / ⚠ 待处理），附文件路径
-   - 若有故意延后的占位项，列出后续 TODO
+- 如果用户输入（对话内容）已提供了具体值，优先使用。
+- 否则从现有仓库上下文（README、docs、历史章程版本等）中推断。
+- 治理日期处理：`RATIFICATION_DATE` 为原始批准日期（若不知则询问或标记 TODO），`LAST_AMENDED_DATE` 如有改动则为今日，否则保留原值。
+- `CONSTITUTION_VERSION` 必须按语义化版本规则递增：
+  - **MAJOR**：向后不兼容的治理变更，如删除或重定义已有原则。
+  - **MINOR**：新增原则/章节，或对现有指导内容做实质性扩展。
+  - **PATCH**：措辞澄清、错字修复、非语义性细化。
+- 若版本升级类型不明确，请先向用户说明推断理由再最终确定。
 
-6. Validation before final output:
-   - No remaining unexplained bracket tokens.
-   - Version line matches report.
-   - Dates ISO format YYYY-MM-DD.
-   - Principles are declarative, testable, and free of vague language ("should" → replace with MUST/SHOULD rationale where appropriate).
+**第 3 步：起草更新后的章程内容**
 
-7. Write the completed constitution back to `.specify/memory/constitution.md` (overwrite).
+- 用具体文本替换所有占位符（不得留有括号 token，除非项目明确选择暂不定义某项——此时须在报告中注明原因）。
+- 保持标题层级与模板一致；注释若已被替换可移除，除非仍有指导意义。
+- 每个原则章节须包含：简明原则名称行、捕捉不可妥协规则的段落或列表、显式理由说明（若显而易见则可省略）。
+- 治理章节须列出修订程序、版本策略和合规审查预期。
 
-8. Output a final summary to the user with:
-   - New version and bump rationale.
-   - Any files flagged for manual follow-up.
-   - Suggested commit message (e.g., `docs: amend constitution to vX.Y.Z (principle additions + governance update)`).
+**第 4 步：一致性传播检查**
 
-Formatting & Style Requirements:
+- 读取 `.specify/templates/plan-template.md`，确保其中"章程检查"或规则与更新后的原则保持一致。
+- 读取 `.specify/templates/spec-template.md`，检查范围/需求对齐——若章程新增或移除了必填章节或约束，则更新之。
+- 读取 `.specify/templates/tasks-template.md`，确保任务分类反映了新增或移除的原则驱动任务类型（如可观测性、版本管理、测试纪律）。
+- 读取 `.specify/templates/commands/*.md` 中每个命令文件（含本文件），验证在需要通用指导时没有遗留特定 Agent 的陈旧引用（如仅限 CLAUDE 的内容）。
+- 读取运行时指导文档（如 `README.md`、`docs/quickstart.md` 或 Agent 特定指导文件），更新对已变更原则的引用。
 
-- Use Markdown headings exactly as in the template (do not demote/promote levels).
-- Wrap long rationale lines to keep readability (<100 chars ideally) but do not hard enforce with awkward breaks.
-- Keep a single blank line between sections.
-- Avoid trailing whitespace.
+**第 5 步：生成同步影响报告**
 
-If the user supplies partial updates (e.g., only one principle revision), still perform validation and version decision steps.
+更新完成后，在章程文件顶部以 HTML 注释形式前置同步影响报告，内容包括：
 
-If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
+- 版本变化：旧版本 → 新版本
+- 已修改原则列表（旧标题 → 新标题，如有重命名）
+- 新增章节
+- 删除章节
+- 需要同步更新的模板（✅ 已更新 / ⚠ 待处理），附文件路径
+- 若有故意延后的占位项，列出后续 TODO
 
-Do not create a new template; always operate on the existing `.specify/memory/constitution.md` file.
+**第 6 步：最终输出前验证**
+
+- 不得残留未说明的括号 token。
+- 版本行与报告保持一致。
+- 日期格式为 ISO 8601（YYYY-MM-DD）。
+- 原则表述须为陈述式、可测试，且不含模糊语言（"should" → 替换为 MUST/SHOULD 并附理由）。
+
+**第 7 步：写回章程文件**
+
+将完成后的章程内容覆盖写回 `.specify/memory/constitution.md`。
+
+**第 8 步：向用户输出最终摘要**
+
+- 新版本号及版本升级理由。
+- 需要人工跟进的文件列表（如有）。
+- 建议的 Git 提交信息（例如：`docs: amend constitution to vX.Y.Z (principle additions + governance update)`）。
+
+---
+
+**格式与风格要求**
+
+- 标题层级与模板完全一致（不得升降级）。
+- 理由说明行宽尽量保持 < 100 字符，但不要因强制换行而破坏可读性。
+- 章节之间保留一个空行。
+- 不留行尾空白。
+
+若用户只提供了部分更新（如仅修订一条原则），仍须执行验证和版本决策步骤。
+
+若关键信息缺失（如批准日期确实未知），请插入 `TODO(<FIELD_NAME>): 说明` 并在同步影响报告的"延后项"中列出。
+
+**不得**创建新模板；始终在现有 `.specify/memory/constitution.md` 文件上操作。

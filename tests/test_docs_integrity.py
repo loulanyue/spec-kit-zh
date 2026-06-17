@@ -215,3 +215,55 @@ def test_local_development_debugging_covers_pytest_flags() -> None:
     content = (REPO_ROOT / "docs/local-development.md").read_text(encoding="utf-8")
     assert "--pdb" in content or "pytest 调试" in content
 
+
+# ── migration.md 结构验证 ─────────────────────────────────────────────────────
+
+
+def test_migration_has_toc() -> None:
+    """migration.md 必须包含目录（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "docs/migration.md").read_text(encoding="utf-8")
+    assert "## 目录" in content
+
+
+def test_migration_has_v094_upgrade_section() -> None:
+    """migration.md 必须包含 v0.9.4 升级章节（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "docs/migration.md").read_text(encoding="utf-8")
+    assert "v0.9.4" in content
+
+
+def test_migration_has_pre_migration_checklist() -> None:
+    """migration.md 必须包含迁移前检查清单（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "docs/migration.md").read_text(encoding="utf-8")
+    assert "迁移前检查清单" in content
+
+
+def test_migration_has_post_migration_validation() -> None:
+    """migration.md 必须包含迁移后验证步骤（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "docs/migration.md").read_text(encoding="utf-8")
+    assert "迁移后验证步骤" in content
+
+
+def test_migration_has_rollback_section() -> None:
+    """migration.md 必须包含回滚方案章节。"""
+    content = (REPO_ROOT / "docs/migration.md").read_text(encoding="utf-8")
+    assert "回滚方案" in content
+
+
+# ── constitution.md 中文本地化验证 ───────────────────────────────────────────
+
+
+def test_constitution_template_steps_localized() -> None:
+    """constitution.md 模板步骤必须已本地化为中文（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "templates/commands/constitution.md").read_text(encoding="utf-8")
+    assert "第 1 步" in content
+    assert "第 8 步" in content
+
+
+def test_constitution_template_no_english_step_headers() -> None:
+    """constitution.md 不得包含遗留的英文步骤编号（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "templates/commands/constitution.md").read_text(encoding="utf-8")
+    # 确认英文步骤开头已移除
+    assert "1. Load the existing constitution" not in content
+    assert "8. Output a final summary" not in content
+
+
