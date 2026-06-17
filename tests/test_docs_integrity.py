@@ -267,3 +267,40 @@ def test_constitution_template_no_english_step_headers() -> None:
     assert "8. Output a final summary" not in content
 
 
+# ── clarify.md 中文本地化验证 ─────────────────────────────────────────────────
+
+
+def test_clarify_template_steps_localized() -> None:
+    """clarify.md 执行步骤必须已本地化为中文（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "templates/commands/clarify.md").read_text(encoding="utf-8")
+    assert "第 1 步" in content
+    assert "第 8 步" in content
+
+
+def test_clarify_template_taxonomy_localized() -> None:
+    """clarify.md 分类标签必须使用中文（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "templates/commands/clarify.md").read_text(encoding="utf-8")
+    assert "功能范围与行为" in content
+    assert "非功能质量属性" in content
+    assert "边界情况与故障处理" in content
+
+
+def test_clarify_template_no_english_taxonomy_headers() -> None:
+    """clarify.md 不得包含遗留的英文分类标题（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "templates/commands/clarify.md").read_text(encoding="utf-8")
+    assert "Functional Scope & Behavior:" not in content
+    assert "Non-Functional Quality Attributes:" not in content
+    assert "Edge Cases & Failure Handling:" not in content
+
+
+def test_clarify_template_behavior_rules_localized() -> None:
+    """clarify.md 行为规则须已中文化（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "templates/commands/clarify.md").read_text(encoding="utf-8")
+    assert "行为规则" in content
+
+
+def test_clarify_template_coverage_summary_localized() -> None:
+    """clarify.md 覆盖摘要状态标签须使用中文（v0.9.5 新增）。"""
+    content = (REPO_ROOT / "templates/commands/clarify.md").read_text(encoding="utf-8")
+    assert "已解决" in content
+    assert "已延后" in content
