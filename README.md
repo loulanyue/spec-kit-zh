@@ -840,7 +840,7 @@ rm gcm-linux_amd64.2.6.1.deb
 <a id="star-history"></a>
 ## ⭐ Star History
 
-<!-- star-history-updated: 2026-05-01 -->
+<!-- star-history-updated: 2026-07-01 -->
 
 <a href="https://www.star-history.com/?repos=loulanyue%2Fspec-kit-zh&type=date&legend=top-left">
  <picture>
