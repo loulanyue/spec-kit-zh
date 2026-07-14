@@ -114,33 +114,33 @@ jobs:
               labels: ['上游同步'],
               body: `## 上游版本变更提醒
 
-| 信息 | 内容 |
-|------|------|
-| 上游仓库 | [spec-kit/spec-kit](https://github.com/microsoft/spec-kit) |
-| 上游最新版本 | \`${upstreamTag}\` |
-| 上次同步版本 | \`${lastSync}\` |
-| 本地当前版本 | \`${localVersion}\` |
-| 检测时间 | ${today} |
+            | 信息 | 内容 |
+            |------|------|
+            | 上游仓库 | [spec-kit/spec-kit](https://github.com/microsoft/spec-kit) |
+            | 上游最新版本 | \`${upstreamTag}\` |
+            | 上次同步版本 | \`${lastSync}\` |
+            | 本地当前版本 | \`${localVersion}\` |
+            | 检测时间 | ${today} |
 
-## 同步检查清单
+            ## 同步检查清单
 
-请参照 [上游同步指南](../docs/upstream-sync.md) 完成以下步骤：
+            请参照 [上游同步指南](../docs/upstream-sync.md) 完成以下步骤：
 
-- [ ] 对比上游 Changelog，识别功能性变更
-- [ ] 评估变更对中文本地化内容的影响
-- [ ] cherry-pick 功能性变更（忽略纯英文文案变更）
-- [ ] 更新 \`pyproject.toml\` 版本号
-- [ ] 更新 \`CHANGELOG.md\`
-- [ ] 更新 \`.upstream-sync-version\` 记录文件
-- [ ] 确认所有测试通过：\`make smoke\`
+            - [ ] 对比上游 Changelog，识别功能性变更
+            - [ ] 评估变更对中文本地化内容的影响
+            - [ ] cherry-pick 功能性变更（忽略纯英文文案变更）
+            - [ ] 更新 \`pyproject.toml\` 版本号
+            - [ ] 更新 \`CHANGELOG.md\`
+            - [ ] 更新 \`.upstream-sync-version\` 记录文件
+            - [ ] 确认所有测试通过：\`make smoke\`
 
-## 版本跟踪规则
+            ## 版本跟踪规则
 
-- **大版本**：跟随上游（如上游 v2.0 → 本仓库 v2.0.x）
-- **中/小版本**：本仓库独立递增（中文化改进、Bug 修复等）
-- **冲突优先级**：中文化内容 > 上游原文
+            - **大版本**：跟随上游（如上游 v2.0 → 本仓库 v2.0.x）
+            - **中/小版本**：本仓库独立递增（中文化改进、Bug 修复等）
+            - **冲突优先级**：中文化内容 > 上游原文
 
-cc @loulanyue
-`
+            cc @loulanyue
+            `.replace(/^ {12}/gm, '')
             });
             console.log(`✅ 已创建同步 Issue: ${upstreamTag}`);
