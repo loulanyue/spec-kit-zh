@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected the upstream repository reference from the historical Microsoft path to
   `github/spec-kit` and required source-range notes for upstream sync Pull Requests.
 - Reformatted Python source and tests so the repository passes its declared Ruff format gate.
+- Repaired invalid maintenance workflows and made CI use locked test and Ruff dependencies.
 
 ### Changed
 

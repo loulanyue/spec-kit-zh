@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout 当前仓库
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 获取上游最新 Release
         id: upstream
@@ -31,16 +31,8 @@ jobs:
           # 获取上游 spec-kit 的最新 release tag
           UPSTREAM_LATEST=$(curl -sf \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/microsoft/spec-kit/releases/latest" \
+            "https://api.github.com/repos/github/spec-kit/releases/latest" \
             | jq -r '.tag_name // "unknown"') || true
-
-          # 如果官方仓库无法访问，尝试备选仓库
-          if [ "$UPSTREAM_LATEST" = "unknown" ] || [ -z "$UPSTREAM_LATEST" ]; then
-            UPSTREAM_LATEST=$(curl -sf \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/spec-kit/spec-kit/releases/latest" \
-              | jq -r '.tag_name // "unknown"') || true
-          fi
 
           echo "upstream_tag=$UPSTREAM_LATEST" >> "$GITHUB_OUTPUT"
           echo "上游最新版本: $UPSTREAM_LATEST"
@@ -82,7 +74,7 @@ jobs:
 
       - name: 创建同步提醒 Issue
         if: steps.decision.outputs.should_create_issue == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const upstreamTag = '${{ steps.upstream.outputs.upstream_tag }}';
@@ -107,40 +99,37 @@ jobs:
               return;
             }
 
+            const body = [
+              '## 上游版本变更提醒',
+              '',
+              '| 信息 | 内容 |',
+              '|------|------|',
+              '| 上游仓库 | [github/spec-kit](https://github.com/github/spec-kit) |',
+              `| 上游最新版本 | \`${upstreamTag}\` |`,
+              `| 上次同步版本 | \`${lastSync}\` |`,
+              `| 本地当前版本 | \`${localVersion}\` |`,
+              `| 检测时间 | ${today} |`,
+              '',
+              '## 同步检查清单',
+              '',
+              '请参照 [上游同步指南](../blob/main/docs/upstream-sync.md) 完成以下步骤：',
+              '',
+              '- [ ] 对比上游 Changelog，识别功能性变更',
+              '- [ ] 评估变更对中文本地化内容的影响',
+              '- [ ] 记录上游版本或提交范围和保留的本地增强',
+              '- [ ] 更新 `pyproject.toml` 版本号',
+              '- [ ] 更新 `CHANGELOG.md`',
+              '- [ ] 更新 `.upstream-sync-version` 记录文件',
+              '- [ ] 确认所有测试通过：`make smoke`',
+              '',
+              'cc @loulanyue',
+            ].join('\n');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `[上游同步] 检测到上游新版本 ${upstreamTag} (${today})`,
-              labels: ['上游同步'],
-              body: `## 上游版本变更提醒
-
-| 信息 | 内容 |
-|------|------|
-| 上游仓库 | [spec-kit/spec-kit](https://github.com/microsoft/spec-kit) |
-| 上游最新版本 | \`${upstreamTag}\` |
-| 上次同步版本 | \`${lastSync}\` |
-| 本地当前版本 | \`${localVersion}\` |
-| 检测时间 | ${today} |
-
-## 同步检查清单
-
-请参照 [上游同步指南](../docs/upstream-sync.md) 完成以下步骤：
-
-- [ ] 对比上游 Changelog，识别功能性变更
-- [ ] 评估变更对中文本地化内容的影响
-- [ ] cherry-pick 功能性变更（忽略纯英文文案变更）
-- [ ] 更新 \`pyproject.toml\` 版本号
-- [ ] 更新 \`CHANGELOG.md\`
-- [ ] 更新 \`.upstream-sync-version\` 记录文件
-- [ ] 确认所有测试通过：\`make smoke\`
-
-## 版本跟踪规则
-
-- **大版本**：跟随上游（如上游 v2.0 → 本仓库 v2.0.x）
-- **中/小版本**：本仓库独立递增（中文化改进、Bug 修复等）
-- **冲突优先级**：中文化内容 > 上游原文
-
-cc @loulanyue
-`
+              labels: ['upstream-sync'],
+              body,
             });
             console.log(`✅ 已创建同步 Issue: ${upstreamTag}`);

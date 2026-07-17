@@ -146,7 +146,7 @@ class ExtensionManifest:
         # Validate extension ID format
         if not re.match(r"^[a-z0-9-]+$", ext["id"]):
             raise ValidationError(
-                f"无效的扩展 ID '{ext['id']}'：" "只能使用小写字母、数字和连字符"
+                f"无效的扩展 ID '{ext['id']}'：只能使用小写字母、数字和连字符"
             )
 
         # Validate semantic version

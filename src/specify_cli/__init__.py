@@ -2604,7 +2604,7 @@ def init(
             f"[cyan]cd {project_path if not here else '.'}[/cyan]\n"
             f"[cyan]git init[/cyan]\n"
             f"[cyan]git add .[/cyan]\n"
-            f"[cyan]git commit -m \"Initial commit\"[/cyan]",
+            f'[cyan]git commit -m "Initial commit"[/cyan]',
             title="[red]Git 初始化失败[/red]",
             border_style="red",
             padding=(1, 2),
@@ -3930,9 +3930,7 @@ def extension_update(
 
             # TODO: 实现从 URL 下载并重新安装
             # 目前仅显示提示信息
-            console.print(
-                "[yellow]提示：[/yellow] 自动更新功能尚未实现。" "请手动更新："
-            )
+            console.print("[yellow]提示：[/yellow] 自动更新功能尚未实现。请手动更新：")
             console.print(f"  specify-zh extension remove {ext_id} --keep-config")
             console.print(f"  specify-zh extension add {ext_id}")
 

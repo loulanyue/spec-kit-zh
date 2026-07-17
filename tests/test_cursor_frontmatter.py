@@ -51,9 +51,9 @@ class TestScriptFrontmatterPattern:
             content = f.read()
         # There should be two occurrences of the .mdc check — one per function
         occurrences = content.count('if [[ "$target_file" == *.mdc ]]')
-        assert (
-            occurrences >= 2
-        ), f"Expected at least 2 .mdc frontmatter checks, found {occurrences}"
+        assert occurrences >= 2, (
+            f"Expected at least 2 .mdc frontmatter checks, found {occurrences}"
+        )
 
     def test_powershell_script_has_mdc_frontmatter_logic(self):
         """PowerShell script must also handle .mdc frontmatter."""
@@ -68,9 +68,9 @@ class TestScriptFrontmatterPattern:
             content = f.read()
         assert "alwaysApply: true" in content
         occurrences = content.count(r"\.mdc$")
-        assert (
-            occurrences >= 2
-        ), f"Expected at least 2 .mdc frontmatter checks in PS script, found {occurrences}"
+        assert occurrences >= 2, (
+            f"Expected at least 2 .mdc frontmatter checks in PS script, found {occurrences}"
+        )
 
 
 @requires_git
@@ -255,6 +255,6 @@ class TestCursorFrontmatterIntegration:
         claude_file = git_repo / ".claude" / "CLAUDE.md"
         if claude_file.exists():
             content = claude_file.read_text()
-            assert not content.startswith(
-                "---"
-            ), "Non-mdc file should not have frontmatter"
+            assert not content.startswith("---"), (
+                "Non-mdc file should not have frontmatter"
+            )

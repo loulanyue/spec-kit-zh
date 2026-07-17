@@ -35,7 +35,7 @@ def _make_fake_asset_root(root: Path) -> Path:
     )
     (root / "templates" / "vscode-settings.json").write_text("{}", encoding="utf-8")
     (root / "templates" / "commands" / "specify.md").write_text(
-        "---\n" "description: test\n" "---\n\n" "run $ARGUMENTS\n",
+        "---\ndescription: test\n---\n\nrun $ARGUMENTS\n",
         encoding="utf-8",
     )
     (root / "scripts" / "bash" / "common.sh").write_text(

@@ -69,17 +69,17 @@ def test_terminology_has_process_terms_section() -> None:
 def test_terminology_has_engineering_terms_section() -> None:
     """TERMINOLOGY.md 必须包含代码与工程术语章节（v0.9.4 新增）。"""
     content = (REPO_ROOT / "TERMINOLOGY.md").read_text(encoding="utf-8")
-    assert (
-        "## 代码与工程术语" in content
-    ), "TERMINOLOGY.md 缺少 '## 代码与工程术语' 章节"
+    assert "## 代码与工程术语" in content, (
+        "TERMINOLOGY.md 缺少 '## 代码与工程术语' 章节"
+    )
 
 
 def test_terminology_has_preservation_note() -> None:
     """TERMINOLOGY.md 必须包含保留英文的场景说明。"""
     content = (REPO_ROOT / "TERMINOLOGY.md").read_text(encoding="utf-8")
-    assert (
-        "## 保留英文的场景" in content
-    ), "TERMINOLOGY.md 缺少 '## 保留英文的场景' 章节"
+    assert "## 保留英文的场景" in content, (
+        "TERMINOLOGY.md 缺少 '## 保留英文的场景' 章节"
+    )
 
 
 # ── RELEASE_CHECKLIST.md 关键检查项 ──────────────────────────────────────────

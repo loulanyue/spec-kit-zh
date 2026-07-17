@@ -25,11 +25,12 @@ jobs:
 
     steps:
       - name: Checkout 仓库
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 运行 Lychee 死链检测
         id: lychee
         uses: lycheeverse/lychee-action@v2
+        continue-on-error: true
         with:
           args: |
             --verbose
@@ -44,7 +45,7 @@ jobs:
             --max-retries 3
             --accept 200,204,301,302,403
             '**/*.md'
-          fail: false  # 不直接失败，改为创建 Issue 汇报
+          fail: true
 
       - name: 输出检测结果摘要
         run: |
@@ -56,32 +57,35 @@ jobs:
           fi
 
       - name: 定时检测失败时创建 Issue
-        if: failure() && github.event_name == 'schedule'
-        uses: actions/github-script@v7
+        if: steps.lychee.outcome == 'failure' && github.event_name == 'schedule'
+        uses: actions/github-script@v9
         with:
           script: |
             const today = new Date().toISOString().split('T')[0];
+            const body = [
+              '## 文档死链检测报告',
+              '',
+              '定时死链检测发现文档中存在失效链接，请及时修复。',
+              '',
+              `**检测时间**: ${today}`,
+              '**触发方式**: 定时检测（每周二）',
+              '',
+              `请查看 [Actions 运行日志](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) 获取详细的死链列表。`,
+              '',
+              '### 修复建议',
+              '',
+              '- 检查链接目标页面是否已迁移或删除',
+              '- 更新 GitHub 仓库链接到最新路径',
+              '- 对于外部链接，考虑使用 Web Archive 备份链接',
+              '- 运行本地检查：`make link-check`',
+              '',
+              'cc @loulanyue',
+            ].join('\n');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `[文档维护] 死链检测发现问题 (${today})`,
-              labels: ['文档', '死链'],
-              body: `## 文档死链检测报告
-
-定时死链检测发现文档中存在失效链接，请及时修复。
-
-**检测时间**: ${today}
-**触发方式**: 定时检测（每周二）
-
-请查看 [Actions 运行日志](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) 获取详细的死链列表。
-
-### 修复建议
-
-- 检查链接目标页面是否已迁移或删除
-- 更新 GitHub 仓库链接到最新路径
-- 对于外部链接，考虑使用 Web Archive 备份链接
-- 运行本地检查：\`make link-check\`
-
-cc @loulanyue
-`
+              labels: ['documentation', 'link-check'],
+              body,
             });

@@ -55,12 +55,15 @@ def test_collect_doctor_diagnostics_reads_project_state(tmp_path: Path):
     project_dir = tmp_path / "demo"
     (project_dir / ".specify").mkdir(parents=True)
 
-    with patch("specify_cli.check_tool") as mock_check_tool, patch(
-        "specify_cli.is_git_repo", return_value=True
-    ), patch(
-        "specify_cli._check_github_connectivity",
-        return_value=(True, "GitHub API 可访问"),
-    ), patch("specify_cli._github_token", return_value="token"):
+    with (
+        patch("specify_cli.check_tool") as mock_check_tool,
+        patch("specify_cli.is_git_repo", return_value=True),
+        patch(
+            "specify_cli._check_github_connectivity",
+            return_value=(True, "GitHub API 可访问"),
+        ),
+        patch("specify_cli._github_token", return_value="token"),
+    ):
 
         def fake_check(tool, tracker=None):
             return tool in {"git", "uv", "claude"}

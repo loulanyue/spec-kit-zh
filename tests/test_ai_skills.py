@@ -96,18 +96,13 @@ def templates_dir(project_dir):
 
     # Template with no frontmatter
     (tpl_root / "tasks.md").write_text(
-        "# Tasks Command\n" "\n" "Body without frontmatter.\n",
+        "# Tasks Command\n\nBody without frontmatter.\n",
         encoding="utf-8",
     )
 
     # Template with empty YAML frontmatter (yaml.safe_load returns None)
     (tpl_root / "empty_fm.md").write_text(
-        "---\n"
-        "---\n"
-        "\n"
-        "# Empty Frontmatter Command\n"
-        "\n"
-        "Body with empty frontmatter.\n",
+        "---\n---\n\n# Empty Frontmatter Command\n\nBody with empty frontmatter.\n",
         encoding="utf-8",
     )
 
@@ -542,14 +537,15 @@ class TestNewProjectCommandSkip:
         def fake_download(project_path, *args, **kwargs):
             self._fake_extract("claude", project_path)
 
-        with patch(
-            "specify_cli.download_and_extract_template", side_effect=fake_download
-        ), patch("specify_cli.ensure_executable_scripts"), patch(
-            "specify_cli.ensure_constitution_from_template"
-        ), patch(
-            "specify_cli.install_ai_skills", return_value=True
-        ) as mock_skills, patch("specify_cli.is_git_repo", return_value=False), patch(
-            "specify_cli.shutil.which", return_value="/usr/bin/git"
+        with (
+            patch(
+                "specify_cli.download_and_extract_template", side_effect=fake_download
+            ),
+            patch("specify_cli.ensure_executable_scripts"),
+            patch("specify_cli.ensure_constitution_from_template"),
+            patch("specify_cli.install_ai_skills", return_value=True) as mock_skills,
+            patch("specify_cli.is_git_repo", return_value=False),
+            patch("specify_cli.shutil.which", return_value="/usr/bin/git"),
         ):
             result = runner.invoke(
                 app,
@@ -585,14 +581,15 @@ class TestNewProjectCommandSkip:
         def fake_download(project_path, *args, **kwargs):
             self._fake_extract("kiro-cli", project_path)
 
-        with patch(
-            "specify_cli.download_and_extract_template", side_effect=fake_download
-        ), patch("specify_cli.ensure_executable_scripts"), patch(
-            "specify_cli.ensure_constitution_from_template"
-        ), patch(
-            "specify_cli.install_ai_skills", return_value=True
-        ) as mock_skills, patch("specify_cli.is_git_repo", return_value=False), patch(
-            "specify_cli.shutil.which", return_value="/usr/bin/git"
+        with (
+            patch(
+                "specify_cli.download_and_extract_template", side_effect=fake_download
+            ),
+            patch("specify_cli.ensure_executable_scripts"),
+            patch("specify_cli.ensure_constitution_from_template"),
+            patch("specify_cli.install_ai_skills", return_value=True) as mock_skills,
+            patch("specify_cli.is_git_repo", return_value=False),
+            patch("specify_cli.shutil.which", return_value="/usr/bin/git"),
         ):
             result = runner.invoke(
                 app,
@@ -624,13 +621,16 @@ class TestNewProjectCommandSkip:
         def fake_download(project_path, *args, **kwargs):
             self._fake_extract("claude", project_path)
 
-        with patch(
-            "specify_cli.download_and_extract_template", side_effect=fake_download
-        ), patch("specify_cli.ensure_executable_scripts"), patch(
-            "specify_cli.ensure_constitution_from_template"
-        ), patch("specify_cli.install_ai_skills", return_value=False), patch(
-            "specify_cli.is_git_repo", return_value=False
-        ), patch("specify_cli.shutil.which", return_value="/usr/bin/git"):
+        with (
+            patch(
+                "specify_cli.download_and_extract_template", side_effect=fake_download
+            ),
+            patch("specify_cli.ensure_executable_scripts"),
+            patch("specify_cli.ensure_constitution_from_template"),
+            patch("specify_cli.install_ai_skills", return_value=False),
+            patch("specify_cli.is_git_repo", return_value=False),
+            patch("specify_cli.shutil.which", return_value="/usr/bin/git"),
+        ):
             result = runner.invoke(
                 app,
                 [
@@ -670,13 +670,16 @@ class TestNewProjectCommandSkip:
         def fake_download(project_path, *args, **kwargs):
             pass  # commands already exist, no need to re-create
 
-        with patch(
-            "specify_cli.download_and_extract_template", side_effect=fake_download
-        ), patch("specify_cli.ensure_executable_scripts"), patch(
-            "specify_cli.ensure_constitution_from_template"
-        ), patch("specify_cli.install_ai_skills", return_value=True), patch(
-            "specify_cli.is_git_repo", return_value=True
-        ), patch("specify_cli.shutil.which", return_value="/usr/bin/git"):
+        with (
+            patch(
+                "specify_cli.download_and_extract_template", side_effect=fake_download
+            ),
+            patch("specify_cli.ensure_executable_scripts"),
+            patch("specify_cli.ensure_constitution_from_template"),
+            patch("specify_cli.install_ai_skills", return_value=True),
+            patch("specify_cli.is_git_repo", return_value=True),
+            patch("specify_cli.shutil.which", return_value="/usr/bin/git"),
+        ):
             result = runner.invoke(
                 app,
                 [
@@ -758,9 +761,9 @@ class TestSkillDescriptions:
         ]
         for cmd in expected_commands:
             assert cmd in SKILL_DESCRIPTIONS, f"Missing description for '{cmd}'"
-            assert (
-                len(SKILL_DESCRIPTIONS[cmd]) > 20
-            ), f"Description for '{cmd}' is too short"
+            assert len(SKILL_DESCRIPTIONS[cmd]) > 20, (
+                f"Description for '{cmd}' is too short"
+            )
 
 
 # ===== CLI Validation Tests =====
@@ -787,8 +790,9 @@ class TestCliValidation:
         runner = CliRunner()
         result = runner.invoke(app, ["init", "test-proj", "--ai-skills"])
 
-        assert "Usage:" in result.output
-        assert "--ai" in result.output
+        plain = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
+        assert "Usage:" in plain
+        assert "--ai" in plain
 
     def test_ai_skills_flag_appears_in_help(self):
         """--ai-skills should appear in init --help output."""
@@ -808,11 +812,13 @@ class TestCliValidation:
         runner = CliRunner()
         target = tmp_path / "kiro-alias-proj"
 
-        with patch("specify_cli.download_and_extract_template") as mock_download, patch(
-            "specify_cli.ensure_executable_scripts"
-        ), patch("specify_cli.ensure_constitution_from_template"), patch(
-            "specify_cli.is_git_repo", return_value=False
-        ), patch("specify_cli.shutil.which", return_value="/usr/bin/git"):
+        with (
+            patch("specify_cli.download_and_extract_template") as mock_download,
+            patch("specify_cli.ensure_executable_scripts"),
+            patch("specify_cli.ensure_constitution_from_template"),
+            patch("specify_cli.is_git_repo", return_value=False),
+            patch("specify_cli.shutil.which", return_value="/usr/bin/git"),
+        ):
             result = runner.invoke(
                 app,
                 [

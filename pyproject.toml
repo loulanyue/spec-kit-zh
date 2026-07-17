@@ -40,6 +40,7 @@ packages = ["src/specify_cli"]
 test = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+    "ruff==0.15.22",
 ]
 
 [tool.pytest.ini_options]

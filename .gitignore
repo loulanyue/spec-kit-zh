@@ -40,6 +40,7 @@ env/
 .env
 .env.local
 *.lock
+!uv.lock
 
 # Spec Kit-specific files
 .genreleases/

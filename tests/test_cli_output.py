@@ -40,9 +40,9 @@ def test_no_old_brand_in_output(subcommand):
     """任意子命令输出不得包含裸旧品牌名 'Specify CLI'（不带 -zh）。"""
     result = runner.invoke(app, subcommand)
     sanitized = _strip_brand(result.output)
-    assert (
-        OLD_BRAND not in sanitized
-    ), f"命令 {['specify-zh'] + subcommand} 的输出包含旧品牌名 '{OLD_BRAND}':\n{result.output}"
+    assert OLD_BRAND not in sanitized, (
+        f"命令 {['specify-zh'] + subcommand} 的输出包含旧品牌名 '{OLD_BRAND}':\n{result.output}"
+    )
 
 
 # ── check 命令 ─────────────────────────────────────────────────────────────────
@@ -79,9 +79,9 @@ def test_doctor_output_no_old_brand():
 def test_doctor_output_contains_brand():
     """doctor 输出应包含正确品牌名 specify-zh 或 specify-cli-zh。"""
     result = runner.invoke(app, ["doctor"])
-    assert (
-        "specify-zh" in result.output or "specify-cli-zh" in result.output
-    ), f"doctor 输出缺少品牌名:\n{result.output}"
+    assert "specify-zh" in result.output or "specify-cli-zh" in result.output, (
+        f"doctor 输出缺少品牌名:\n{result.output}"
+    )
 
 
 # ── version 命令 ───────────────────────────────────────────────────────────────
@@ -95,9 +95,9 @@ def test_version_exits_zero():
 def test_version_output_contains_dist_name():
     """version 输出应包含分发包名 specify-cli-zh。"""
     result = runner.invoke(app, ["version"])
-    assert (
-        "specify-cli-zh" in result.output
-    ), f"version 输出应含 specify-cli-zh\n{result.output}"
+    assert "specify-cli-zh" in result.output, (
+        f"version 输出应含 specify-cli-zh\n{result.output}"
+    )
 
 
 def test_version_output_no_old_brand():
@@ -111,9 +111,9 @@ def test_version_output_contains_version_number():
     import re
 
     result = runner.invoke(app, ["version"])
-    assert re.search(
-        r"\d+\.\d+\.\d+", result.output
-    ), f"version 输出缺少版本号:\n{result.output}"
+    assert re.search(r"\d+\.\d+\.\d+", result.output), (
+        f"version 输出缺少版本号:\n{result.output}"
+    )
 
 
 # ── extension 子命令 ───────────────────────────────────────────────────────────
@@ -161,6 +161,6 @@ def test_global_help_lists_subcommands():
     """全局 --help 应该至少列出 init、check、version、doctor 子命令。"""
     result = runner.invoke(app, ["--help"])
     for cmd in ("init", "check", "version", "doctor"):
-        assert (
-            cmd in result.output
-        ), f"全局 --help 输出缺少子命令 '{cmd}':\n{result.output}"
+        assert cmd in result.output, (
+            f"全局 --help 输出缺少子命令 '{cmd}':\n{result.output}"
+        )
