@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [Unreleased]
+
+### Fixed
+
+- Aligned upstream-sync issue lookup and creation on the canonical `upstream-sync` label
+  to prevent duplicate scheduled notifications.
+
 ## [0.9.5] - 2026-07-17
 
 ### Added
