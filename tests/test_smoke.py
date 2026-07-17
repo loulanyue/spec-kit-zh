@@ -14,6 +14,7 @@ from pathlib import Path
 
 # Path to project root (two levels up from this file)
 PROJECT_ROOT = Path(__file__).parent.parent
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]")
 
 
 def _run(args: list[str], **kwargs) -> subprocess.CompletedProcess:
@@ -24,6 +25,11 @@ def _run(args: list[str], **kwargs) -> subprocess.CompletedProcess:
         text=True,
         **kwargs,
     )
+
+
+def _plain_output(result: subprocess.CompletedProcess) -> str:
+    """Combine stdout and stderr without terminal styling."""
+    return ANSI_ESCAPE.sub("", result.stdout + result.stderr)
 
 
 class TestSmokeCLI:
@@ -61,7 +67,7 @@ class TestSmokeCLI:
     def test_init_help_contains_ai_option(self):
         """specify-zh init --help should mention --ai option."""
         result = _run(["init", "--help"])
-        output = result.stdout + result.stderr
+        output = _plain_output(result)
         assert "--ai" in output, f"--ai not found in help output:\n{output}"
 
     def test_check_exits_zero(self):
