@@ -22,13 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a public roadmap and governance policy covering project scope, decision-making,
   response targets, release discipline, and contributor roles.
 - Added structured feature request and pull request templates plus CODEOWNERS coverage.
+- Added a question intake form, weekly Dependabot checks, and a complete local development
+  dependency extra.
 
 ### Fixed
 
 - Corrected the upstream repository reference from the historical Microsoft path to
   `github/spec-kit` and required source-range notes for upstream sync Pull Requests.
 - Reformatted Python source and tests so the repository passes its declared Ruff format gate.
-- Repaired invalid maintenance workflows and made CI use locked test and Ruff dependencies.
+- Repaired invalid maintenance workflows and made CI use locked test and Ruff dependencies,
+  bounded job runtimes, and stale-run cancellation.
 
 ### Changed
 

@@ -40,8 +40,8 @@ python src/specify_cli/__init__.py init demo-project --script ps
 uv venv
 source .venv/bin/activate  # or on Windows PowerShell: .venv\Scripts\Activate.ps1
 
-# 以 editable 模式安装项目
-uv pip install -e .
+# 按锁文件安装项目和开发依赖
+uv sync --locked --extra dev
 
 # 现在可以直接使用 'specify-zh' 入口命令
 specify-zh --help
@@ -128,14 +128,14 @@ ls -l scripts | grep .sh
 
 ```bash
 # 检查代码规范
-uv run ruff check src/
+uv run ruff check .
 
 # 检查代码格式
-uv run ruff format --check src/
+uv run ruff format --check .
 
 # 自动修复可修复的 lint 问题并格式化代码
-uv run ruff check src/ --fix
-uv run ruff format src/
+uv run ruff check . --fix
+uv run ruff format .
 ```
 
 也可以通过 Makefile 快捷方式运行：
@@ -298,4 +298,3 @@ find demo-project/ -not -path '*/.git/*' | sort
 - 更新文档，并使用你修改后的 CLI 重新走一遍 Quick Start
 - 满意后提交 PR，参见 [CONTRIBUTING.md](../CONTRIBUTING.md)
 - （可选）在变更合入 `main` 后打 Tag 发布，参见 [RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md)
-
