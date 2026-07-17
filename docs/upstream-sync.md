@@ -13,7 +13,7 @@
 - **定时检测**：每周一 UTC 03:00（北京时间 11:00）
 - **手动触发**：在 GitHub Actions 页面手动触发 `upstream-sync` workflow
 
-当检测到上游新版本时，系统会自动创建 GitHub Issue，标记为 ` 上游同步 ` 标签，提醒维护者处理。
+当检测到上游新版本时，系统会自动创建 GitHub Issue，标记为 `upstream-sync` 标签，提醒维护者处理。
 
 ---
 
