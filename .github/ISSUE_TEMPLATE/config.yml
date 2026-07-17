@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用与排障文档
+    url: https://github.com/loulanyue/spec-kit-zh/blob/main/SUPPORT.md
+    about: 提交 Issue 前请先查看安装、升级与常见问题入口。
+  - name: 安全漏洞报告
+    url: https://github.com/loulanyue/spec-kit-zh/security/advisories/new
+    about: 请通过私密 Security Advisory 报告安全问题。

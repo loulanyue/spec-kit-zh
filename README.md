@@ -826,6 +826,11 @@ rm gcm-linux_amd64.2.6.1.deb
 
 如果需要技术支持、报告错误或是交流有关规范驱动开发的火花思路，请尽情到仓库里提 [GitHub Issue](https://github.com/loulanyue/spec-kit-zh/issues)。别客气，我们很期待听听大家的声音。
 
+项目优先级见 [ROADMAP.md](./ROADMAP.md)，决策、响应目标与发布方式见
+[GOVERNANCE.md](./GOVERNANCE.md)。提交代码前请阅读
+[CONTRIBUTING.md](./CONTRIBUTING.md)；安全问题请按 [SECURITY.md](./SECURITY.md)
+私密报告。
+
 <a id="acknowledgements"></a>
 ## 🙏 致谢 (Acknowledgements)
 

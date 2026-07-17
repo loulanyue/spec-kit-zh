@@ -110,15 +110,15 @@ def normalize_speckit_name(name: str) -> str:
         The bare command name with any recognized prefix stripped.
     """
     if name.startswith("/prompts:speckit-"):
-        return name[len("/prompts:speckit-"):]
+        return name[len("/prompts:speckit-") :]
     if name.startswith("prompts:speckit-"):
-        return name[len("prompts:speckit-"):]
+        return name[len("prompts:speckit-") :]
     if name.startswith("speckit."):
-        return name[len("speckit."):]
+        return name[len("speckit.") :]
     if name.startswith("speckit-"):
-        return name[len("speckit-"):]
+        return name[len("speckit-") :]
     if name.startswith("speckit:"):
-        return name[len("speckit:"):]
+        return name[len("speckit:") :]
     return name
 
 

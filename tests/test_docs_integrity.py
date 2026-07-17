@@ -69,13 +69,17 @@ def test_terminology_has_process_terms_section() -> None:
 def test_terminology_has_engineering_terms_section() -> None:
     """TERMINOLOGY.md 必须包含代码与工程术语章节（v0.9.4 新增）。"""
     content = (REPO_ROOT / "TERMINOLOGY.md").read_text(encoding="utf-8")
-    assert "## 代码与工程术语" in content, "TERMINOLOGY.md 缺少 '## 代码与工程术语' 章节"
+    assert (
+        "## 代码与工程术语" in content
+    ), "TERMINOLOGY.md 缺少 '## 代码与工程术语' 章节"
 
 
 def test_terminology_has_preservation_note() -> None:
     """TERMINOLOGY.md 必须包含保留英文的场景说明。"""
     content = (REPO_ROOT / "TERMINOLOGY.md").read_text(encoding="utf-8")
-    assert "## 保留英文的场景" in content, "TERMINOLOGY.md 缺少 '## 保留英文的场景' 章节"
+    assert (
+        "## 保留英文的场景" in content
+    ), "TERMINOLOGY.md 缺少 '## 保留英文的场景' 章节"
 
 
 # ── RELEASE_CHECKLIST.md 关键检查项 ──────────────────────────────────────────
@@ -254,14 +258,18 @@ def test_migration_has_rollback_section() -> None:
 
 def test_constitution_template_steps_localized() -> None:
     """constitution.md 模板步骤必须已本地化为中文（v0.9.5 新增）。"""
-    content = (REPO_ROOT / "templates/commands/constitution.md").read_text(encoding="utf-8")
+    content = (REPO_ROOT / "templates/commands/constitution.md").read_text(
+        encoding="utf-8"
+    )
     assert "第 1 步" in content
     assert "第 8 步" in content
 
 
 def test_constitution_template_no_english_step_headers() -> None:
     """constitution.md 不得包含遗留的英文步骤编号（v0.9.5 新增）。"""
-    content = (REPO_ROOT / "templates/commands/constitution.md").read_text(encoding="utf-8")
+    content = (REPO_ROOT / "templates/commands/constitution.md").read_text(
+        encoding="utf-8"
+    )
     # 确认英文步骤开头已移除
     assert "1. Load the existing constitution" not in content
     assert "8. Output a final summary" not in content

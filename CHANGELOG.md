@@ -15,6 +15,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MINOR`: backward-compatible new features, new commands, new agent support, or meaningful workflow capabilities added to the current release line.
 - `MAJOR`: breaking changes to CLI behavior, generated project structure, template contracts, or extension/catalog behavior that require user migration.
 
+## [0.9.5] - 2026-07-17
+
+### Added
+
+- Added a public roadmap and governance policy covering project scope, decision-making,
+  response targets, release discipline, and contributor roles.
+- Added structured feature request and pull request templates plus CODEOWNERS coverage.
+
+### Fixed
+
+- Corrected the upstream repository reference from the historical Microsoft path to
+  `github/spec-kit` and required source-range notes for upstream sync Pull Requests.
+- Reformatted Python source and tests so the repository passes its declared Ruff format gate.
+
+### Changed
+
+- Bumped `pyproject.toml` version to `0.9.5` for the maintenance release.
+
 ## [0.9.4] - 2026-06-15
 
 ### Added

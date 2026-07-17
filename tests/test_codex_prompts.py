@@ -39,8 +39,8 @@ from specify_cli.codex_prompts import (
         ("speckit.tasks", "tasks"),
         ("speckit-analyze", "analyze"),
         ("speckit:implement", "implement"),
-        ("clarify", "clarify"),          # already bare — no stripping needed
-        ("speckit-", ""),                # edge: empty suffix
+        ("clarify", "clarify"),  # already bare — no stripping needed
+        ("speckit-", ""),  # edge: empty suffix
     ],
 )
 def test_normalize_speckit_name(raw: str, expected: str) -> None:
@@ -222,9 +222,7 @@ def test_sync_updates_changed_files(tmp_path: Path) -> None:
     sync_codex_prompts_from_templates([t1], project_dir, global_prompts_dir=global_dir)
 
     # Change the template
-    t1.write_text(
-        "---\ndescription: updated\n---\n\nUpdated body.\n", encoding="utf-8"
-    )
+    t1.write_text("---\ndescription: updated\n---\n\nUpdated body.\n", encoding="utf-8")
     result = sync_codex_prompts_from_templates(
         [t1], project_dir, global_prompts_dir=global_dir
     )
@@ -285,7 +283,9 @@ def test_sync_with_malformed_frontmatter_still_creates_file(tmp_path: Path) -> N
     global_dir = tmp_path / "global_prompts"
 
     bad_template = templates_dir / "broken.md"
-    bad_template.write_text("---\nnot_yaml: [unclosed\n---\n\nBody.\n", encoding="utf-8")
+    bad_template.write_text(
+        "---\nnot_yaml: [unclosed\n---\n\nBody.\n", encoding="utf-8"
+    )
 
     result = sync_codex_prompts_from_templates(
         [bad_template], project_dir, global_prompts_dir=global_dir

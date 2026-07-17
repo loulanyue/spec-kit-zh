@@ -41,7 +41,7 @@ PATCH  本仓库独立递增（紧急 Bug 修复 / 文档修订）
 
 ```bash
 # 添加上游作为远端（首次）
-git remote add upstream https://github.com/microsoft/spec-kit.git
+git remote add upstream https://github.com/github/spec-kit.git
 
 # 获取上游最新变更
 git fetch upstream
@@ -140,3 +140,6 @@ git push origin sync/upstream-v1.5.0
 | `CHANGELOG.md` | 记录每次同步引入的变更 |
 | `TERMINOLOGY.md` | 中文术语对照表，同步时参考 |
 | `docs/migration.md` | 面向用户的版本迁移指南 |
+
+上游项目地址以 <https://github.com/github/spec-kit> 为准。同步 PR 必须在说明中列出
+上游版本或提交范围、保留的本地增强、未采纳的变更及原因。

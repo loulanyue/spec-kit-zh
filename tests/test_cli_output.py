@@ -109,10 +109,11 @@ def test_version_output_no_old_brand():
 def test_version_output_contains_version_number():
     """version 输出应包含形如 x.y.z 的语义化版本号。"""
     import re
+
     result = runner.invoke(app, ["version"])
-    assert re.search(r"\d+\.\d+\.\d+", result.output), (
-        f"version 输出缺少版本号:\n{result.output}"
-    )
+    assert re.search(
+        r"\d+\.\d+\.\d+", result.output
+    ), f"version 输出缺少版本号:\n{result.output}"
 
 
 # ── extension 子命令 ───────────────────────────────────────────────────────────
@@ -160,6 +161,6 @@ def test_global_help_lists_subcommands():
     """全局 --help 应该至少列出 init、check、version、doctor 子命令。"""
     result = runner.invoke(app, ["--help"])
     for cmd in ("init", "check", "version", "doctor"):
-        assert cmd in result.output, (
-            f"全局 --help 输出缺少子命令 '{cmd}':\n{result.output}"
-        )
+        assert (
+            cmd in result.output
+        ), f"全局 --help 输出缺少子命令 '{cmd}':\n{result.output}"
