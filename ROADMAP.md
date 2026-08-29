@@ -11,12 +11,13 @@
 - 完善中文 CLI、模板和文档的一致性检查，避免术语与命令示例漂移。
 - 降低国内网络环境、GitHub API 限流和离线初始化对首次使用的影响。
 
-## Next: 扩展兼容与贡献体验
+## Next: 扩展前沿智能体协议与兼容体验
 
-- 建立主要 AI coding agents 的兼容矩阵和最小 smoke test。
-- 改善 extensions、presets 与自定义 agent 目录的中文使用体验。
+- **模型上下文协议 (MCP) 契约生成**：支持直接从规范导出符合 MCP 标准的 Tool JSON Schema 与 Resource 契约，让 Agent 工具声明具备强类型约束。
+- **System 2 思考与测试驱动合成 (TDD)**：在规范中嵌入确定性断言门禁，驱动智能体执行“红灯测试 -> 最小代码 -> 绿灯重构”自反思闭环。
+- **主流 AI Coding Agents 深度适配**：建立针对 Claude Code、Codex、Cursor、OpenCode 与 Windsurf 的兼容矩阵和端到端 Smoke Test。
+- **Prompt 缓存与上下文开销优化**：优化分发规范模板，对齐主流模型的 Prompt Caching 边界，大幅降低长上下文推理延迟与 Token 成本。
 - 为新贡献者整理 `good first issue`，提供更小、更容易验证的贡献入口。
-- 将上游同步差异、保留的本地增强和迁移影响记录为可审查的同步报告。
 
 ## Later: 可持续生态
 
