@@ -1,104 +1,103 @@
-<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+# RFC: Spec Kit Extension System
 
-# RFC：Spec Kit 扩展系统
-
-**状态**：草案
-**作者**：Stats Perform Engineering
-**创建时间**：2026-01-28
-**更新时间**：2026-01-28
+**Status**: Implemented
+**Author**: Stats Perform Engineering
+**Created**: 2026-01-28
+**Updated**: 2026-03-11
 
 ---
 
-## 目录
+## Table of Contents
 
-1. [摘要](#摘要)
-2. [动机](#动机)
-3. [设计原则](#设计原则)
-4. [架构概览](#架构概览)
-5. [扩展 Manifest 规范](#扩展-manifest-规范)
-6. [扩展生命周期](#扩展生命周期)
-7. [命令注册](#命令注册)
-8. [配置管理](#配置管理)
-9. [Hook 系统](#hook-系统)
-10. [扩展发现与目录](#扩展发现与目录)
-11. [CLI 命令](#cli-命令)
-12. [兼容性与版本管理](#兼容性与版本管理)
-13. [安全考虑](#安全考虑)
-14. [迁移策略](#迁移策略)
-15. [实现阶段](#实现阶段)
-16. [开放问题](#开放问题)
-17. [附录](#附录)
-
----
-
-## 摘要
-
-为 Spec Kit 引入扩展系统，使其可以在不膨胀核心框架的前提下，以模块化方式集成外部工具（如 Jira、Linear、Azure DevOps 等）。扩展将作为自包含的软件包安装到 `.specify/extensions/` 中，使用声明式 manifest，独立版本管理，并可通过中心目录被发现。
+1. [Summary](#summary)
+2. [Motivation](#motivation)
+3. [Design Principles](#design-principles)
+4. [Architecture Overview](#architecture-overview)
+5. [Extension Manifest Specification](#extension-manifest-specification)
+6. [Extension Lifecycle](#extension-lifecycle)
+7. [Command Registration](#command-registration)
+8. [Configuration Management](#configuration-management)
+9. [Hook System](#hook-system)
+10. [Extension Discovery & Catalog](#extension-discovery--catalog)
+11. [CLI Commands](#cli-commands)
+12. [Compatibility & Versioning](#compatibility--versioning)
+13. [Security Considerations](#security-considerations)
+14. [Migration Strategy](#migration-strategy)
+15. [Implementation Phases](#implementation-phases)
+16. [Resolved Questions](#resolved-questions)
+17. [Open Questions (Remaining)](#open-questions-remaining)
+18. [Appendices](#appendices)
 
 ---
 
-## 动机
+## Summary
 
-### 当前问题
-
-1. **单体化膨胀**：把 Jira 集成直接放进 core spec-kit 会带来：
-   - 影响所有用户的大型配置文件
-   - 所有人都必须承担 Jira MCP server 依赖
-   - 随着功能累积，合并冲突会越来越多
-
-2. **灵活性不足**：不同组织使用不同工具：
-   - GitHub Issues、Jira、Linear、Azure DevOps 各不相同
-   - 还可能有自定义内部工具
-   - 如果全部塞进核心系统，就无法避免膨胀
-
-3. **维护负担上升**：每引入一个集成，就会增加：
-   - 文档复杂度
-   - 测试矩阵规模
-   - 破坏性变更的影响面
-
-4. **社区协作阻力**：外部贡献者如果想增加集成，往往必须进入 core repo 的 PR 与 release 流程，门槛较高。
-
-### 目标
-
-1. **模块化**：core spec-kit 保持精简，扩展为按需启用
-2. **可扩展性**：为新集成提供清晰 API
-3. **独立性**：扩展与核心分开版本化、分开发版
-4. **可发现性**：通过中心目录发现扩展
-5. **安全性**：提供校验、兼容性检查和隔离机制
+Introduce an extension system to Spec Kit that allows modular integration with external tools (Jira, Linear, Azure DevOps, etc.) without bloating the core framework. Extensions are self-contained packages installed into `.specify/extensions/` with declarative manifests, versioned independently, and discoverable through a central catalog.
 
 ---
 
-## 设计原则
+## Motivation
 
-### 1. 约定优于配置
+### Current Problems
 
-- 标准目录结构（`.specify/extensions/{name}/`）
-- 声明式 manifest（`extension.yml`）
-- 可预测的命令命名方式（`speckit.{extension}.{command}`）
+1. **Monolithic Growth**: Adding Jira integration to core spec-kit creates:
+   - Large configuration files affecting all users
+   - Dependencies on Jira MCP server for everyone
+   - Merge conflicts as features accumulate
 
-### 2. 安全失败的默认行为
+2. **Limited Flexibility**: Different organizations use different tools:
+   - GitHub Issues vs Jira vs Linear vs Azure DevOps
+   - Custom internal tools
+   - No way to support all without bloat
 
-- 缺失扩展时优雅降级（例如跳过 hooks）
-- 无效扩展只给出警告，不破坏核心功能
-- 扩展失败与核心操作隔离
+3. **Maintenance Burden**: Every integration adds:
+   - Documentation complexity
+   - Testing matrix expansion
+   - Breaking change surface area
 
-### 3. 向后兼容
+4. **Community Friction**: External contributors can't easily add integrations without core repo PR approval and release cycles.
 
-- 核心命令保持不变
-- 扩展仅做增量增强（不修改核心）
-- 老项目在没有扩展时仍可正常工作
+### Goals
 
-### 4. 开发者体验
+1. **Modularity**: Core spec-kit remains lean, extensions are opt-in
+2. **Extensibility**: Clear API for building new integrations
+3. **Independence**: Extensions version/release separately from core
+4. **Discoverability**: Central catalog for finding extensions
+5. **Safety**: Validation, compatibility checks, sandboxing
 
-- 安装简单：`specify extension add jira`
-- 对兼容性问题给出清晰报错
-- 提供本地开发模式用于测试扩展
+---
 
-### 5. 安全优先
+## Design Principles
 
-- 扩展运行在与 AI agent 相同的上下文中（需要信任边界）
-- 通过 manifest 校验降低恶意代码风险
-- 未来可为官方扩展增加签名验证
+### 1. Convention Over Configuration
+
+- Standard directory structure (`.specify/extensions/{name}/`)
+- Declarative manifest (`extension.yml`)
+- Predictable command naming (`speckit.{extension}.{command}`)
+
+### 2. Fail-Safe Defaults
+
+- Missing extensions gracefully degrade (skip hooks)
+- Invalid extensions warn but don't break core functionality
+- Extension failures isolated from core operations
+
+### 3. Backward Compatibility
+
+- Core commands remain unchanged
+- Extensions additive only (no core modifications)
+- Old projects work without extensions
+
+### 4. Developer Experience
+
+- Simple installation: `specify extension add jira`
+- Clear error messages for compatibility issues
+- Local development mode for testing extensions
+
+### 5. Security First
+
+- Extensions run in same context as AI agent (trust boundary)
+- Manifest validation prevents malicious code
+- Verify signatures for official extensions (future)
 
 ---
 
@@ -224,7 +223,7 @@ provides:
     - name: "speckit.jira.specstoissues"
       file: "commands/specstoissues.md"
       description: "Create Jira hierarchy from spec and tasks"
-      aliases: ["speckit.specstoissues"]  # Alternate names
+      aliases: ["speckit.jira.sync"]  # Alternate names
 
     - name: "speckit.jira.discover-fields"
       file: "commands/discover-fields.md"
@@ -360,11 +359,14 @@ specify extension add jira
       "installed_at": "2026-01-28T14:30:00Z",
       "source": "catalog",
       "manifest_hash": "sha256:abc123...",
-      "enabled": true
+      "enabled": true,
+      "priority": 10
     }
   }
 }
 ```
+
+**Priority Field**: Extensions are ordered by `priority` (lower = higher precedence). Default is 10. Used for template resolution when multiple extensions provide the same template.
 
 ### 3. Configuration
 
@@ -1085,11 +1087,15 @@ List installed extensions in current project.
 $ specify extension list
 
 Installed Extensions:
-  ✓ jira (v1.0.0) - Jira Integration
-    Commands: 3 | Hooks: 2 | Status: Enabled
+  ✓ Jira Integration (v1.0.0)
+     jira
+     Create Jira issues from spec-kit artifacts
+     Commands: 3 | Hooks: 2 | Priority: 10 | Status: Enabled
 
-  ✓ linear (v0.9.0) - Linear Integration
-    Commands: 1 | Hooks: 1 | Status: Enabled
+  ✓ Linear Integration (v0.9.0)
+     linear
+     Create Linear issues from spec-kit artifacts
+     Commands: 1 | Hooks: 1 | Priority: 10 | Status: Enabled
 ```
 
 **Options:**
@@ -1197,10 +1203,9 @@ Next steps:
 
 **Options:**
 
-- `--from URL`: Install from custom URL or Git repo
-- `--version VERSION`: Install specific version
-- `--dev PATH`: Install from local path (development mode)
-- `--no-register`: Skip command registration (manual setup)
+- `--from URL`: Install from a remote URL (archive). Does not accept Git repositories directly.
+- `--dev`: Install from a local path in development mode (the PATH is the positional `extension` argument).
+- `--priority NUMBER`: Set resolution priority (lower = higher precedence, default 10)
 
 #### `specify extension remove NAME`
 
@@ -1280,6 +1285,29 @@ $ specify extension disable jira
 
 To re-enable: specify extension enable jira
 ```
+
+#### `specify extension set-priority NAME PRIORITY`
+
+Change the resolution priority of an installed extension.
+
+```bash
+$ specify extension set-priority jira 5
+
+✓ Extension 'Jira Integration' priority changed: 10 → 5
+
+Lower priority = higher precedence in template resolution
+```
+
+**Priority Values:**
+
+- Lower numbers = higher precedence (checked first in resolution)
+- Default priority is 10
+- Must be a positive integer (1 or higher)
+
+**Use Cases:**
+
+- Ensure a critical extension's templates take precedence
+- Override default resolution order when multiple extensions provide similar templates
 
 ---
 
@@ -1489,7 +1517,7 @@ specify extension add github-projects
 /speckit.github.taskstoissues
 ```
 
-**Compatibility shim** (if needed):
+**Migration alias** (if needed):
 
 ```yaml
 # extension.yml
@@ -1497,212 +1525,234 @@ provides:
   commands:
     - name: "speckit.github.taskstoissues"
       file: "commands/taskstoissues.md"
-      aliases: ["speckit.taskstoissues"]  # Backward compatibility
+      aliases: ["speckit.github.sync-taskstoissues"]  # Alternate namespaced entry point
 ```
 
-AI agent registers both names, so old scripts work.
+AI agents register both names, so callers can migrate to the alternate alias without relying on deprecated global shortcuts like `/speckit.taskstoissues`.
 
 ---
 
 ## Implementation Phases
 
-### Phase 1: Core Extension System (Week 1-2)
+### Phase 1: Core Extension System ✅ COMPLETED
 
 **Goal**: Basic extension infrastructure
 
 **Deliverables**:
 
-- [ ] Extension manifest schema (`extension.yml`)
-- [ ] Extension directory structure
-- [ ] CLI commands:
-  - [ ] `specify extension list`
-  - [ ] `specify extension add` (from URL)
-  - [ ] `specify extension remove`
-- [ ] Extension registry (`.specify/extensions/.registry`)
-- [ ] Command registration (Claude only initially)
-- [ ] Basic validation (manifest schema, compatibility)
-- [ ] Documentation (extension development guide)
+- [x] Extension manifest schema (`extension.yml`)
+- [x] Extension directory structure
+- [x] CLI commands:
+  - [x] `specify extension list`
+  - [x] `specify extension add` (from URL and local `--dev`)
+  - [x] `specify extension remove`
+- [x] Extension registry (`.specify/extensions/.registry`)
+- [x] Command registration (Claude and 15+ other agents)
+- [x] Basic validation (manifest schema, compatibility)
+- [x] Documentation (extension development guide)
 
 **Testing**:
 
-- [ ] Unit tests for manifest parsing
-- [ ] Integration test: Install dummy extension
-- [ ] Integration test: Register commands with Claude
+- [x] Unit tests for manifest parsing
+- [x] Integration test: Install dummy extension
+- [x] Integration test: Register commands with Claude
 
-### Phase 2: Jira Extension (Week 3)
+### Phase 2: Jira Extension ✅ COMPLETED
 
 **Goal**: First production extension
 
 **Deliverables**:
 
-- [ ] Create `spec-kit-jira` repository
-- [ ] Port Jira functionality to extension
-- [ ] Create `jira-config.yml` template
-- [ ] Commands:
-  - [ ] `specstoissues.md`
-  - [ ] `discover-fields.md`
-  - [ ] `sync-status.md`
-- [ ] Helper scripts
-- [ ] Documentation (README, configuration guide, examples)
-- [ ] Release v1.0.0
+- [x] Create `spec-kit-jira` repository
+- [x] Port Jira functionality to extension
+- [x] Create `jira-config.yml` template
+- [x] Commands:
+  - [x] `specstoissues.md`
+  - [x] `discover-fields.md`
+  - [x] `sync-status.md`
+- [x] Helper scripts
+- [x] Documentation (README, configuration guide, examples)
+- [x] Release v3.0.0
 
 **Testing**:
 
-- [ ] Test on `eng-msa-ts` project
-- [ ] Verify spec→Epic, phase→Story, task→Issue mapping
-- [ ] Test configuration loading and validation
-- [ ] Test custom field application
+- [x] Test on `eng-msa-ts` project
+- [x] Verify spec→Epic, phase→Story, task→Issue mapping
+- [x] Test configuration loading and validation
+- [x] Test custom field application
 
-### Phase 3: Extension Catalog (Week 4)
+### Phase 3: Extension Catalog ✅ COMPLETED
 
 **Goal**: Discovery and distribution
 
 **Deliverables**:
 
-- [ ] Central catalog (`extensions/catalog.json` in spec-kit repo)
-- [ ] Catalog fetch and parsing
-- [ ] CLI commands:
-  - [ ] `specify extension search`
-  - [ ] `specify extension info`
-- [ ] Catalog publishing process (GitHub Action)
-- [ ] Documentation (how to publish extensions)
+- [x] Central catalog (`extensions/catalog.json` in spec-kit repo)
+- [x] Community catalog (`extensions/catalog.community.json`)
+- [x] Catalog fetch and parsing with multi-catalog support
+- [x] CLI commands:
+  - [x] `specify extension search`
+  - [x] `specify extension info`
+  - [x] `specify extension catalog list`
+  - [x] `specify extension catalog add`
+  - [x] `specify extension catalog remove`
+- [x] Documentation (how to publish extensions)
 
 **Testing**:
 
-- [ ] Test catalog fetch
-- [ ] Test extension search/filtering
-- [ ] Test catalog caching
+- [x] Test catalog fetch
+- [x] Test extension search/filtering
+- [x] Test catalog caching
+- [x] Test multi-catalog merge with priority
 
-### Phase 4: Advanced Features (Week 5-6)
+### Phase 4: Advanced Features ✅ COMPLETED
 
 **Goal**: Hooks, updates, multi-agent support
 
 **Deliverables**:
 
-- [ ] Hook system (`hooks` in extension.yml)
-- [ ] Hook registration and execution
-- [ ] Project extensions config (`.specify/extensions.yml`)
-- [ ] CLI commands:
-  - [ ] `specify extension update`
-  - [ ] `specify extension enable/disable`
-- [ ] Command registration for multiple agents (Gemini, Copilot)
-- [ ] Extension update notifications
-- [ ] Configuration layer resolution (project, local, env)
+- [x] Hook system (`hooks` in extension.yml)
+- [x] Hook registration and execution
+- [x] Project extensions config (`.specify/extensions.yml`)
+- [x] CLI commands:
+  - [x] `specify extension update` (with atomic backup/restore)
+  - [x] `specify extension enable/disable`
+- [x] Command registration for multiple agents (15+ agents including Claude, Copilot, Gemini, Cursor, etc.)
+- [x] Extension update notifications (version comparison)
+- [x] Configuration layer resolution (project, local, env)
+
+**Additional features implemented beyond original RFC**:
+
+- [x] **Display name resolution**: All commands accept extension display names in addition to IDs
+- [x] **Ambiguous name handling**: User-friendly tables when multiple extensions match a name
+- [x] **Atomic update with rollback**: Full backup of extension dir, commands, hooks, and registry with automatic rollback on failure
+- [x] **Pre-install ID validation**: Validates extension ID from ZIP before installing (security)
+- [x] **Enabled state preservation**: Disabled extensions stay disabled after update
+- [x] **Registry update/restore methods**: Clean API for enable/disable and rollback operations
+- [x] **Catalog error fallback**: `extension info` falls back to local info when catalog unavailable
+- [x] **`_install_allowed` flag**: Discovery-only catalogs can't be used for installation
+- [x] **Cache invalidation**: Cache invalidated when `SPECKIT_CATALOG_URL` changes
 
 **Testing**:
 
-- [ ] Test hooks in core commands
-- [ ] Test extension updates (preserve config)
-- [ ] Test multi-agent registration
+- [x] Test hooks in core commands
+- [x] Test extension updates (preserve config)
+- [x] Test multi-agent registration
+- [x] Test atomic rollback on update failure
+- [x] Test enabled state preservation
+- [x] Test display name resolution
 
-### Phase 5: Polish & Documentation (Week 7)
+### Phase 5: Polish & Documentation ✅ COMPLETED
 
 **Goal**: Production ready
 
 **Deliverables**:
 
-- [ ] Comprehensive documentation:
-  - [ ] User guide (installing/using extensions)
-  - [ ] Extension development guide
-  - [ ] Extension API reference
-  - [ ] Migration guide (core → extension)
-- [ ] Error messages and validation improvements
-- [ ] CLI help text updates
-- [ ] Example extension template (cookiecutter)
-- [ ] Blog post / announcement
-- [ ] Video tutorial
+- [x] Comprehensive documentation:
+  - [x] User guide (EXTENSION-USER-GUIDE.md)
+  - [x] Extension development guide (EXTENSION-DEV-GUIDE.md)
+  - [x] Extension API reference (EXTENSION-API-REFERENCE.md)
+- [x] Error messages and validation improvements
+- [x] CLI help text updates
 
 **Testing**:
 
-- [ ] End-to-end testing on multiple projects
-- [ ] Community beta testing
-- [ ] Performance testing (large projects)
+- [x] End-to-end testing on multiple projects
+- [x] 163 unit tests passing
 
 ---
 
-## Open Questions
+## Resolved Questions
 
-### 1. Extension Namespace
+The following questions from the original RFC have been resolved during implementation:
+
+### 1. Extension Namespace ✅ RESOLVED
 
 **Question**: Should extension commands use namespace prefix?
 
-**Options**:
+**Decision**: **Option C** - Both prefixed and aliases are supported. Commands use `speckit.{extension}.{command}` as canonical name, with optional aliases defined in manifest.
 
-- A) Prefixed: `/speckit.jira.specstoissues` (explicit, avoids conflicts)
-- B) Short alias: `/jira.specstoissues` (shorter, less verbose)
-- C) Both: Register both names, prefer prefixed in docs
-
-**Recommendation**: C (both), prefixed is canonical
+**Implementation**: The `aliases` field in `extension.yml` allows extensions to register additional command names.
 
 ---
 
-### 2. Config File Location
+### 2. Config File Location ✅ RESOLVED
 
 **Question**: Where should extension configs live?
 
-**Options**:
+**Decision**: **Option A** - Extension directory (`.specify/extensions/{ext-id}/{ext-id}-config.yml`). This keeps extensions self-contained and easier to manage.
 
-- A) Extension directory: `.specify/extensions/jira/jira-config.yml` (encapsulated)
-- B) Root level: `.specify/jira-config.yml` (more visible)
-- C) Unified: `.specify/extensions.yml` (all extension configs in one file)
-
-**Recommendation**: A (extension directory), cleaner separation
+**Implementation**: Each extension has its own config file within its directory, with layered resolution (defaults → project → local → env vars).
 
 ---
 
-### 3. Command File Format
+### 3. Command File Format ✅ RESOLVED
 
 **Question**: Should extensions use universal format or agent-specific?
 
-**Options**:
+**Decision**: **Option A** - Universal Markdown format. Extensions write commands once, CLI converts to agent-specific format during registration.
 
-- A) Universal Markdown: Extensions write once, CLI converts per-agent
-- B) Agent-specific: Extensions provide separate files for each agent
-- C) Hybrid: Universal default, agent-specific overrides
-
-**Recommendation**: A (universal), reduces duplication
+**Implementation**: `CommandRegistrar` class handles conversion to 15+ agent formats (Claude, Copilot, Gemini, Cursor, etc.).
 
 ---
 
-### 4. Hook Execution Model
+### 4. Hook Execution Model ✅ RESOLVED
 
 **Question**: How should hooks execute?
 
-**Options**:
+**Decision**: **Option A** - Hooks are registered in `.specify/extensions.yml` and executed by the AI agent when it sees the hook trigger. Hook state (enabled/disabled) is managed per-extension.
 
-- A) AI agent interprets: Core commands output `EXECUTE_COMMAND: name`
-- B) CLI executes: Core commands call `specify extension hook after_tasks`
-- C) Agent built-in: Extension system built into AI agent (Claude SDK)
-
-**Recommendation**: A initially (simpler), move to C long-term
+**Implementation**: `HookExecutor` class manages hook registration and state in `extensions.yml`.
 
 ---
 
-### 5. Extension Distribution
+### 5. Extension Distribution ✅ RESOLVED
 
 **Question**: How should extensions be packaged?
 
-**Options**:
+**Decision**: **Option A** - ZIP archives downloaded from GitHub releases (via catalog `download_url`). Local development uses `--dev` flag with directory path.
 
-- A) ZIP archives: Downloaded from GitHub releases
-- B) Git repos: Cloned directly (`git clone`)
-- C) Python packages: Installable via `uv tool install`
-
-**Recommendation**: A (ZIP), simpler for non-Python extensions in future
+**Implementation**: `ExtensionManager.install_from_zip()` handles ZIP extraction and validation.
 
 ---
 
-### 6. Multi-Version Support
+### 6. Multi-Version Support ✅ RESOLVED
 
 **Question**: Can multiple versions of same extension coexist?
 
+**Decision**: **Option A** - Single version only. Updates replace the existing version with atomic rollback on failure.
+
+**Implementation**: `extension update` performs atomic backup/restore to ensure safe updates.
+
+---
+
+## Open Questions (Remaining)
+
+### 1. Sandboxing / Permissions (Future)
+
+**Question**: Should extensions declare required permissions?
+
 **Options**:
 
-- A) Single version: Only one version installed at a time
-- B) Multi-version: Side-by-side versions (`.specify/extensions/jira@1.0/`, `.specify/extensions/jira@2.0/`)
-- C) Per-branch: Different branches use different versions
+- A) No sandboxing (current): Extensions run with same privileges as AI agent
+- B) Permission declarations: Extensions declare `filesystem:read`, `network:external`, etc.
+- C) Opt-in sandboxing: Organizations can enable permission enforcement
 
-**Recommendation**: A initially (simpler), consider B in future if needed
+**Status**: Deferred to future version. Currently using trust-based model where users trust extension authors.
+
+---
+
+### 2. Package Signatures (Future)
+
+**Question**: Should extensions be cryptographically signed?
+
+**Options**:
+
+- A) No signatures (current): Trust based on catalog source
+- B) GPG/Sigstore signatures: Verify package integrity
+- C) Catalog-level verification: Catalog maintainers verify packages
+
+**Status**: Deferred to future version. `checksum` field is available in catalog schema but not enforced.
 
 ---
 

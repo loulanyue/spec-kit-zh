@@ -687,6 +687,11 @@ def check_tool(tool: str, tracker: StepTracker = None) -> bool:
         # Kiro currently supports both executable names. Prefer kiro-cli and
         # accept kiro as a compatibility fallback.
         found = shutil.which("kiro-cli") is not None or shutil.which("kiro") is not None
+    elif tool == "copilot" and os.name == "nt":
+        found = any(
+            shutil.which(cand) is not None
+            for cand in ("copilot.exe", "copilot.cmd", "copilot")
+        )
     else:
         found = shutil.which(tool) is not None
 
@@ -915,7 +920,7 @@ def handle_vscode_settings(
                 dest_file, new_settings, verbose=verbose and not tracker
             )
             with open(dest_file, "w", encoding="utf-8") as f:
-                json.dump(merged, f, indent=4)
+                json.dump(merged, f, indent=4, ensure_ascii=False)
                 f.write("\n")
             log("Merged:", "green")
         else:
@@ -1870,6 +1875,7 @@ SKILL_DESCRIPTIONS = {
     "constitution": "Create or update project governing principles and development guidelines. Use at project start to establish code quality, testing standards, and architectural constraints that guide all development.",
     "checklist": "Generate custom quality checklists for validating requirements completeness and clarity. Use to create unit tests for English that ensure spec quality before implementation.",
     "taskstoissues": "Convert tasks from tasks.md into GitHub issues. Use after task breakdown to track work items in GitHub project management.",
+    "converge": "Assess the current codebase against the feature's spec, plan, and tasks, then append any remaining unbuilt work as new tasks to tasks.md so implement can complete it. Use after partial or complete implementation passes to achieve spec-code convergence.",
 }
 
 
@@ -3119,6 +3125,7 @@ def version() -> None:
     info_table.add_row("发布时间", release_date)
     info_table.add_row("", "")
     info_table.add_row("Python", platform.python_version())
+    info_table.add_row("OpenSSL", getattr(ssl, "OPENSSL_VERSION", "unknown"))
     info_table.add_row("平台", platform.system())
     info_table.add_row("架构", platform.machine())
     info_table.add_row("系统版本", platform.version())

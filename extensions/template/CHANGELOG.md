@@ -1,8 +1,6 @@
-<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+# Changelog
 
-# 更新日志
-
-该扩展的重要变更都应记录在本文件中。
+All notable changes to this extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to  [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

@@ -1,118 +1,160 @@
-<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+# Extension API Reference
 
-# 扩展 API 参考
+Technical reference for Spec Kit extension system APIs and manifest schema.
 
-这是 Spec Kit 扩展系统 API 与 manifest schema 的技术参考文档。
+## Table of Contents
 
-## 目录
-
-1. [扩展 Manifest](#扩展-manifest)
+1. [Extension Manifest](#extension-manifest)
 2. [Python API](#python-api)
-3. [命令文件格式](#命令文件格式)
-4. [配置 Schema](#配置-schema)
-5. [Hook 系统](#hook-系统)
-6. [CLI 命令](#cli-命令)
+3. [Command File Format](#command-file-format)
+4. [Configuration Schema](#configuration-schema)
+5. [Hook System](#hook-system)
+6. [CLI Commands](#cli-commands)
 
 ---
 
-## 扩展 Manifest
+## Extension Manifest
 
-### Schema 版本 1.0
+### Schema Version 1.0
 
-文件：`extension.yml`
+File: `extension.yml`
 
 ```yaml
-schema_version: "1.0"  # 必填
+schema_version: "1.0"  # Required
 
 extension:
-  id: string           # 必填，模式：^[a-z0-9-]+$
-  name: string         # 必填，人类可读名称
-  version: string      # 必填，语义化版本（X.Y.Z）
-  description: string  # 必填，简短描述（<200 chars）
-  author: string       # 必填
-  repository: string   # 必填，有效 URL
-  license: string      # 必填（例如 "MIT", "Apache-2.0"）
-  homepage: string     # 可选，有效 URL
+  id: string           # Required, pattern: ^[a-z0-9-]+$
+  name: string         # Required, human-readable name
+  version: string      # Required, semantic version (X.Y.Z)
+  description: string  # Required, brief description (<200 chars)
+  author: string       # Required
+  repository: string   # Required, valid URL
+  license: string      # Required (e.g., "MIT", "Apache-2.0")
+  homepage: string     # Optional, valid URL
 
 requires:
-  speckit_version: string  # 必填，版本约束（>=X.Y.Z）
-  tools:                   # 可选，工具要求数组
-    - name: string         # 工具名称
-      version: string      # 可选，版本约束
-      required: boolean    # 可选，默认 false
+  speckit_version: string  # Required, version specifier (>=X.Y.Z)
+  tools:                   # Optional, array of tool requirements
+    - name: string         # Tool name
+      version: string      # Optional, version specifier
+      required: boolean    # Optional, default: false
 
 provides:
-  commands:               # 必填，至少一个命令
-    - name: string        # 必填，模式：^speckit\.[a-z0-9-]+\.[a-z0-9-]+$
-      file: string        # 必填，命令文件相对路径
-      description: string # 必填
-      aliases: [string]   # 可选，别名数组
+  commands:              # At least one of commands/templates/scripts/hooks/events required
+    - name: string       # Required, pattern: ^speckit\.[a-z0-9-]+\.[a-z0-9-]+$
+      file: string       # Required, relative path to command file
+      description: string # Required
+      aliases: [string]  # Optional, same pattern as name; namespace must match extension.id and must not shadow core or installed extension commands
 
-  config:                # 可选，配置文件数组
-    - name: string       # 配置文件名称
-      template: string   # 模板文件路径
+  templates:             # Optional, array of declared templates. Always resolve
+                          # as "replace" -- 'strategy' is not an authorable field here.
+    - name: string       # Required, pattern: ^[a-z0-9-]+$
+      file: string       # Required, relative path to template file
+      description: string # Optional
+
+  scripts:               # Optional, array of declared scripts. Always resolve
+                          # as "replace" -- 'strategy' is not an authorable field here.
+    - name: string       # Required, pattern: ^[a-z0-9-]+$
+      file: string       # Required, relative path to script file
+      description: string # Optional
+      runtimes: [string] # Optional, subset of: bash, powershell, python
+
+  config:                # Optional, array of config files
+    - name: string       # Config file name
+      template: string   # Template file path
       description: string
-      required: boolean  # 默认 false
+      required: boolean  # Default: false
 
-hooks:                   # 可选，事件 hooks
-  event_name:            # 例如 "after_tasks", "after_implement"
-    command: string      # 要执行的命令
-    optional: boolean    # 默认 true
-    prompt: string       # 可选 hook 的提示语
-    description: string  # Hook 描述
-    condition: string    # 可选，条件表达式
+hooks:                   # Optional, event hooks. Each event accepts either form below.
+  event_name:            # e.g., "after_specify", "after_plan", "after_tasks", "after_implement"
+    command: string      # Command to execute
+    priority: integer    # Optional, >= 1, default 10 (lower runs first)
+    optional: boolean    # Default: true
+    prompt: string       # Prompt text for optional hooks
+    description: string  # Hook description
+    condition: string    # Optional, condition expression
+  another_event:         # Any event may instead use a list of mappings (multiple commands)
+    - command: string    # Same fields as the single mapping, per entry
+      priority: integer
+    - command: string
+      priority: integer
 
-tags:                    # 可选，标签数组（建议 2-10 个）
+tags:                    # Optional, array of tags (2-10 recommended)
   - string
 
-defaults:                # 可选，默认配置值
-  key: value             # 任意 YAML 结构
+defaults:                # Optional, default configuration values
+  key: value             # Any YAML structure
 ```
 
-### 字段规范
+### Field Specifications
 
 #### `extension.id`
 
-- **类型**：string
-- **模式**：`^[a-z0-9-]+$`
-- **说明**：唯一扩展标识
-- **示例**：`jira`、`linear`、`azure-devops`
-- **无效示例**：`Jira`、`my_extension`、`extension.id`
+- **Type**: string
+- **Pattern**: `^[a-z0-9-]+$`
+- **Description**: Unique extension identifier
+- **Examples**: `jira`, `linear`, `azure-devops`
+- **Invalid**: `Jira`, `my_extension`, `extension.id`
 
 #### `extension.version`
 
-- **类型**：string
-- **格式**：语义化版本（X.Y.Z）
-- **说明**：扩展版本
-- **示例**：`1.0.0`、`0.9.5`、`2.1.3`
-- **无效示例**：`v1.0`、`1.0`、`1.0.0-beta`
+- **Type**: string
+- **Format**: Semantic versioning (X.Y.Z)
+- **Description**: Extension version
+- **Examples**: `1.0.0`, `0.9.5`, `2.1.3`
+- **Invalid**: `v1.0`, `1.0`, `1.0.0-beta`
 
 #### `requires.speckit_version`
 
-- **类型**：string
-- **格式**：版本约束表达式
-- **说明**：要求的 spec-kit 版本范围
-- **示例**：
-  - `>=0.1.0` - 任何 0.1.0 及以上版本
-  - `>=0.1.0,<2.0.0` - 0.1.x 或 1.x
-  - `==0.1.0` - 精确匹配 0.1.0
-- **无效示例**：`0.1.0`、`>= 0.1.0`（带空格）、`latest`
+- **Type**: string
+- **Format**: Version specifier
+- **Description**: Required spec-kit version range
+- **Examples**:
+  - `>=0.1.0` - Any version 0.1.0 or higher
+  - `>=0.1.0,<2.0.0` - Version 0.1.x or 1.x
+  - `==0.1.0` - Exactly 0.1.0
+- **Invalid**: `0.1.0`, `>= 0.1.0` (space), `latest`
 
 #### `provides.commands[].name`
 
-- **类型**：string
-- **模式**：`^speckit\.[a-z0-9-]+\.[a-z0-9-]+$`
-- **说明**：带命名空间的命令名
-- **格式**：`speckit.{extension-id}.{command-name}`
-- **示例**：`speckit.jira.specstoissues`、`speckit.linear.sync`
-- **无效示例**：`jira.specstoissues`、`speckit.command`、`speckit.jira.CreateIssues`
+- **Type**: string
+- **Pattern**: `^speckit\.[a-z0-9-]+\.[a-z0-9-]+$`
+- **Description**: Namespaced command name
+- **Format**:  `speckit.{extension-id}.{command-name}`
+- **Examples**: `speckit.jira.specstoissues`, `speckit.linear.sync`
+- **Invalid**: `jira.specstoissues`, `speckit.command`, `speckit.jira.CreateIssues`
+
+#### `provides.templates[].name` / `provides.scripts[].name`
+
+- **Type**: string
+- **Pattern**: `^[a-z0-9-]+$`
+- **Description**: Unlike commands, templates and scripts are not invoked by
+  name, so they use the same plain slug pattern as `extension.id` rather than
+  the namespaced command pattern.
+- **Examples**: `myext-template`, `myext-collect`
+
+#### `provides.templates[].strategy` / `provides.scripts[].strategy`
+
+- Not an authorable field. Extension-contributed templates and scripts are
+  always resolved as `replace`; a manifest that includes a `strategy` key on
+  one of these entries is rejected with a `ValidationError`. Composable
+  strategies (`wrap`/`prepend`/`append`) are preset-only.
+
+#### `provides.scripts[].runtimes`
+
+- **Type**: array of strings
+- **Values**: `bash`, `powershell`, `python`
+- **Description**: Declares which runtimes the script supports. Purely
+  informational metadata — it is not used to select or invoke the script.
 
 #### `hooks`
 
-- **类型**：object
-- **键名**：事件名称（例如 `after_tasks`、`after_implement`、`before_commit`）
-- **说明**：在生命周期事件上触发的 hooks
-- **事件来源**：由 core spec-kit commands 定义
+- **Type**: object
+- **Keys**: Event names (e.g., `after_specify`, `after_plan`, `after_tasks`, `after_implement`, `before_analyze`)
+- **Value**: A single hook mapping, or a list of hook mappings to register multiple commands on one event
+- **Description**: Hooks that execute at lifecycle events
+- **Events**: Defined by core spec-kit commands
+- **Ordering**: Within an event, hooks run by ascending `priority` (integer ≥ 1, default 10; lower runs first; equal priorities keep authoring order via a stable sort)
 
 ---
 
@@ -137,6 +179,8 @@ manifest.version                   # str: Version
 manifest.description               # str: Description
 manifest.requires_speckit_version  # str: Required spec-kit version
 manifest.commands                  # List[Dict]: Command definitions
+manifest.templates                 # List[Dict]: Declared template definitions
+manifest.scripts                   # List[Dict]: Declared script definitions
 manifest.hooks                     # Dict: Hook definitions
 ```
 
@@ -537,7 +581,9 @@ Examples:
 
 ### Hook Definition
 
-**In extension.yml**:
+Each event accepts either a single hook mapping or a list of mappings. A list registers multiple commands on the same event.
+
+**Single mapping (in extension.yml)**:
 
 ```yaml
 hooks:
@@ -549,14 +595,46 @@ hooks:
     condition: null
 ```
 
+**List of mappings with priority**:
+
+```yaml
+hooks:
+  after_plan:
+    - command: "speckit.my-ext.verify"
+      priority: 5
+      optional: false
+      description: "Verify the plan"
+    - command: "speckit.my-ext.report"
+      priority: 10
+      optional: true
+      prompt: "Generate the report?"
+      description: "Generate a report from the plan"
+```
+
+Within a single manifest list, a repeated `command` is deduped as "last wins" and moved to the end, so it also breaks equal-priority ties in authoring order.
+
 ### Hook Events
 
 Standard events (defined by core):
 
+- `before_specify` - Before specification generation
+- `after_specify` - After specification generation
+- `before_plan` - Before implementation planning
+- `after_plan` - After implementation planning
+- `before_tasks` - Before task generation
 - `after_tasks` - After task generation
+- `before_implement` - Before implementation
 - `after_implement` - After implementation
-- `before_commit` - Before git commit
-- `after_commit` - After git commit
+- `before_analyze` - Before cross-artifact analysis
+- `after_analyze` - After cross-artifact analysis
+- `before_checklist` - Before checklist generation
+- `after_checklist` - After checklist generation
+- `before_clarify` - Before spec clarification
+- `after_clarify` - After spec clarification
+- `before_constitution` - Before constitution update
+- `after_constitution` - After constitution update
+- `before_taskstoissues` - Before tasks-to-issues conversion
+- `after_taskstoissues` - After tasks-to-issues conversion
 
 ### Hook Configuration
 

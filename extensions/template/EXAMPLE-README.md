@@ -1,9 +1,7 @@
-<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+# EXAMPLE: Extension README
 
-# 示例：扩展 README
-
-这是一个扩展 README 的参考示例，用于帮助你完成自定义。
-**请删除此文件，并将 README.md 改写成类似结构的正式内容。**
+This is an example of what your extension README should look like after customization.
+**Delete this file and replace README.md with content similar to this.**
 
 ---
 
@@ -13,7 +11,7 @@
 
 Brief description of what your extension does and why it's useful.
 
-## 功能特性
+## Features
 
 <!-- CUSTOMIZE: List key features -->
 
@@ -57,7 +55,7 @@ specify extension add --dev /path/to/my-extension
      id: "your-project-id"
    ```
 
-## 使用方式
+## Usage
 
 <!-- CUSTOMIZE: Add usage examples -->
 
@@ -80,7 +78,7 @@ Description of what this command does.
 - What this command produces
 - Where results are saved
 
-## 配置参考
+## Configuration Reference
 
 <!-- CUSTOMIZE: Document all configuration options -->
 
@@ -98,7 +96,7 @@ Description of what this command does.
 | `project.id` | string | Yes | Project identifier |
 | `project.workspace` | string | No | Workspace or organization |
 
-## 环境变量
+## Environment Variables
 
 Override configuration with environment variables:
 
@@ -108,7 +106,7 @@ export SPECKIT_MY_EXTENSION_CONNECTION_URL="https://custom-api.com"
 export SPECKIT_MY_EXTENSION_CONNECTION_API_KEY="custom-key"
 ```
 
-## 示例
+## Examples
 
 <!-- CUSTOMIZE: Add real-world examples -->
 
@@ -125,7 +123,7 @@ export SPECKIT_MY_EXTENSION_CONNECTION_API_KEY="custom-key"
 > /speckit.my-extension.example
 ```
 
-## 故障排除
+## Troubleshooting
 
 <!-- CUSTOMIZE: Add common issues -->
 

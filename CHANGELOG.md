@@ -17,10 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.6] - 2026-10-01
+
+### Added
+
+- **Python Scripts Suite (`scripts/python/`)**: Synced upstream cross-platform pure-Python script implementations (`check_prerequisites.py`, `common.py`, `create_new_feature.py`, `resolve_template.py`, `setup_plan.py`, `setup_tasks.py`).
+- **`converge` Command (`templates/commands/converge.md`)**: Added the new Spec Kit convergence command, allowing agents to verify actual codebase implementation against spec, plan, and tasks, automatically appending remaining unbuilt items to `tasks.md`.
+- **First-party Ecosystem Assets**: Packaged upstream `workflows/`, `presets/`, and `bundles/` specifications and offline catalogs into the distribution wheel.
+- **Bundled Extensions**: Bundled `extensions/github` (taskstoissues), `extensions/agent-context`, `extensions/assess`, `extensions/bug`, `extensions/git`, and synchronized community extension catalog snapshots (`catalog.json`, `catalog.community.json`).
+- **OpenSSL Runtime Inspection**: `specify-zh version` now reports the OpenSSL runtime version.
+
 ### Fixed
 
-- Aligned upstream-sync issue lookup and creation on the canonical `upstream-sync` label
-  to prevent duplicate scheduled notifications.
+- **Preserve Non-ASCII in Settings**: Added `ensure_ascii=False` when saving merged JSON settings files (e.g. VS Code `settings.json`) to keep Chinese and internationalized characters fully readable without Unicode escaping.
+- **Windows Copilot Discovery**: Added discovery for `copilot.exe` on Windows environments before falling back to `copilot.cmd`.
+- Aligned upstream-sync issue lookup and creation on the canonical `upstream-sync` label to prevent duplicate scheduled notifications.
 
 ## [0.9.5] - 2026-07-17
 

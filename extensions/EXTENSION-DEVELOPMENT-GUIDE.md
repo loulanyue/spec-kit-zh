@@ -1,83 +1,81 @@
-<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+# Extension Development Guide
 
-# 扩展开发指南
-
-本指南介绍如何创建 Spec Kit 扩展。
+A guide for creating Spec Kit extensions.
 
 ---
 
-## 快速开始
+## Quick Start
 
-### 1. 创建扩展目录
+### 1. Create Extension Directory
 
 ```bash
 mkdir my-extension
 cd my-extension
 ```
 
-### 2. 创建 `extension.yml` 清单文件
+### 2. Create `extension.yml` Manifest
 
 ```yaml
 schema_version: "1.0"
 
 extension:
-  id: "my-ext"                          # 仅允许小写字母、数字和连字符
+  id: "my-ext"                          # Lowercase, alphanumeric + hyphens only
   name: "My Extension"
-  version: "1.0.0"                      # 语义化版本
+  version: "1.0.0"                      # Semantic versioning
   description: "My custom extension"
   author: "Your Name"
   repository: "https://github.com/you/spec-kit-my-ext"
   license: "MIT"
 
 requires:
-  speckit_version: ">=0.1.0"            # 最低 spec-kit 版本
-  tools:                                # 可选：所需外部工具
+  speckit_version: ">=0.1.0"            # Minimum spec-kit version
+  tools:                                # Optional: External tools required
     - name: "my-tool"
       required: true
       version: ">=1.0.0"
-  commands:                             # 可选：依赖的核心命令
+  commands:                             # Optional: Core commands needed
     - "speckit.tasks"
 
 provides:
   commands:
-    - name: "speckit.my-ext.hello"      # 必须符合模式：speckit.{ext-id}.{cmd}
+    - name: "speckit.my-ext.hello"      # Must follow pattern: speckit.{ext-id}.{cmd}
       file: "commands/hello.md"
       description: "Say hello"
-      aliases: ["speckit.hello"]        # 可选：命令别名
+      aliases: ["speckit.my-ext.hi"]    # Optional aliases, same pattern
 
-  config:                               # 可选：配置文件
+  config:                               # Optional: Config files
     - name: "my-ext-config.yml"
       template: "my-ext-config.template.yml"
       description: "Extension configuration"
       required: false
 
-hooks:                                  # 可选：集成 hooks
+hooks:                                  # Optional: Integration hooks
   after_tasks:
     command: "speckit.my-ext.hello"
     optional: true
     prompt: "Run hello command?"
 
-tags:                                   # 可选：用于目录搜索
+tags:                                   # Optional: For catalog search
   - "example"
   - "utility"
 ```
 
-### 3. 创建 commands 目录
+### 3. Create Commands Directory
 
 ```bash
 mkdir commands
 ```
 
-### 4. 创建命令文件
+### 4. Create Command File
 
-**文件**：`commands/hello.md`
+**File**: `commands/hello.md`
 
 ```markdown
 ---
 description: "Say hello command"
-tools:                              # 可选：命令会调用的 AI 工具
+tools:                              # Optional: AI tools this command uses
   - 'some-tool/function'
-scripts:                            # 可选：辅助脚本
+scripts:                            # Optional: Helper scripts
   sh: ../../scripts/bash/helper.sh
   ps: ../../scripts/powershell/helper.ps1
 ---
@@ -104,122 +102,154 @@ echo "Arguments: $ARGUMENTS"
 
 Load extension config from `.specify/extensions/my-ext/my-ext-config.yml`.
 
-### 5. 本地测试
+### 5. Test Locally
 
 ```bash
 cd /path/to/spec-kit-project
 specify extension add --dev /path/to/my-extension
 ```
 
-### 6. 验证安装结果
+### 6. Verify Installation
 
 ```bash
 specify extension list
 
-# 预期输出：
+# Should show:
 #  ✓ My Extension (v1.0.0)
 #     My custom extension
 #     Commands: 1 | Hooks: 1 | Status: Enabled
 ```
 
-### 7. 测试命令
+### 7. Test Command
 
-如果你使用 Claude：
+If using Claude:
 
 ```bash
 claude
 > /speckit.my-ext.hello world
 ```
 
-命令文件会出现在 `.claude/commands/speckit.my-ext.hello.md`。
+The command will be available in `.claude/commands/speckit.my-ext.hello.md`.
 
 ---
 
-## Manifest Schema 参考
+## Manifest Schema Reference
 
-### 必填字段
+### Required Fields
 
 #### `schema_version`
 
-扩展 manifest 的 schema 版本。当前值为：`"1.0"`
+Extension manifest schema version. Currently: `"1.0"`
 
 #### `extension`
 
-扩展元数据块。
+Extension metadata block.
 
-**必填子字段：**
+**Required sub-fields**:
 
-- `id`：扩展标识（小写、数字、连字符）
-- `name`：可读名称
-- `version`：语义化版本（例如 `"1.0.0"`）
-- `description`：简短描述
+- `id`: Extension identifier (lowercase, alphanumeric, hyphens)
+- `name`: Human-readable name
+- `version`: Semantic version (e.g., "1.0.0")
+- `description`: Short description
 
-**可选子字段：**
+**Optional sub-fields**:
 
-- `author`：扩展作者
-- `repository`：源码仓库 URL
-- `license`：SPDX license 标识
-- `homepage`：扩展主页 URL
+- `author`: Extension author
+- `repository`: Source code URL
+- `license`: SPDX license identifier
+- `homepage`: Extension homepage URL
 
 #### `requires`
 
-兼容性要求。
+Compatibility requirements.
 
-**必填子字段：**
+**Required sub-fields**:
 
-- `speckit_version`：语义化版本约束（例如 `" >=0.1.0,<2.0.0"`）
+- `speckit_version`: Semantic version specifier (e.g., ">=0.1.0,<2.0.0")
 
-**可选子字段：**
+**Optional sub-fields**:
 
-- `tools`：所需外部工具（工具对象数组）
-- `commands`：依赖的 core spec-kit commands（命令名数组）
-- `scripts`：依赖的 core scripts（脚本名数组）
+- `tools`: External tools required (array of tool objects)
+- `commands`: Core spec-kit commands needed (array of command names)
+- `scripts`: Core scripts required (array of script names)
 
 #### `provides`
 
-扩展提供的能力。
+What the extension provides.
 
-**必填子字段：**
+**Optional sub-fields:**
 
-- `commands`：命令对象数组（至少提供一个）
+- `commands`: Array of command objects
+- `templates`: Array of template objects
+- `scripts`: Array of script objects
 
-**命令对象字段：**
+`hooks` and `events` are separate top-level manifest fields (siblings of
+`provides`, not nested under it — see [`hooks`](#hooks) below). At least one
+of `provides.commands`, `provides.templates`, `provides.scripts`, `hooks`, or
+`events` is required.
 
-- `name`：命令名（必须匹配 `speckit.{ext-id}.{command}`）
-- `file`：命令文件路径（相对扩展根目录）
-- `description`：命令描述（可选）
-- `aliases`：命令别名（可选，数组）
+**Command object**:
 
-### 可选字段
+- `name`: Command name (must match `speckit.{ext-id}.{command}`)
+- `file`: Path to command file (relative to extension root)
+- `description`: Command description (optional)
+- `aliases`: Alternative command names (optional, array; each must match `speckit.{ext-id}.{command}`)
+
+**Template object**:
+
+- `name`: Template name (lowercase, alphanumeric, hyphens — e.g. `myext-template`)
+- `file`: Path to template file (relative to extension root)
+- `description`: Template description (optional)
+
+**Script object**:
+
+- `name`: Script name (lowercase, alphanumeric, hyphens — e.g. `myext-collect`)
+- `file`: Path to script file (relative to extension root)
+- `description`: Script description (optional)
+- `runtimes`: Runtimes the script supports (optional, array; subset of `bash`, `powershell`, `python` — informational only, not used to select or invoke the script)
+
+Extension-provided templates and scripts always resolve as `replace`; a manifest that includes a `strategy` key on one of these entries is rejected with a `ValidationError`. Composable strategies (`wrap`/`prepend`/`append`) are preset-only.
+
+### Optional Fields
 
 #### `hooks`
 
-用于自动执行的集成 hooks。
+Integration hooks for automatic execution.
 
-可用的 hook 点：
+Available hook points:
 
-- `after_tasks`：在 `/speckit.tasks` 完成后触发
-- `after_implement`：在 `/speckit.implement` 完成后触发（未来能力）
+- `before_specify` / `after_specify`: Before/after specification generation
+- `before_plan` / `after_plan`: Before/after implementation planning
+- `before_tasks` / `after_tasks`: Before/after task generation
+- `before_implement` / `after_implement`: Before/after implementation
+- `before_analyze` / `after_analyze`: Before/after cross-artifact analysis
+- `before_checklist` / `after_checklist`: Before/after checklist generation
+- `before_clarify` / `after_clarify`: Before/after spec clarification
+- `before_constitution` / `after_constitution`: Before/after constitution update
+- `before_taskstoissues` / `after_taskstoissues`: Before/after tasks-to-issues conversion
 
-Hook 对象字段：
+Each event accepts a single hook object or a list of hook objects (multiple commands on one event).
 
-- `command`：要执行的命令（必须出现在 `provides.commands` 中）
-- `optional`：为 `true` 时，执行前提示用户确认
-- `prompt`：可选 hook 的提示语
-- `description`：hook 描述
-- `condition`：执行条件（未来能力）
+Hook object:
+
+- `command`: Command to execute (typically from `provides.commands`, but can reference any registered command)
+- `priority`: Run order within the event (integer ≥ 1, default 10; lower runs first; equal priorities keep authoring order)
+- `optional`: If true, prompt user before executing
+- `prompt`: Prompt text for optional hooks
+- `description`: Hook description
+- `condition`: Execution condition (future)
 
 #### `tags`
 
-用于目录发现的标签数组。
+Array of tags for catalog discovery.
 
 #### `defaults`
 
-扩展默认配置值。
+Default extension configuration values.
 
 #### `config_schema`
 
-用于校验扩展配置的 JSON Schema。
+JSON Schema for validating extension configuration.
 
 ---
 
@@ -244,6 +274,7 @@ Use standard Markdown with special placeholders:
 
 - `$ARGUMENTS`: User-provided arguments
 - `{SCRIPT}`: Replaced with script path during registration
+- `__SPECKIT_COMMAND_<NAME>__`: Replaced with the invocation of another command, rendered using the active integration's separator (see [Referencing other commands](#referencing-other-commands))
 
 **Example**:
 
@@ -258,6 +289,45 @@ args="$ARGUMENTS"
 echo "Running with args: $args"
 ```
 ````
+
+### Referencing other commands
+
+A command body is a *template* that Spec Kit renders once per agent. Different agents invoke commands with different surface syntax — for example `/speckit.plan` (dot separator) or `/speckit-plan` (hyphen separator). Some agents also use different prefixes in skills mode (e.g. Kimi `/skill:speckit-plan`, Codex/ZCode `$speckit-plan`). So when you reference a sibling command from a body, **do not hard-code a literal invocation** like `/speckit.my-ext.prepare`. A literal is correct for exactly one agent and breaks on the rest.
+
+Instead use the agent-neutral token `__SPECKIT_COMMAND_<NAME>__`. Spec Kit resolves it to a `/speckit<separator>...` invocation using the active integration's `invoke_separator` (and integrations may post-process that further in skills output).
+
+Encode the command name in upper case, dropping the `speckit.` prefix and turning each dotted segment separator into an underscore. A hyphen inside a segment is kept as a hyphen:
+
+| Command file | Token |
+| --- | --- |
+| `speckit.plan.md` | `__SPECKIT_COMMAND_PLAN__` |
+| `speckit.bug.fix.md` | `__SPECKIT_COMMAND_BUG_FIX__` |
+| `speckit.git.commit.md` | `__SPECKIT_COMMAND_GIT_COMMIT__` |
+| `speckit.agent-context.update.md` | `__SPECKIT_COMMAND_AGENT-CONTEXT_UPDATE__` |
+
+The resolver maps each underscore back to the active agent's separator. An underscore separates segments and a hyphen belongs to the segment it sits in, so `AGENT-CONTEXT_UPDATE` is the two segments `agent-context` and `update` rather than three.
+
+**Example** — a command body that points the user at the next step:
+
+```markdown
+Once the assessment exists, the next step is `__SPECKIT_COMMAND_BUG_FIX__ slug=<slug>`.
+```
+
+This renders as `/speckit.bug.fix slug=<slug>` for a slash-based agent, `/speckit-bug-fix slug=<slug>` for a skills-based agent, and so on — the author writes it once and it stays portable. The first-party `bug` and `git` extensions use this token exclusively; see `extensions/bug/commands/` for working examples.
+
+> **Skills mode.** Token resolution runs in both paths, so the token is safe to
+> use either way. Command files go through the command-rendering path
+> (`CommandRegistrar`). Skill bodies go through `_resolve_command_ref_tokens` in
+> `_register_extension_skills`, which resolves the same token shape against the
+> active skill style, so `__SPECKIT_COMMAND_BUG_FIX__` renders as:
+>
+> | Agent | Rendered |
+> | --- | --- |
+> | Codex, ZCode, Command Code | `$speckit-bug-fix` |
+> | Claude, Copilot, Cursor, Devin, Droid, Grok and the other slash agents | `/speckit-bug-fix` |
+> | Kimi | `/skill:speckit-bug-fix` |
+>
+> Anything else falls through to the integration's own `build_command_invocation`.
 
 ### Script Path Rewriting
 
@@ -331,6 +401,67 @@ fi
 
 echo "$config"
 ```
+
+---
+
+## Excluding Files with `.extensionignore`
+
+Extension authors can create a `.extensionignore` file in the extension root to exclude files and folders from being copied when a user installs the extension with `specify extension add`. This is useful for keeping development-only files (tests, CI configs, docs source, etc.) out of the installed copy.
+
+### Format
+
+The file uses `.gitignore`-compatible patterns (one per line), powered by the [`pathspec`](https://pypi.org/project/pathspec/) library:
+
+- Blank lines are ignored
+- Lines starting with `#` are comments
+- `*` matches anything **except** `/` (does not cross directory boundaries)
+- `**` matches zero or more directories (e.g., `docs/**/*.draft.md`)
+- `?` matches any single character except `/`
+- A trailing `/` restricts a pattern to directories only
+- Patterns containing `/` (other than a trailing slash) are anchored to the extension root
+- Patterns without `/` match at any depth in the tree
+- `!` negates a previously excluded pattern (re-includes a file)
+- Backslashes in patterns are normalised to forward slashes for cross-platform compatibility
+- The `.extensionignore` file itself is always excluded automatically
+
+### Example
+
+```gitignore
+# .extensionignore
+
+# Development files
+tests/
+.github/
+.gitignore
+
+# Build artifacts
+__pycache__/
+*.pyc
+dist/
+
+# Documentation source (keep only the built README)
+docs/
+CONTRIBUTING.md
+```
+
+### Pattern Matching
+
+| Pattern | Matches | Does NOT match |
+|---------|---------|----------------|
+| `*.pyc` | Any `.pyc` file in any directory | — |
+| `tests/` | The `tests` directory (and all its contents) | A file named `tests` |
+| `docs/*.draft.md` | `docs/api.draft.md` (directly inside `docs/`) | `docs/sub/api.draft.md` (nested) |
+| `.env` | The `.env` file at any level | — |
+| `!README.md` | Re-includes `README.md` even if matched by an earlier pattern | — |
+| `docs/**/*.draft.md` | `docs/api.draft.md`, `docs/sub/api.draft.md` | — |
+
+### Unsupported Features
+
+The following `.gitignore` features are **not applicable** in this context:
+
+- **Multiple `.extensionignore` files**: Only a single file at the extension root is supported (`.gitignore` supports files in subdirectories)
+- **`$GIT_DIR/info/exclude` and `core.excludesFile`**: These are Git-specific and have no equivalent here
+- **Negation inside excluded directories**: Because file copying uses `shutil.copytree`, excluding a directory prevents recursion into it entirely. A negation pattern cannot re-include a file inside a directory that was itself excluded. For example, the combination `tests/` followed by `!tests/important.py` will **not** preserve `tests/important.py` — the `tests/` directory is skipped at the root level and its contents are never evaluated. To work around this, exclude the directory's contents individually instead of the directory itself (e.g., `tests/*.pyc` and `tests/.cache/` rather than `tests/`).
 
 ---
 
@@ -455,18 +586,16 @@ zip -r spec-kit-my-ext-1.0.0.zip extension.yml commands/ scripts/ docs/
 Users install with:
 
 ```bash
-specify extension add --from https://github.com/.../spec-kit-my-ext-1.0.0.zip
+specify extension add <extension-name> --from https://github.com/.../spec-kit-my-ext-1.0.0.zip
 ```
 
 ### Option 3: Community Reference Catalog
 
 Submit to the community catalog for public discovery:
 
-1. **Fork** spec-kit repository
-2. **Add entry** to `extensions/catalog.community.json`
-3. **Update** `extensions/README.md` with your extension
-4. **Create PR** following the [Extension Publishing Guide](EXTENSION-PUBLISHING-GUIDE.md)
-5. **After merge**, your extension becomes available:
+1. **Create a GitHub release** for your extension
+2. **File an issue** using the [Extension Submission](https://github.com/github/spec-kit/issues/new?template=extension_submission.yml) template
+3. **After review**, a maintainer updates the catalog and your extension becomes available:
    - Users can browse `catalog.community.json` to discover your extension
    - Users copy the entry to their own `catalog.json`
    - Users install with: `specify extension add my-ext` (from their catalog)
@@ -496,6 +625,13 @@ See the [Extension Publishing Guide](EXTENSION-PUBLISHING-GUIDE.md) for detailed
 - **MAJOR**: Breaking changes
 - **MINOR**: New features
 - **PATCH**: Bug fixes
+- **Bump on every content change**: update offers from `specify extension
+  update` are version-driven, so a content change shipped without a
+  version bump is never delivered automatically to already-installed
+  copies. For the bundled extensions in this repository the bump is
+  enforced by CI (`extension-version-guard.yml`): a PR that changes
+  files under `extensions/<id>/` must also bump that extension's
+  `extension.yml` version and keep `extensions/catalog.json` in sync.
 
 ### Security
 
@@ -591,6 +727,23 @@ hooks:
     description: "Analyze tasks after generation"
 ```
 
+Multiple commands on one event, ordered by `priority` (lower runs first):
+
+```yaml
+# extension.yml
+hooks:
+  after_plan:
+    - command: "speckit.my-ext.verify"
+      priority: 5
+      optional: false
+      description: "Verify the plan"
+    - command: "speckit.my-ext.report"
+      priority: 10
+      optional: true
+      prompt: "Generate the report?"
+      description: "Generate a report from the plan"
+```
+
 ---
 
 ## Troubleshooting
@@ -603,7 +756,7 @@ hooks:
 
 **Error**: `Extension requires spec-kit >=0.2.0`
 
-- **Fix**: Update spec-kit with `uv tool install specify-cli --force`
+- **Fix**: Upgrade Spec Kit using the [Upgrade Guide](../docs/upgrade.md). `uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git` remains available as a source-install fallback. If you installed from PyPI and want to stay on that route, follow the [PyPI upgrade guidance](../docs/install/pypi.md#upgrade).
 
 **Error**: `Command file not found`
 

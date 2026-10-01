@@ -1,66 +1,88 @@
 #!/usr/bin/env pwsh
-# spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 # Setup implementation plan for a feature
 
 [CmdletBinding()]
 param(
     [switch]$Json,
-    [switch]$Help
+    [switch]$Help,
+    # Capture extra positional arguments to match Bash/Python behavior.
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$RemainingArgs
 )
 
 $ErrorActionPreference = 'Stop'
 
 # Show help if requested
 if ($Help) {
-    Write-Output "用法：./setup-plan.ps1 [-Json] [-Help]"
-    Write-Output "  -Json     以 JSON 格式输出结果"
-    Write-Output "  -Help     显示帮助信息"
+    Write-Output "Usage: ./setup-plan.ps1 [-Json] [-Help]"
+    Write-Output "  -Json     Output results in JSON format"
+    Write-Output "  -Help     Show this help message"
     exit 0
+}
+
+if ($RemainingArgs.Count -gt 0) {
+    [Console]::Error.WriteLine("ERROR: Unknown option '$($RemainingArgs[0])'")
+    exit 1
 }
 
 # Load common functions
 . "$PSScriptRoot/common.ps1"
 
 # Get all paths and variables from common functions
-$paths = Get-FeaturePathsEnv
-
-# Check if we're on a proper feature branch (only for git repos)
-if (-not (Test-FeatureBranch -Branch $paths.CURRENT_BRANCH -HasGit $paths.HAS_GIT)) { 
-    exit 1 
+$paths = Get-FeaturePathsEnv -ReturnNullOnError
+if (-not $paths) {
+    [Console]::Error.WriteLine("ERROR: Failed to resolve feature paths")
+    exit 1
 }
 
 # Ensure the feature directory exists
 New-Item -ItemType Directory -Path $paths.FEATURE_DIR -Force | Out-Null
 
-# Copy plan template if it exists, otherwise note it or create empty file
-$template = Join-Path $paths.REPO_ROOT '.specify/templates/plan-template.md'
-if (Test-Path $template) { 
-    Copy-Item $template $paths.IMPL_PLAN -Force
-    if (-not $Json) {
-        Write-Output "已复制计划模板到 $($paths.IMPL_PLAN)"
+# Copy plan template if plan doesn't already exist
+if (Test-Path $paths.IMPL_PLAN -PathType Leaf) {
+    if ($Json) {
+        [Console]::Error.WriteLine("Plan already exists at $($paths.IMPL_PLAN), skipping template copy")
+    } else {
+        Write-Output "Plan already exists at $($paths.IMPL_PLAN), skipping template copy"
     }
 } else {
-    if (-not $Json) {
-        Write-Warning "未在 $template 找到计划模板"
+    $content = Resolve-TemplateContent -TemplateName 'plan-template' -RepoRoot $paths.REPO_ROOT
+    if ($null -ne $content) {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText($paths.IMPL_PLAN, $content, $utf8NoBom)
+        # Emit the copy status like the bash twin (setup-plan.sh); route to stderr
+        # in -Json mode so stdout stays pure JSON, matching the sibling messages.
+        if ($Json) {
+            [Console]::Error.WriteLine("Copied plan template to $($paths.IMPL_PLAN)")
+        } else {
+            Write-Output "Copied plan template to $($paths.IMPL_PLAN)"
+        }
+    } else {
+        # Match the bash twin's wording and stream routing (stderr in -Json so
+        # stdout stays pure JSON, stdout otherwise), consistent with the sibling
+        # "Copied plan template" message above.
+        if ($Json) {
+            [Console]::Error.WriteLine("Warning: Plan template not found")
+        } else {
+            Write-Output "Warning: Plan template not found"
+        }
+        # Create a basic plan file if template doesn't exist
+        New-Item -ItemType File -Path $paths.IMPL_PLAN -Force | Out-Null
     }
-    # Create a basic plan file if template doesn't exist
-    New-Item -ItemType File -Path $paths.IMPL_PLAN -Force | Out-Null
 }
 
 # Output results
 if ($Json) {
-    $result = [PSCustomObject]@{ 
+    $result = [PSCustomObject]@{
         FEATURE_SPEC = $paths.FEATURE_SPEC
         IMPL_PLAN = $paths.IMPL_PLAN
-        SPECS_DIR = $paths.FEATURE_DIR
+        FEATURE_DIR = $paths.FEATURE_DIR
         BRANCH = $paths.CURRENT_BRANCH
-        HAS_GIT = $paths.HAS_GIT
     }
     $result | ConvertTo-Json -Compress
 } else {
     Write-Output "FEATURE_SPEC: $($paths.FEATURE_SPEC)"
     Write-Output "IMPL_PLAN: $($paths.IMPL_PLAN)"
-    Write-Output "SPECS_DIR: $($paths.FEATURE_DIR)"
+    Write-Output "FEATURE_DIR: $($paths.FEATURE_DIR)"
     Write-Output "BRANCH: $($paths.CURRENT_BRANCH)"
-    Write-Output "HAS_GIT: $($paths.HAS_GIT)"
 }

@@ -1,7 +1,7 @@
 # spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`.
 [project]
 name = "specify-cli-zh"
-version = "0.9.5"
+version = "0.9.6"
 description = "Specify CLI，GitHub Spec Kit 的命令行工具，用于为 Spec-Driven Development (SDD) 初始化项目。"
 requires-python = ">=3.11"
 dependencies = [
@@ -35,6 +35,10 @@ packages = ["src/specify_cli"]
 "docs/antd-pagination-convention.md" = "specify_cli/_bundled_docs/antd-pagination-convention.md"
 "templates" = "specify_cli/_bundled_core/templates"
 "scripts" = "specify_cli/_bundled_core/scripts"
+"extensions" = "specify_cli/_bundled_core/extensions"
+"workflows" = "specify_cli/_bundled_core/workflows"
+"presets" = "specify_cli/_bundled_core/presets"
+"bundles" = "specify_cli/_bundled_core/bundles"
 
 [project.optional-dependencies]
 test = [

@@ -1,110 +1,102 @@
-<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+# Spec Kit Extensions
 
-# Spec Kit 扩展系统
+Extension system for [Spec Kit](https://github.com/github/spec-kit) - add new functionality without bloating the core framework.
 
-[Spec Kit](https://github.com/loulanyue/spec-kit-zh) 的扩展系统，用于在不膨胀核心框架的前提下增加新能力。
+## Extension Catalogs
 
-## 扩展目录
+Spec Kit provides two catalog files with different purposes:
 
-Spec Kit 提供两个用途不同的目录文件：
+### Your Catalog (`catalog.json`)
 
-### 你的目录（`catalog.json`）
+- **Purpose**: Default upstream catalog of extensions used by the Spec Kit CLI
+- **Default State**: Empty by design in the upstream project - you or your organization populate a fork/copy with extensions you trust
+- **Location (upstream)**: `extensions/catalog.json` in the GitHub-hosted spec-kit repo
+- **CLI Default**: The `specify extension` commands use the upstream catalog URL by default, unless overridden
+- **Org Catalog**: Point `SPECKIT_CATALOG_URL` at your organization's fork or hosted catalog JSON to use it instead of the upstream default
+- **Customization**: Copy entries from the community catalog into your org catalog, or add your own extensions directly
 
-- **用途**：Spec Kit CLI 默认使用的上游扩展目录
-- **默认状态**：上游项目默认保持为空，通常由你或你的组织在 fork/copy 中填入受信任的扩展
-- **上游位置**：托管在 GitHub 的 spec-kit 仓库中的 `extensions/catalog.json`
-- **CLI 默认行为**：除非显式覆盖，否则 `specify extension` 命令默认使用上游目录 URL
-- **组织目录**：你可以将 `SPECKIT_CATALOG_URL` 指向组织自己的 fork 或托管目录 JSON，以替代默认上游目录
-- **自定义方式**：可将社区目录中的条目复制到你的组织目录中，也可以直接加入自定义扩展
-
-**覆盖示例：**
+**Example override:**
 ```bash
-# 使用你们组织自己的目录覆盖默认上游目录
+# Override the default upstream catalog with your organization's catalog
 export SPECKIT_CATALOG_URL="https://your-org.com/spec-kit/catalog.json"
-specify extension search  # 此时会使用组织目录，而不是默认上游目录
+specify extension search  # Now uses your organization's catalog instead of the upstream default
 ```
 
-### 社区参考目录（`catalog.community.json`）
+### Community Reference Catalog (`catalog.community.json`)
 
-- **用途**：浏览社区贡献的可用扩展
-- **状态**：活跃使用中，包含社区提交的扩展
-- **位置**：`extensions/catalog.community.json`
-- **使用方式**：作为发现可用扩展的参考目录
-- **贡献方式**：接受社区通过 Pull Request 提交
+> [!NOTE]
+> Community extensions are independently created and maintained by their respective authors. Maintainers only verify that catalog entries are complete and correctly formatted — they do **not review, audit, endorse, or support the extension code itself**. Review extension source code before installation and use at your own discretion.
 
-## 工作方式
+- **Purpose**: Browse available community-contributed extensions
+- **Status**: Active - contains extensions submitted by the community
+- **Location**: `extensions/catalog.community.json`
+- **Usage**: Reference catalog for discovering available extensions
+- **Submission**: Open to community contributions via [issue template](https://github.com/github/spec-kit/issues/new?template=extension_submission.yml)
 
-## 让扩展可用
+**How It Works:**
 
-你可以自行决定团队能发现和安装哪些扩展：
+## Making Extensions Available
 
-### 方式一：维护精选目录（推荐用于组织团队）
+You control which extensions your team can discover and install:
 
-将已批准扩展写入 `catalog.json`：
+### Option 1: Curated Catalog (Recommended for Organizations)
 
-1. **发现** 扩展来源：
-   - 浏览 `catalog.community.json` 中的社区扩展
-   - 查找组织内部仓库中的私有扩展
-   - 从可信第三方发现扩展
-2. **评审** 扩展，并决定哪些要开放给团队使用
-3. **加入** 这些扩展条目到你的 `catalog.json`
-4. **团队成员** 就可以发现并安装它们：
-   - `specify extension search` 会展示你的精选目录
-   - `specify extension add <name>` 会从你的目录安装扩展
+Populate your `catalog.json` with approved extensions:
 
-**优点**：可完全控制可用扩展范围，保持团队一致性，并适配组织审批流程
+1. **Discover** extensions from various sources:
+   - Browse `catalog.community.json` for community extensions
+   - Find private/internal extensions in your organization's repos
+   - Discover extensions from trusted third parties
+2. **Review** extensions and choose which ones you want to make available
+3. **Add** those extension entries to your own `catalog.json`
+4. **Team members** can now discover and install them:
+   - `specify extension search` shows your curated catalog
+   - `specify extension add <name>` installs from your catalog
 
-**示例**：把 `catalog.community.json` 中的某个条目复制到 `catalog.json`，之后团队成员就可以通过名称发现并安装它。
+**Benefits**: Full control over available extensions, team consistency, organizational approval workflow
 
-### 方式二：直接使用 URL（适合临时场景）
+**Example**: Copy an entry from `catalog.community.json` to your `catalog.json`, then your team can discover and install it by name.
 
-跳过目录维护，团队成员直接通过 URL 安装：
+### Option 2: Direct URLs (For Ad-hoc Use)
+
+Skip catalog curation - team members install directly using URLs:
 
 ```bash
-specify extension add --from https://github.com/org/spec-kit-ext/archive/refs/tags/v1.0.0.zip
+specify extension add <extension-name> --from https://github.com/org/spec-kit-ext/archive/refs/tags/v1.0.0.zip
 ```
 
-**优点**：适合一次性测试或私有扩展，速度快
+**Benefits**: Quick for one-off testing or private extensions
 
-**代价**：除非你同时把它加入 `catalog.json`，否则其他团队成员无法在 `specify extension search` 中看到这类扩展。
+**Tradeoff**: Extensions installed this way won't appear in `specify extension search` for other team members unless you also add them to your `catalog.json`.
 
-## 可用的社区扩展
+## Available Community Extensions
 
-以下社区贡献扩展当前收录于 [`catalog.community.json`](catalog.community.json)：
+> [!NOTE]
+> Community extensions are independently created and maintained by their respective authors. Maintainers only verify that catalog entries are complete and correctly formatted — they do **not review, audit, endorse, or support the extension code itself**. The Community Extensions website is also a third-party resource. Review extension source code before installation and use at your own discretion.
 
-| 扩展 | 用途 | URL |
-|------|------|-----|
-| Azure DevOps Integration | Sync user stories and tasks to Azure DevOps work items using OAuth authentication | [spec-kit-azure-devops](https://github.com/pragya247/spec-kit-azure-devops) |
-| Cleanup Extension | Post-implementation quality gate that reviews changes, fixes small issues (scout rule), creates tasks for medium issues, and generates analysis for large issues | [spec-kit-cleanup](https://github.com/dsrednicki/spec-kit-cleanup) |
-| Fleet Orchestrator | Orchestrate a full feature lifecycle with human-in-the-loop gates across all SpecKit phases | [spec-kit-fleet](https://github.com/sharathsatish/spec-kit-fleet) |
-| Jira Integration | Create Jira Epics, Stories, and Issues from spec-kit specifications and task breakdowns with configurable hierarchy and custom field support | [spec-kit-jira](https://github.com/mbachorik/spec-kit-jira) |
-| Ralph Loop | Autonomous implementation loop using AI agent CLI | [spec-kit-ralph](https://github.com/Rubiss/spec-kit-ralph) |
-| Retrospective Extension | Post-implementation retrospective with spec adherence scoring, drift analysis, and human-gated spec updates | [spec-kit-retrospective](https://github.com/emi-dm/spec-kit-retrospective) |
-| Review Extension | Post-implementation comprehensive code review with specialized agents for code quality, comments, tests, error handling, type design, and simplification | [spec-kit-review](https://github.com/ismaelJimenez/spec-kit-review) |
-| Spec Sync | Detect and resolve drift between specs and implementation. AI-assisted resolution with human approval | [spec-kit-sync](https://github.com/bgervin/spec-kit-sync) |
-| Understanding | Automated requirements quality analysis — 31 deterministic metrics against IEEE/ISO standards with experimental energy-based ambiguity detection | [understanding](https://github.com/Testimonial/understanding) |
-| V-Model Extension Pack | Enforces V-Model paired generation of development specs and test specs with full traceability | [spec-kit-v-model](https://github.com/leocamello/spec-kit-v-model) |
-| Verify Extension | Post-implementation quality gate that validates implemented code against specification artifacts | [spec-kit-verify](https://github.com/ismaelJimenez/spec-kit-verify) |
+🔍 **Browse and search community extensions on the [Community Extensions website](https://speckit-community.github.io/extensions/).**
+
+See the [Community Extensions](https://github.github.io/spec-kit/community/extensions.html) page for the full list of available community-contributed extensions.
+
+For the raw catalog data, see [`catalog.community.json`](catalog.community.json).
 
 
-## 添加你的扩展
+## Adding Your Extension
 
-### 提交流程
+### Submission Process
 
-如果你想把自己的扩展加入社区目录：
+To add your extension to the community catalog:
 
-1. 按照 [扩展开发指南](EXTENSION-DEVELOPMENT-GUIDE.md) **准备扩展**
-2. 为扩展 **创建 GitHub Release**
-3. 提交 **Pull Request**，内容包括：
-   - 将扩展加入 `extensions/catalog.community.json`
-   - 在本 README 的“可用社区扩展”表格中补上你的扩展
-4. **等待审核**，维护者会在符合标准后合并
+1. **Prepare your extension** following the [Extension Development Guide](EXTENSION-DEVELOPMENT-GUIDE.md)
+2. **Create a GitHub release** for your extension
+3. **File an issue** using the [Extension Submission](https://github.com/github/spec-kit/issues/new?template=extension_submission.yml) template with all required metadata
+4. **Wait for review** — a maintainer will review the submission, update the catalog, and close the issue
 
-详细步骤请参考 [扩展发布指南](EXTENSION-PUBLISHING-GUIDE.md)。
+See the [Extension Publishing Guide](EXTENSION-PUBLISHING-GUIDE.md) for detailed step-by-step instructions.
 
-### 提交检查清单
+### Submission Checklist
 
-在提交前，请确认：
+Before submitting, ensure:
 
 - ✅ Valid `extension.yml` manifest
 - ✅ Complete README with installation and usage instructions
@@ -113,20 +105,19 @@ specify extension add --from https://github.com/org/spec-kit-ext/archive/refs/ta
 - ✅ Extension tested on a real project
 - ✅ All commands working as documented
 
-## 安装扩展
-
-当扩展已经可用（无论是通过你的目录还是直接 URL）后，可以这样安装：
+## Installing Extensions
+Once extensions are available (either in your catalog or via direct URL), install them:
 
 ```bash
-# 从你的精选目录安装（按名称）
-specify extension search                  # 查看目录里有哪些扩展
-specify extension add <extension-name>    # 按名称安装
+# From your curated catalog (by name)
+specify extension search                  # See what's in your catalog
+specify extension add <extension-name>    # Install by name
 
-# 直接通过 URL 安装（绕过目录）
-specify extension add --from https://github.com/<org>/<repo>/archive/refs/tags/<version>.zip
+# Direct from URL (bypasses catalog)
+specify extension add <extension-name> --from https://github.com/<org>/<repo>/archive/refs/tags/<version>.zip
 
-# 查看已安装扩展
+# List installed extensions
 specify extension list
 ```
 
-更多说明请参考 [扩展用户指南](EXTENSION-USER-GUIDE.md)。
+For more information, see the [Extension User Guide](EXTENSION-USER-GUIDE.md).

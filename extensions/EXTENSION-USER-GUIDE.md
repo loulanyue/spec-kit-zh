@@ -1,178 +1,176 @@
-<!-- spec-kit-zh repo note: package `specify-cli-zh`, command `specify-zh`. -->
+# Extension User Guide
 
-# 扩展用户指南
+Complete guide for using Spec Kit extensions to enhance your workflow.
 
-本指南介绍如何使用 Spec Kit 扩展增强你的工作流。
+## Table of Contents
 
-## 目录
-
-1. [简介](#简介)
-2. [快速开始](#快速开始)
-3. [发现扩展](#发现扩展)
-4. [安装扩展](#安装扩展)
-5. [使用扩展](#使用扩展)
-6. [管理扩展](#管理扩展)
-7. [配置](#配置)
-8. [故障排除](#故障排除)
-9. [最佳实践](#最佳实践)
+1. [Introduction](#introduction)
+2. [Getting Started](#getting-started)
+3. [Finding Extensions](#finding-extensions)
+4. [Installing Extensions](#installing-extensions)
+5. [Using Extensions](#using-extensions)
+6. [Managing Extensions](#managing-extensions)
+7. [Configuration](#configuration)
+8. [Troubleshooting](#troubleshooting)
+9. [Best Practices](#best-practices)
 
 ---
 
-## 简介
+## Introduction
 
-### 什么是扩展？
+### What are Extensions?
 
-扩展是模块化软件包，用于在不膨胀 Spec Kit 核心框架的前提下添加新命令和新能力。它们可以让你：
+Extensions are modular packages that add new commands and functionality to Spec Kit without bloating the core framework. They allow you to:
 
-- **集成** 外部工具（Jira、Linear、GitHub 等）
-- **自动化** 重复性任务（通过 hooks）
-- **定制** 团队工作流
-- **复用与共享** 跨项目方案
+- **Integrate** with external tools (Jira, Linear, GitHub, etc.)
+- **Automate** repetitive tasks with hooks
+- **Customize** workflows for your team
+- **Share** solutions across projects
 
-### 为什么使用扩展？
+### Why Use Extensions?
 
-- **核心更干净**：让 spec-kit 保持轻量、聚焦
-- **能力可选**：只安装你真正需要的功能
-- **社区驱动**：任何人都可以创建并分享扩展
-- **独立版本化**：扩展有自己的版本演进节奏
+- **Clean Core**: Keeps spec-kit lightweight and focused
+- **Optional Features**: Only install what you need
+- **Community Driven**: Anyone can create and share extensions
+- **Version Controlled**: Extensions are versioned independently
 
 ---
 
-## 快速开始
+## Getting Started
 
-### 前置条件
+### Prerequisites
 
 - Spec Kit version 0.1.0 or higher
 - A spec-kit project (directory with `.specify/` folder)
 
-### 检查版本
+### Check Your Version
 
 ```bash
 specify version
-# 应显示 0.1.0 或更高版本
+# Should show 0.1.0 or higher
 ```
 
-### 第一个扩展
+### First Extension
 
-下面以安装 Jira 扩展为例：
+Let's install the Jira extension as an example:
 
 ```bash
-# 1. 搜索扩展
+# 1. Search for the extension
 specify extension search jira
 
-# 2. 查看详细信息
+# 2. Get detailed information
 specify extension info jira
 
-# 3. 安装扩展
+# 3. Install it
 specify extension add jira
 
-# 4. 配置扩展
+# 4. Configure it
 vim .specify/extensions/jira/jira-config.yml
 
-# 5. 使用扩展
-# （命令现在会出现在 Claude Code 中）
+# 5. Use it
+# (Commands are now available in Claude Code)
 /speckit.jira.specstoissues
 ```
 
 ---
 
-## 发现扩展
+## Finding Extensions
 
-`specify extension search` 会同时搜索**所有启用中的目录**，默认包括社区目录。结果会标出来源目录和安装状态。
+`specify extension search` searches **all active catalogs** simultaneously, including the community catalog by default. Results are annotated with their source catalog and install status.
 
-### 浏览全部扩展
+### Browse All Extensions
 
 ```bash
 specify extension search
 ```
 
-会显示所有启用目录中的扩展（默认包含默认目录和社区目录）。
+Shows all extensions across all active catalogs (default and community by default).
 
-### 按关键词搜索
+### Search by Keyword
 
 ```bash
-# 搜索 “jira”
+# Search for "jira"
 specify extension search jira
 
-# 搜索 “issue tracking”
+# Search for "issue tracking"
 specify extension search issue
 ```
 
-### 按标签筛选
+### Filter by Tag
 
 ```bash
-# 查找所有 issue-tracking 扩展
+# Find all issue-tracking extensions
 specify extension search --tag issue-tracking
 
-# 查找所有 Atlassian 工具扩展
+# Find all Atlassian tools
 specify extension search --tag atlassian
 ```
 
-### 按作者筛选
+### Filter by Author
 
 ```bash
-# 查找 Stats Perform 发布的扩展
+# Extensions by Stats Perform
 specify extension search --author "Stats Perform"
 ```
 
-### 仅显示已验证扩展
+### Show Verified Only
 
 ```bash
-# 仅显示已验证扩展
+# Only show verified extensions
 specify extension search --verified
 ```
 
-### 查看扩展详情
+### Get Extension Details
 
 ```bash
 # Detailed information
 specify extension info jira
 ```
 
-可查看：
+Shows:
 
-- 描述
-- 依赖要求
-- 提供的命令
-- 可用 hooks
-- 链接（文档、仓库、更新日志）
-- 安装状态
+- Description
+- Requirements
+- Commands provided
+- Hooks available
+- Links (documentation, repository, changelog)
+- Installation status
 
 ---
 
-## 安装扩展
+## Installing Extensions
 
-### 从目录安装
+### Install from Catalog
 
 ```bash
-# 按名称安装（来自目录）
+# By name (from catalog)
 specify extension add jira
 ```
 
-该命令会：
+This will:
 
-1. 从 GitHub 下载扩展
-2. 校验 manifest
-3. 检查与当前 spec-kit 版本的兼容性
-4. 安装到 `.specify/extensions/jira/`
-5. 向你的 AI agent 注册命令
-6. 创建配置模板
+1. Download the extension from GitHub
+2. Validate the manifest
+3. Check compatibility with your spec-kit version
+4. Install to `.specify/extensions/jira/`
+5. Register commands with your coding agent
+6. Create config template
 
-### 从 URL 安装
+### Install from URL
 
 ```bash
-# 从 GitHub Release 安装
-specify extension add --from https://github.com/org/spec-kit-ext/archive/refs/tags/v1.0.0.zip
+# From GitHub release
+specify extension add <extension-name> --from https://github.com/org/spec-kit-ext/archive/refs/tags/v1.0.0.zip
 ```
 
-### 从本地目录安装（开发场景）
+### Install from Local Directory (Development)
 
 ```bash
-# 用于测试或本地开发
+# For testing or development
 specify extension add --dev /path/to/extension
 ```
 
-### 安装输出示例
+### Installation Output
 
 ```text
 ✓ Extension installed successfully!
@@ -189,35 +187,50 @@ Provided commands:
    Check: .specify/extensions/jira/
 ```
 
----
+### Automatic Agent Skill Registration
 
-## 使用扩展
-
-### 使用扩展命令
-
-扩展会向你的 AI agent（例如 Claude Code）添加命令：
+If your project uses a skills-based integration (e.g., `--integration claude`, `--integration codex`) or was initialized with `--integration-options="--skills"`, extension commands are **automatically registered as agent skills** during installation. This ensures that extensions are discoverable by agents that use the [agentskills.io](https://agentskills.io) skill specification.
 
 ```text
-# 在 Claude Code 中
-> /speckit.jira.specstoissues
+✓ Extension installed successfully!
 
-# 或使用短别名（如果提供了）
-> /speckit.specstoissues
+Jira Integration (v1.0.0)
+  ...
+
+✓ 3 agent skill(s) auto-registered
 ```
 
-### 扩展配置
+When an extension is removed, its corresponding skills are also cleaned up automatically. Pre-existing skills that were manually customized are never overwritten.
 
-多数扩展都需要配置：
+---
+
+## Using Extensions
+
+### Using Extension Commands
+
+Extensions add commands that appear in your coding agent (Claude Code):
+
+```text
+# In Claude Code
+> /speckit.jira.specstoissues
+
+# Or use a namespaced alias (if provided)
+> /speckit.jira.sync
+```
+
+### Extension Configuration
+
+Most extensions require configuration:
 
 ```bash
-# 1. 找到配置文件
+# 1. Find the config file
 ls .specify/extensions/jira/
 
-# 2. 从模板复制配置文件
+# 2. Copy template to config
 cp .specify/extensions/jira/jira-config.template.yml \
    .specify/extensions/jira/jira-config.yml
 
-# 3. 编辑配置
+# 3. Edit configuration
 vim .specify/extensions/jira/jira-config.yml
 
 # 4. Use the extension
@@ -389,6 +402,11 @@ settings:
   auto_execute_hooks: true
 
 # Hook configuration
+# Available events: before_specify, after_specify, before_plan, after_plan,
+#                   before_tasks, after_tasks, before_implement, after_implement,
+#                   before_analyze, after_analyze, before_checklist, after_checklist,
+#                   before_clarify, after_clarify, before_constitution, after_constitution,
+#                   before_taskstoissues, after_taskstoissues
 hooks:
   after_tasks:
     - extension: jira
@@ -405,7 +423,7 @@ In addition to extension-specific environment variables (`SPECKIT_{EXT_ID}_*`), 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SPECKIT_CATALOG_URL`       | Override the full catalog stack with a single URL (backward compat) | Built-in default stack |
-| `GH_TOKEN` / `GITHUB_TOKEN` | GitHub API token for downloads     | None                  |
+| `GH_TOKEN` / `GITHUB_TOKEN` | GitHub token for authenticated requests to GitHub-hosted URLs (`raw.githubusercontent.com`, `github.com`, `api.github.com`, `codeload.github.com`). Required when your catalog JSON or extension ZIPs are hosted in a private GitHub repository. | None |
 
 #### Example: Using a custom catalog for testing
 
@@ -416,6 +434,21 @@ export SPECKIT_CATALOG_URL="http://localhost:8000/catalog.json"
 # Or use a staging catalog
 export SPECKIT_CATALOG_URL="https://example.com/staging/catalog.json"
 ```
+
+#### Example: Using a private GitHub-hosted catalog
+
+```bash
+# Authenticate with a token (gh CLI, PAT, or GITHUB_TOKEN in CI)
+export GITHUB_TOKEN=$(gh auth token)
+
+# Search a private catalog added via `specify extension catalog add`
+specify extension search jira
+
+# Install from a private catalog
+specify extension add jira-sync
+```
+
+The token is attached automatically to requests targeting GitHub domains. Non-GitHub catalog URLs are always fetched without credentials.
 
 ---
 
@@ -432,6 +465,26 @@ Spec Kit uses a **catalog stack** — an ordered list of catalogs searched simul
 
 ```bash
 specify extension catalog list
+```
+
+### Managing Catalogs via CLI
+
+You can view the main catalog management commands using `--help`:
+
+```text
+specify extension catalog --help
+
+ Usage: specify extension catalog [OPTIONS] COMMAND [ARGS]...
+
+ Manage extension catalogs
+╭─ Options ────────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                      │
+╰──────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────╮
+│ list     List all active extension catalogs.                                     │
+│ add      Add a catalog to .specify/extension-catalogs.yml.                       │
+│ remove   Remove a catalog from .specify/extension-catalogs.yml.                  │
+╰──────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ### Adding a Catalog (Project-scoped)
@@ -701,7 +754,7 @@ You can still install extensions not in your catalog using `--from`:
 specify extension add jira
 
 # Direct URL (bypasses catalog)
-specify extension add --from https://github.com/someone/spec-kit-ext/archive/v1.0.0.zip
+specify extension add <extension-name> --from https://github.com/someone/spec-kit-ext/archive/v1.0.0.zip
 
 # Local development
 specify extension add --dev /path/to/extension
@@ -742,12 +795,12 @@ specify extension add --dev /path/to/extension
 
 ### Command Not Available
 
-**Issue**: Extension command not appearing in AI agent
+**Issue**: Extension command not appearing in coding agent
 
 **Solutions**:
 
 1. Check extension is enabled: `specify extension list`
-2. Restart AI agent (Claude Code)
+2. Restart coding agent (Claude Code)
 3. Check command file exists:
 
    ```bash
@@ -771,7 +824,7 @@ specify extension add --dev /path/to/extension
 2. Install older version of extension:
 
    ```bash
-   specify extension add --from https://github.com/org/ext/archive/v1.0.0.zip
+   specify extension add <extension-name> --from https://github.com/org/ext/archive/v1.0.0.zip
    ```
 
 ### MCP Tool Not Available
@@ -781,8 +834,8 @@ specify extension add --dev /path/to/extension
 **Solutions**:
 
 1. Check MCP server is installed
-2. Check AI agent MCP configuration
-3. Restart AI agent
+2. Check coding agent MCP configuration
+3. Restart coding agent
 4. Check extension requirements: `specify extension info jira`
 
 ### Permission Denied
