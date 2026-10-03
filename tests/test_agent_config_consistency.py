@@ -32,6 +32,7 @@ README_AGENT_LABELS = {
     "vibe": "Mistral Vibe",
     "windsurf": "Windsurf",
     "agy": "Antigravity (agy)",
+    "trae": "Trae",
     "generic": "Generic",
 }
 

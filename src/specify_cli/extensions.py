@@ -746,6 +746,12 @@ class CommandRegistrar:
             "args": "$ARGUMENTS",
             "extension": ".md",
         },
+        "trae": {
+            "dir": ".trae/workflows",
+            "format": "markdown",
+            "args": "$ARGUMENTS",
+            "extension": ".md",
+        },
     }
 
     @staticmethod

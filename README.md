@@ -260,6 +260,7 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 | [Mistral Vibe](https://github.com/mistralai/mistral-vibe)                            | ✅      |                                                                                                                                           |
 | [Windsurf](https://windsurf.com/)                                                    | ✅      |                                                                                                                                           |
 | [Antigravity (agy)](https://antigravity.google/)                                     | ✅      |                                                                                                                                           |
+| [Trae](https://www.trae.ai/)                                                         | ✅      | 字节跳动出品 AI 原生 IDE，支持 `.trae/workflows`                                                                                          |
 | Generic                                                                              | ✅      | 自定义代理接入方式。对未内置支持的代理，可通过 `--ai generic --ai-commands-dir <path>` 注入命令模板                                       |
 
 > [!TIP]
@@ -278,7 +279,7 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 | ---- | ---- |
 | `init`  | 使用最新模板初始化一个新的 Specify 项目 |
 | `version` | 显示当前 CLI 版本与运行环境信息 |
-| `check` | 检查本机是否安装所需工具（如 `git`、`claude`、`gemini`、`cursor-agent`、`codex`、`kiro-cli`、`qodercli`、`vibe` 等） |
+| `check` | 检查本机是否安装所需工具（如 `git`、`claude`、`gemini`、`cursor-agent`、`codex`、`kiro-cli`、`qodercli`、`vibe`、`trae` 等） |
 | `codex-sync` | 重新同步 Codex prompts，并展示 Codex 中可直接执行的 `/prompts:speckit-*` 命令 |
 
 ### `specify-zh init` 参数与选项
@@ -286,9 +287,11 @@ specify-zh check     # 检测本机工具链（git、AI agent 等）
 | 参数/选项        | 类型     | 说明 |
 | ---------------- | -------- | ---- |
 | `<project-name>` | 参数     | 新项目目录名（使用 `--here` 时可省略，也可以用 `.` 表示当前目录） |
-| `--ai` | 选项 | 要接入的 AI 助手：`claude`、`gemini`、`copilot`、`cursor-agent`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（别名 `kiro`）、`agy`、`bob`、`qodercli`、`tabnine`、`vibe` 或 `generic` |
+| `--ai` | 选项 | 要接入的 AI 助手：`claude`、`gemini`、`copilot`、`cursor-agent`、`qwen`（别名 `lingma`）、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（别名 `kiro`）、`agy`、`bob`、`qodercli`、`tabnine`、`vibe`、`trae` 或 `generic`（别名 `kimi`） |
 | `--ai-commands-dir` | 选项 | 代理命令文件目录（与 `--ai generic` 配合使用，例如 `.myagent/commands/`） |
 | `--script` | 选项 | 使用脚本类型：`sh`（bash/zsh）或 `ps`（PowerShell） |
+| `--offline` | 标志 | 纯离线模式：跳过外部网络请求，直接使用内置模板秒级构建项目 |
+| `--mirror` | 选项 | 国内 GitHub 镜像加速源（如 `fastgit`, `ghproxy`, `cf` 或自定义代理 URL 前缀） |
 | `--ignore-agent-tools` | 标志 | 跳过对 Claude Code 等 AI 工具的检查 |
 | `--no-git` | 标志 | 跳过 git 仓库初始化 |
 | `--here` | 标志 | 直接在当前目录初始化，而不是新建目录 |
@@ -371,8 +374,79 @@ specify-zh init --here --ai codex --ai-skills
 # Generic 模式下接入已有命令目录并安装 skills
 specify-zh init my-project --ai generic --ai-commands-dir .myagent/commands/ --ai-skills
 
+# 纯离线模式初始化（内网/隔离环境，不发起外部网络请求）
+specify-zh init my-project --ai trae --offline
+
+# 国内网络加速镜像（支持 fastgit, ghproxy, cf 或自定义镜像 URL）
+specify-zh init my-project --ai trae --mirror fastgit
+
 # Check system requirements
 specify-zh check
+```
+
+### 自动化工作流 (SDD Workflows)
+
+`specify-cli-zh` 支持多步自动化工作流流水线，实现从需求定义到计划、拆解任务与代码落地的端到端编排：
+
+```bash
+# 查看所有可用工作流（包括内置与社区工作流）
+specify-zh workflow list --available
+
+# 查看工作流结构详情与步骤说明
+specify-zh workflow info speckit
+
+# 运行完整 SDD 周期工作流
+specify-zh workflow run speckit --input spec="构建用户鉴权模块" --auto-approve
+
+# 查看历史运行状态
+specify-zh workflow status
+
+# 恢复暂停或失败的工作流
+specify-zh workflow resume <RUN_ID>
+```
+
+### 完整命令域体系 (Complete Command Domains)
+
+`specify-cli-zh` 全面对齐规范驱动开发体系，提供完整生命周期的 8 大命令域：
+
+| 命令域 | 命令前缀 | 核心能力 |
+|--------|---------|---------|
+| **工作流** | `specify-zh workflow` | 管理与执行端到端 SDD 自动化流水线（支持 `list/info/run/status/resume`） |
+| **扩展** | `specify-zh extension` | 插件扩展生态管理（支持 `list/add/remove/search/info/update/enable/disable`） |
+| **预设** | `specify-zh preset` | 模板与指令重载包（支持多层优先级堆叠、组合策略、`resolve` 生效检查） |
+| **组合包** | `specify-zh bundle` | 扩展与工作流场景化套件（一键安装 `bugfix`、`assess` 等能力包） |
+| **AI 集成** | `specify-zh integration` | 30+ 款 AI 助手配置检测、一键切换与指令模板/技能刷新 |
+| **构件审计** | `specify-zh artifact` | 扫描、内省与体检项目中的 spec、plan、tasks、constitution 完成度 |
+| **事件钩子** | `specify-zh event` | 生命周期事件分发器（`pre-specify`、`post-implement` 等钩子触发与测试） |
+| **自管理** | `specify-zh self` | CLI 自身版本检测（`check`）与就地安全自升级（`upgrade`） |
+
+常用命令示例：
+
+```bash
+# 1. 预设管理 (Presets)
+specify-zh preset list --available
+specify-zh preset add lean --priority 5
+specify-zh preset resolve spec-template
+
+# 2. 场景化组合包 (Bundles)
+specify-zh bundle list --available
+specify-zh bundle install bugfix
+
+# 3. AI 助手集成 (Integrations)
+specify-zh integration list --all
+specify-zh integration switch trae
+
+# 4. 构件体检与审计 (Artifacts)
+specify-zh artifact list
+specify-zh artifact inspect
+
+# 5. 生命周期钩子 (Events)
+specify-zh event list
+specify-zh event run post-implement
+
+# 6. 工具在线自升级 (Self)
+specify-zh self check
+specify-zh self upgrade --dry-run
 ```
 
 ### 可用斜杠命令 (Available Slash Commands)

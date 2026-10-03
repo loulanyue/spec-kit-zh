@@ -6,8 +6,10 @@ Run with: pytest tests/test_smoke.py -v
 Or via: make smoke
 """
 
-import subprocess
 import re
+import shutil
+import subprocess
+import sys
 import tomllib
 from pathlib import Path
 
@@ -17,10 +19,21 @@ PROJECT_ROOT = Path(__file__).parent.parent
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]")
 
 
+def _get_specify_cmd() -> list[str]:
+    """Resolve specify-zh command from PATH, venv bin, or module fallback."""
+    found = shutil.which("specify-zh")
+    if found:
+        return [found]
+    venv_bin = Path(sys.executable).parent / "specify-zh"
+    if venv_bin.exists():
+        return [str(venv_bin)]
+    return [sys.executable, "-m", "specify_cli"]
+
+
 def _run(args: list[str], **kwargs) -> subprocess.CompletedProcess:
     """Run specify-zh CLI and return CompletedProcess."""
     return subprocess.run(
-        ["specify-zh"] + args,
+        _get_specify_cmd() + args,
         capture_output=True,
         text=True,
         **kwargs,
