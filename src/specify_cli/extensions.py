@@ -116,12 +116,14 @@ class ExtensionManifest:
     def _load_yaml(self, path: Path) -> dict:
         """Load YAML file safely."""
         try:
-            with open(path, "r") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         except yaml.YAMLError as e:
             raise ValidationError(f"{path} 中存在无效 YAML：{e}")
         except FileNotFoundError:
             raise ValidationError(f"未找到清单文件：{path}")
+        except (UnicodeDecodeError, OSError) as e:
+            raise ValidationError(f"无法读取清单文件 {path}：{e}")
 
     def _validate(self):
         """Validate manifest structure and required fields."""
@@ -240,17 +242,17 @@ class ExtensionRegistry:
             return {"schema_version": self.SCHEMA_VERSION, "extensions": {}}
 
         try:
-            with open(self.registry_path, "r") as f:
+            with open(self.registry_path, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
+        except (json.JSONDecodeError, FileNotFoundError, OSError):
             # Corrupted or missing registry, start fresh
             return {"schema_version": self.SCHEMA_VERSION, "extensions": {}}
 
     def _save(self):
         """Save registry to disk."""
         self.extensions_dir.mkdir(parents=True, exist_ok=True)
-        with open(self.registry_path, "w") as f:
-            json.dump(self.data, f, indent=2)
+        with open(self.registry_path, "w", encoding="utf-8") as f:
+            json.dump(self.data, f, indent=2, ensure_ascii=False)
 
     def add(self, extension_id: str, metadata: dict):
         """Add extension to registry.
